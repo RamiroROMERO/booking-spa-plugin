@@ -40,6 +40,18 @@ class Booking_Rest_Appointments_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/mine',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_mine' ),
+					'permission_callback' => array( $this, 'logged_in_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)',
 			array(
 				array(
@@ -59,6 +71,14 @@ class Booking_Rest_Appointments_Controller {
 	public function admin_permissions_check( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'booking_rest_forbidden', __( 'You are not allowed to perform this action.', 'booking-plugin' ), array( 'status' => 403 ) );
+		}
+
+		return true;
+	}
+
+	public function logged_in_permissions_check( $request ) {
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error( 'booking_rest_forbidden', __( 'You must be logged in to perform this action.', 'booking-plugin' ), array( 'status' => 403 ) );
 		}
 
 		return true;
@@ -126,6 +146,18 @@ class Booking_Rest_Appointments_Controller {
 		$response->header( 'X-WP-TotalPages', (int) ceil( $total / $per_page ) );
 
 		return $response;
+	}
+
+	public function get_mine( $request ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_appointments';
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE user_id = %d ORDER BY start_datetime DESC", get_current_user_id() )
+		);
+
+		return rest_ensure_response( array_map( array( $this, 'prepare_item' ), $rows ) );
 	}
 
 	public function get_item( $request ) {

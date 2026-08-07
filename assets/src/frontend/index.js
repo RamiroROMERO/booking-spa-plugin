@@ -2,6 +2,7 @@ import { createRoot } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 import App from './App';
+import ClientPanelApp from './client-panel/ClientPanelApp';
 import './style.scss';
 
 const settings = window.BookingPluginFrontend || {};
@@ -27,4 +28,14 @@ if ( settings.nonce ) {
 // el batching automatico de React 18 tambien en esos contextos asincronos.
 document.querySelectorAll( '.booking-plugin-widget-root' ).forEach( ( root ) => {
 	createRoot( root ).render( <App /> );
+} );
+
+// El shortcode [booking_client_panel] (SPEC 07) reutiliza este mismo bundle:
+// PHP ya resolvio el modo 'guest'/'member' (el modo 'login' no encola este
+// script, ver class-booking-plugin-client-panel-shortcode.php) y lo paso via
+// BookingPluginFrontend.mode / .guestContext, que ClientPanelApp lee por su
+// cuenta -- igual que App lee BookingPluginFrontend arriba, sin pasarselo por
+// props.
+document.querySelectorAll( '.booking-plugin-client-panel-root' ).forEach( ( root ) => {
+	createRoot( root ).render( <ClientPanelApp /> );
 } );

@@ -83,3 +83,18 @@ export function formatTimeInZone( isoUtc, timezone ) {
 		return new Intl.DateTimeFormat( undefined, options ).format( new Date( isoUtc ) );
 	}
 }
+
+// Misma logica que formatTimeInZone, para la fecha (SPEC 07: panel de
+// cliente). Formatear en la zona del cliente (no solo tomar el string UTC
+// crudo) evita mostrar el dia equivocado cerca de la medianoche.
+export function formatDateInZone( isoUtc, timezone ) {
+	const options = { dateStyle: 'long' };
+
+	try {
+		return new Intl.DateTimeFormat( undefined, { ...options, timeZone: timezone } ).format(
+			new Date( isoUtc )
+		);
+	} catch ( e ) {
+		return new Intl.DateTimeFormat( undefined, options ).format( new Date( isoUtc ) );
+	}
+}

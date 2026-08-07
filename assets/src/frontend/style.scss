@@ -323,3 +323,134 @@
 		}
 	}
 }
+
+.booking-plugin-client-panel {
+	max-width: 640px;
+	margin: 0 auto;
+	font-family: inherit;
+	line-height: 1.5;
+	box-sizing: border-box;
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: inherit;
+	}
+
+	&__error {
+		color: #b32d2e;
+	}
+
+	&__tabs {
+		display: flex;
+		gap: 4px;
+		margin-bottom: 16px;
+		border-bottom: 1px solid #dcdcde;
+	}
+
+	&__tab {
+		padding: 8px 14px;
+		border: none;
+		border-bottom: 2px solid transparent;
+		background: none;
+		cursor: pointer;
+		font-size: 14px;
+		color: #646970;
+
+		&.is-active {
+			color: #2271b1;
+			border-bottom-color: #2271b1;
+			font-weight: 600;
+		}
+	}
+
+	&__items {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	&__item {
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		padding: 12px 14px;
+		background: #fff;
+	}
+
+	&__item-summary {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+	}
+
+	&__item-notes {
+		margin: 8px 0 0;
+		font-size: 13px;
+		color: #646970;
+	}
+
+	&__status {
+		padding: 2px 10px;
+		border-radius: 999px;
+		background: #f0f0f1;
+		color: #646970;
+		font-size: 12px;
+		font-weight: 600;
+
+		&--confirmed {
+			background: #edfaef;
+			color: #00450c;
+		}
+
+		&--pending {
+			background: #fcf0e0;
+			color: #7a5b00;
+		}
+
+		&--cancelled,
+		&--no_show {
+			background: #fcf0f1;
+			color: #8a2424;
+		}
+	}
+
+	&__item-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+		margin-top: 10px;
+		font-size: 13px;
+	}
+
+	&__link {
+		background: none;
+		border: none;
+		color: #2271b1;
+		cursor: pointer;
+		padding: 0;
+		font-size: 13px;
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
+		&.is-destructive {
+			color: #b32d2e;
+		}
+	}
+
+	&__reschedule {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 24px;
+		margin-top: 12px;
+		padding-top: 12px;
+		border-top: 1px solid #f0f0f1;
+	}
+}
