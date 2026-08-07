@@ -14,6 +14,7 @@ class Booking_Plugin_Rest {
 			new Booking_Rest_Business_Hours_Controller(),
 			new Booking_Rest_Availability_Controller(),
 			new Booking_Rest_Appointments_Controller(),
+			new Booking_Rest_Email_Templates_Controller(),
 		);
 
 		foreach ( $controllers as $controller ) {
