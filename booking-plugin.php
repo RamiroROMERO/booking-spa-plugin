@@ -39,6 +39,7 @@ require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-appointments
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-rest.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-admin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-shortcode.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-client-panel-shortcode.php';
 
 register_activation_hook( __FILE__, array( 'Booking_Plugin_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Booking_Plugin_Deactivator', 'deactivate' ) );

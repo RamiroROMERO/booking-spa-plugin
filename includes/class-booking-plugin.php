@@ -21,5 +21,9 @@ class Booking_Plugin {
 		$shortcode = new Booking_Plugin_Shortcode();
 		$shortcode->register();
 		add_action( 'wp_enqueue_scripts', array( $shortcode, 'maybe_enqueue_assets' ) );
+
+		$client_panel_shortcode = new Booking_Plugin_Client_Panel_Shortcode();
+		$client_panel_shortcode->register();
+		add_action( 'wp_enqueue_scripts', array( $client_panel_shortcode, 'maybe_enqueue_assets' ) );
 	}
 }

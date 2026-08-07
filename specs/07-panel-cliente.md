@@ -1,6 +1,6 @@
 # SPEC 07 — Panel de Cliente
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 06
 > **Date:** 2026-08-07
 > **Objective:** Construir el panel de cliente (shortcode `[booking_client_panel]`) donde un usuario registrado ve, cancela y reprograma sus citas (próximas e historial), y donde un invitado con su `access_token` gestiona puntualmente la cita que reservó, reutilizando los componentes de fecha/hora de SPEC 06.
@@ -77,15 +77,15 @@ Convención de acceso invitado (ya definida en SPEC 03, reutilizada sin cambios)
 
 ## Acceptance criteria
 
-- [ ] `[booking_client_panel]` sin sesión y sin token en la URL muestra el formulario de login embebido, no un error ni una lista vacía.
-- [ ] `GET /appointments/mine` nunca devuelve citas de un usuario distinto al autenticado.
-- [ ] La pestaña "Próximas" muestra únicamente citas futuras con `status` `pending`/`confirmed`, cada una con botones Cancelar y Reprogramar.
-- [ ] La pestaña "Historial" muestra citas pasadas o con `status` `completed`/`no_show`/`cancelled`, sin acciones (solo lectura).
-- [ ] Cancelar una cita desde el panel cambia su `status` a `cancelled`; al refrescar, la cita aparece en "Historial" y ya no en "Próximas".
-- [ ] Reprogramar una cita reutiliza el calendario/lista de horarios de SPEC 06, mantiene el mismo servicio y staff, y actualiza `start_datetime` al confirmar.
-- [ ] Un enlace con `?token=&appointment=` válido muestra esa cita puntual con sus acciones, sin requerir sesión WP.
-- [ ] Un enlace con token inválido o de otra cita muestra un mensaje de error claro, sin exponer ningún dato de la cita.
-- [ ] Intentar cancelar o reprogramar dentro de la ventana `min_cancellation_hours` responde con el mensaje claro definido arriba, no un error genérico.
+- [x] `[booking_client_panel]` sin sesión y sin token en la URL muestra el formulario de login embebido, no un error ni una lista vacía.
+- [x] `GET /appointments/mine` nunca devuelve citas de un usuario distinto al autenticado.
+- [x] La pestaña "Próximas" muestra únicamente citas futuras con `status` `pending`/`confirmed`, cada una con botones Cancelar y Reprogramar.
+- [x] La pestaña "Historial" muestra citas pasadas o con `status` `completed`/`no_show`/`cancelled`, sin acciones (solo lectura).
+- [x] Cancelar una cita desde el panel cambia su `status` a `cancelled`; al refrescar, la cita aparece en "Historial" y ya no en "Próximas".
+- [x] Reprogramar una cita reutiliza el calendario/lista de horarios de SPEC 06, mantiene el mismo servicio y staff, y actualiza `start_datetime` al confirmar.
+- [x] Un enlace con `?token=&appointment=` válido muestra esa cita puntual con sus acciones, sin requerir sesión WP.
+- [x] Un enlace con token inválido o de otra cita muestra un mensaje de error claro, sin exponer ningún dato de la cita.
+- [x] Intentar cancelar o reprogramar dentro de la ventana `min_cancellation_hours` responde con el mensaje claro definido arriba, no un error genérico.
 
 ---
 
