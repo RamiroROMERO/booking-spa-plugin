@@ -100,12 +100,14 @@ class Booking_Plugin_DB_Schema {
 			end_datetime DATETIME NOT NULL,
 			status VARCHAR(20) NOT NULL DEFAULT 'pending',
 			notes TEXT NULL,
+			access_token VARCHAR(64) NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			KEY staff_start (staff_id, start_datetime),
 			KEY service_id (service_id),
 			KEY user_id (user_id),
-			KEY status (status)
+			KEY status (status),
+			UNIQUE KEY access_token (access_token)
 		) $charset_collate;";
 
 		return $sql;

@@ -1,6 +1,6 @@
 # SPEC 03 — API REST: Disponibilidad y Reservas
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-08-07
 > **Objective:** Exponer vía API REST (`booking-plugin/v1`) el motor de reservas completo —disponibilidad, creación y gestión de citas con protección real contra colisiones y autogestión de invitados por token— sobre el modelo de datos de SPEC 01 y los servicios/staff de SPEC 02.
@@ -137,19 +137,19 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] `GET /availability` no devuelve slots fuera del horario de `business_hours` para el día de la semana consultado.
-- [ ] `GET /availability` no devuelve slots fuera del horario del staff, durante su `break_start`/`break_end`, ni en fechas marcadas `is_day_off` en `staff_exceptions`.
-- [ ] `GET /availability` no devuelve un slot que se superponga con una cita existente no cancelada de ese staff, incluyendo el `buffer_minutes` posterior de esa cita.
-- [ ] `GET /availability` no devuelve slots con antelación menor a `min_lead_time_hours` ni más allá de `max_advance_days` (valores leídos de `/settings`).
-- [ ] `POST /appointments` sin `staff_id` asigna automáticamente el primer staff (por id) que puede realizar el servicio y tiene el slot libre.
-- [ ] Dos `POST /appointments` concurrentes para el mismo `service_id`+`staff_id`+`start_datetime` exacto: exactamente uno responde `201` y el otro `409 Conflict`.
-- [ ] La respuesta de `POST /appointments` incluye `access_token`, capaz de autenticar `GET`/`PATCH` sobre esa cita sin sesión WP.
-- [ ] `PATCH /appointments/{id}?token=...` con el token correcto permite cancelar o reprogramar la cita de un invitado; con un token incorrecto responde `403`.
-- [ ] `PATCH /appointments/{id}` para cancelar/reprogramar responde `409` si faltan menos de `min_cancellation_hours` (desde `/settings`) para la cita, salvo que la petición venga de un usuario `manage_options`.
-- [ ] `PATCH /appointments/{id}` con `status=confirmed|completed|no_show` solo lo puede hacer un usuario con `manage_options`; el dueño o el token de invitado reciben `403` si lo intentan.
-- [ ] `GET /appointments` (listado) requiere `manage_options` y admite filtros `date_from`, `date_to`, `staff_id`, `status`.
-- [ ] `PUT /business-hours` reemplaza correctamente las 7 filas de `wp_booking_business_hours`.
-- [ ] `PUT /settings` persiste los valores en `booking_plugin_settings`, y una llamada posterior a `GET /availability` o `PATCH` de cancelación refleja los nuevos valores inmediatamente (sin necesidad de reactivar el plugin).
+- [x] `GET /availability` no devuelve slots fuera del horario de `business_hours` para el día de la semana consultado.
+- [x] `GET /availability` no devuelve slots fuera del horario del staff, durante su `break_start`/`break_end`, ni en fechas marcadas `is_day_off` en `staff_exceptions`.
+- [x] `GET /availability` no devuelve un slot que se superponga con una cita existente no cancelada de ese staff, incluyendo el `buffer_minutes` posterior de esa cita.
+- [x] `GET /availability` no devuelve slots con antelación menor a `min_lead_time_hours` ni más allá de `max_advance_days` (valores leídos de `/settings`).
+- [x] `POST /appointments` sin `staff_id` asigna automáticamente el primer staff (por id) que puede realizar el servicio y tiene el slot libre.
+- [x] Dos `POST /appointments` concurrentes para el mismo `service_id`+`staff_id`+`start_datetime` exacto: exactamente uno responde `201` y el otro `409 Conflict`.
+- [x] La respuesta de `POST /appointments` incluye `access_token`, capaz de autenticar `GET`/`PATCH` sobre esa cita sin sesión WP.
+- [x] `PATCH /appointments/{id}?token=...` con el token correcto permite cancelar o reprogramar la cita de un invitado; con un token incorrecto responde `403`.
+- [x] `PATCH /appointments/{id}` para cancelar/reprogramar responde `409` si faltan menos de `min_cancellation_hours` (desde `/settings`) para la cita, salvo que la petición venga de un usuario `manage_options`.
+- [x] `PATCH /appointments/{id}` con `status=confirmed|completed|no_show` solo lo puede hacer un usuario con `manage_options`; el dueño o el token de invitado reciben `403` si lo intentan.
+- [x] `GET /appointments` (listado) requiere `manage_options` y admite filtros `date_from`, `date_to`, `staff_id`, `status`.
+- [x] `PUT /business-hours` reemplaza correctamente las 7 filas de `wp_booking_business_hours`.
+- [x] `PUT /settings` persiste los valores en `booking_plugin_settings`, y una llamada posterior a `GET /availability` o `PATCH` de cancelación refleja los nuevos valores inmediatamente (sin necesidad de reactivar el plugin).
 
 ---
 
