@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Booking_Plugin_Deactivator {
 
 	public static function deactivate() {
+		Booking_Plugin_Reminder_Cron::unschedule();
+
 		flush_rewrite_rules();
 	}
 }

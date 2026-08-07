@@ -1,6 +1,6 @@
 # SPEC 08 — Notificaciones: Motor de Envío y API de Plantillas
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 03, SPEC 04
 > **Date:** 2026-08-07
 > **Objective:** Construir el motor de notificaciones por email (confirmación inmediata, recordatorio 24h vía barrido de WP-Cron, y avisos de cancelación) para cliente y negocio, disparado por action hooks sobre los cambios de estado de citas de SPEC 03/04, con plantillas almacenadas y expuestas vía API para que SPEC 09 las edite.

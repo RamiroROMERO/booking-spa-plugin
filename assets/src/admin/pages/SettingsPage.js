@@ -18,6 +18,7 @@ export default function SettingsPage() {
 	const [ maxAdvanceDays, setMaxAdvanceDays ] = useState( '0' );
 	const [ minCancellationHours, setMinCancellationHours ] = useState( '0' );
 	const [ slotIntervalMinutes, setSlotIntervalMinutes ] = useState( '15' );
+	const [ notificationEmail, setNotificationEmail ] = useState( '' );
 	const [ isSavingHours, setIsSavingHours ] = useState( false );
 	const [ isSavingSettings, setIsSavingSettings ] = useState( false );
 	const [ hoursError, setHoursError ] = useState( null );
@@ -36,6 +37,7 @@ export default function SettingsPage() {
 				setMaxAdvanceDays( String( settings.max_advance_days ) );
 				setMinCancellationHours( String( settings.min_cancellation_hours ) );
 				setSlotIntervalMinutes( String( settings.slot_interval_minutes ) );
+				setNotificationEmail( settings.notification_email || '' );
 			} )
 			.catch( ( err ) => setLoadError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
@@ -72,6 +74,7 @@ export default function SettingsPage() {
 				max_advance_days: parseInt( maxAdvanceDays, 10 ) || 0,
 				min_cancellation_hours: parseInt( minCancellationHours, 10 ) || 0,
 				slot_interval_minutes: parseInt( slotIntervalMinutes, 10 ) || 15,
+				notification_email: notificationEmail,
 			},
 		} )
 			.then( ( result ) => {
@@ -79,6 +82,7 @@ export default function SettingsPage() {
 				setMaxAdvanceDays( String( result.max_advance_days ) );
 				setMinCancellationHours( String( result.min_cancellation_hours ) );
 				setSlotIntervalMinutes( String( result.slot_interval_minutes ) );
+				setNotificationEmail( result.notification_email || '' );
 				setSettingsSaved( true );
 			} )
 			.catch( ( err ) => setSettingsError( getApiErrorMessage( err ) ) )
@@ -165,6 +169,12 @@ export default function SettingsPage() {
 				min="1"
 				value={ slotIntervalMinutes }
 				onChange={ setSlotIntervalMinutes }
+			/>
+			<TextControl
+				label={ __( 'Email de notificaciones del negocio', 'booking-plugin' ) }
+				type="email"
+				value={ notificationEmail }
+				onChange={ setNotificationEmail }
 			/>
 
 			<Button variant="primary" disabled={ isSavingSettings } onClick={ handleSaveSettings }>

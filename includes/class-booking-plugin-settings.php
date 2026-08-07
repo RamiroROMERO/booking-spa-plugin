@@ -13,6 +13,7 @@ class Booking_Plugin_Settings {
 			'max_advance_days'       => 60,
 			'min_cancellation_hours' => 2,
 			'slot_interval_minutes'  => 15,
+			'notification_email'     => get_option( 'admin_email' ),
 		);
 	}
 
@@ -30,11 +31,18 @@ class Booking_Plugin_Settings {
 		$current = self::get_settings();
 		$merged  = wp_parse_args( $settings, $current );
 
+		$notification_email = sanitize_email( $merged['notification_email'] );
+
+		if ( '' === $notification_email || ! is_email( $notification_email ) ) {
+			$notification_email = get_option( 'admin_email' );
+		}
+
 		$sanitized = array(
 			'min_lead_time_hours'    => max( 0, (int) $merged['min_lead_time_hours'] ),
 			'max_advance_days'       => max( 0, (int) $merged['max_advance_days'] ),
 			'min_cancellation_hours' => max( 0, (int) $merged['min_cancellation_hours'] ),
 			'slot_interval_minutes'  => max( 1, (int) $merged['slot_interval_minutes'] ),
+			'notification_email'     => $notification_email,
 		);
 
 		update_option( self::OPTION_NAME, $sanitized );

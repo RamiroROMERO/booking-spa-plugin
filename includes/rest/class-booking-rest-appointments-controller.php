@@ -252,6 +252,8 @@ class Booking_Rest_Appointments_Controller {
 			if ( $result ) {
 				$row = $this->get_row( $result );
 
+				do_action( 'booking_plugin_appointment_created', $row );
+
 				$response = rest_ensure_response(
 					array(
 						'id'             => (int) $row->id,
@@ -387,7 +389,8 @@ class Booking_Rest_Appointments_Controller {
 			return new WP_Error( 'booking_rest_forbidden', __( 'You are not allowed to modify this appointment.', 'booking-plugin' ), array( 'status' => 403 ) );
 		}
 
-		$is_admin = ( 'admin' === $access );
+		$is_admin        = ( 'admin' === $access );
+		$previous_status = $row->status;
 
 		$status    = $request->get_param( 'status' );
 		$new_start = $request->get_param( 'start_datetime' );
@@ -462,6 +465,10 @@ class Booking_Rest_Appointments_Controller {
 		}
 
 		$row = $this->get_row( (int) $row->id );
+
+		if ( 'cancelled' === $row->status && ! in_array( $previous_status, array( 'cancelled', 'blocked' ), true ) ) {
+			do_action( 'booking_plugin_appointment_cancelled', $row );
+		}
 
 		return rest_ensure_response( $this->prepare_item( $row ) );
 	}

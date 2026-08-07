@@ -101,6 +101,7 @@ class Booking_Plugin_DB_Schema {
 			status VARCHAR(20) NOT NULL DEFAULT 'pending',
 			notes TEXT NULL,
 			access_token VARCHAR(64) NULL,
+			reminder_sent_at DATETIME NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			KEY staff_start (staff_id, start_datetime),
