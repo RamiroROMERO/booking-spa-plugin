@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Modal, Button, SelectControl, TextControl, Notice } from '@wordpress/components';
 
 import { getLocalDate, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
+import { getApiErrorMessage } from './utils/apiError';
 
 export default function BlockModal( { block, staff, defaultDate, onClose, onSaved } ) {
 	const isEditing = Boolean( block );
@@ -40,7 +41,7 @@ export default function BlockModal( { block, staff, defaultDate, onClose, onSave
 				onSaved();
 				onClose();
 			} )
-			.catch( ( err ) => setError( err.message || String( err ) ) )
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsSaving( false ) );
 	};
 
@@ -57,7 +58,7 @@ export default function BlockModal( { block, staff, defaultDate, onClose, onSave
 				onSaved();
 				onClose();
 			} )
-			.catch( ( err ) => setError( err.message || String( err ) ) )
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsSaving( false ) );
 	};
 

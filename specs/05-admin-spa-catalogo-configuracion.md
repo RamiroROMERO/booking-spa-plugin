@@ -1,6 +1,6 @@
 # SPEC 05 — Admin SPA: Catálogo (Servicios/Staff) y Configuración
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04
 > **Date:** 2026-08-07
 > **Objective:** Construir en el admin de WP (submenús "Servicios", "Staff" y "Configuración" bajo "Reservas", reutilizando la infraestructura del SPA de SPEC 04) los formularios CRUD de categorías, servicios, staff —con su horario semanal y excepciones— y la configuración general del negocio, consumiendo la API de SPEC 02 y SPEC 03.
@@ -76,17 +76,17 @@ Convención: el componente `WeeklyScheduleEditor` (7 filas fijas, día/toggle/ho
 
 ## Acceptance criteria
 
-- [ ] El menú "Reservas" muestra 4 entradas: Calendario, Servicios, Staff, Configuración.
-- [ ] Reservas > Servicios lista los servicios existentes con nombre, categoría, precio, duración y estado.
-- [ ] Crear una categoría nueva desde Reservas > Servicios la deja disponible de inmediato en el selector de categoría del formulario de servicio, sin recargar la página.
-- [ ] Intentar borrar una categoría con servicios asociados muestra el error de la API de forma legible, no un mensaje genérico ni una pantalla en blanco.
-- [ ] Crear un servicio con `duration_minutes` vacío o `0` muestra un error de validación antes o al llamar a la API.
-- [ ] "Desactivar" un servicio activo lo saca del listado por defecto (solo activos) pero sigue visible con el filtro "mostrar inactivos".
-- [ ] Reservas > Staff permite crear un staff con nombre/email/teléfono, marcar qué servicios puede realizar, definir su horario semanal completo y agregar al menos una excepción, guardando todo en un solo submit.
-- [ ] Editar el horario semanal de un staff, guardar, y volver a abrir su formulario muestra los datos recién guardados (no los anteriores).
-- [ ] Reservas > Configuración permite editar el horario del negocio (7 días) y guardar sin errores.
-- [ ] Cambiar `min_cancellation_hours` (u otra ventana) en Reservas > Configuración y guardarlo se refleja en una llamada posterior a `GET /settings`.
-- [ ] Las 3 páginas nuevas requieren `manage_options` para ser visibles en el menú de WP.
+- [x] El menú "Reservas" muestra 4 entradas: Calendario, Servicios, Staff, Configuración.
+- [x] Reservas > Servicios lista los servicios existentes con nombre, categoría, precio, duración y estado.
+- [x] Crear una categoría nueva desde Reservas > Servicios la deja disponible de inmediato en el selector de categoría del formulario de servicio, sin recargar la página.
+- [x] Intentar borrar una categoría con servicios asociados muestra el error de la API de forma legible, no un mensaje genérico ni una pantalla en blanco.
+- [x] Crear un servicio con `duration_minutes` vacío o `0` muestra un error de validación antes o al llamar a la API.
+- [x] "Desactivar" un servicio activo lo saca del listado por defecto (solo activos) pero sigue visible con el filtro "mostrar inactivos".
+- [x] Reservas > Staff permite crear un staff con nombre/email/teléfono, marcar qué servicios puede realizar, definir su horario semanal completo y agregar al menos una excepción, guardando todo en un solo submit.
+- [x] Editar el horario semanal de un staff, guardar, y volver a abrir su formulario muestra los datos recién guardados (no los anteriores).
+- [x] Reservas > Configuración permite editar el horario del negocio (7 días) y guardar sin errores.
+- [x] Cambiar `min_cancellation_hours` (u otra ventana) en Reservas > Configuración y guardarlo se refleja en una llamada posterior a `GET /settings`.
+- [x] Las 3 páginas nuevas requieren `manage_options` para ser visibles en el menú de WP.
 
 ---
 

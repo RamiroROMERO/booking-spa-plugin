@@ -1,7 +1,10 @@
 import { render } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
-import App from './App';
+import CalendarPage from './pages/CalendarPage';
+import ServicesPage from './pages/ServicesPage';
+import StaffPage from './pages/StaffPage';
+import SettingsPage from './pages/SettingsPage';
 import './style.scss';
 
 const settings = window.BookingPluginAdmin || {};
@@ -15,8 +18,17 @@ const settings = window.BookingPluginAdmin || {};
 // contra el root por defecto de WP.
 apiFetch.use( apiFetch.createNonceMiddleware( settings.nonce ) );
 
+const PAGES_BY_SECTION = {
+	calendar: CalendarPage,
+	services: ServicesPage,
+	staff: StaffPage,
+	settings: SettingsPage,
+};
+
 const root = document.getElementById( 'booking-plugin-admin-root' );
 
 if ( root ) {
-	render( <App />, root );
+	const Page = PAGES_BY_SECTION[ settings.section ] || CalendarPage;
+
+	render( <Page />, root );
 }

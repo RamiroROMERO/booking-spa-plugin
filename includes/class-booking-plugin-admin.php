@@ -5,16 +5,57 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Booking_Plugin_Admin {
 
-	protected $hook_suffix;
+	const SLUG_CALENDAR = 'booking-plugin';
+	const SLUG_SERVICES = 'booking-plugin-services';
+	const SLUG_STAFF    = 'booking-plugin-staff';
+	const SLUG_SETTINGS = 'booking-plugin-settings';
+
+	protected $hook_suffixes = array();
 
 	public function register_menu() {
-		$this->hook_suffix = add_menu_page(
+		add_menu_page(
 			__( 'Reservas', 'booking-plugin' ),
 			__( 'Reservas', 'booking-plugin' ),
 			'manage_options',
-			'booking-plugin',
+			self::SLUG_CALENDAR,
 			array( $this, 'render_page' ),
 			'dashicons-calendar-alt'
+		);
+
+		$this->hook_suffixes[ self::SLUG_CALENDAR ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Calendario', 'booking-plugin' ),
+			__( 'Calendario', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_CALENDAR,
+			array( $this, 'render_page' )
+		);
+
+		$this->hook_suffixes[ self::SLUG_SERVICES ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Servicios', 'booking-plugin' ),
+			__( 'Servicios', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_SERVICES,
+			array( $this, 'render_page' )
+		);
+
+		$this->hook_suffixes[ self::SLUG_STAFF ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Staff', 'booking-plugin' ),
+			__( 'Staff', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_STAFF,
+			array( $this, 'render_page' )
+		);
+
+		$this->hook_suffixes[ self::SLUG_SETTINGS ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Configuración', 'booking-plugin' ),
+			__( 'Configuración', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_SETTINGS,
+			array( $this, 'render_page' )
 		);
 	}
 
@@ -23,7 +64,9 @@ class Booking_Plugin_Admin {
 	}
 
 	public function enqueue_assets( $hook ) {
-		if ( $hook !== $this->hook_suffix ) {
+		$slug = array_search( $hook, $this->hook_suffixes, true );
+
+		if ( false === $slug ) {
 			return;
 		}
 
@@ -55,6 +98,13 @@ class Booking_Plugin_Admin {
 			wp_style_add_data( 'booking-plugin-admin', 'rtl', 'replace' );
 		}
 
+		$sections = array(
+			self::SLUG_CALENDAR => 'calendar',
+			self::SLUG_SERVICES => 'services',
+			self::SLUG_STAFF    => 'staff',
+			self::SLUG_SETTINGS => 'settings',
+		);
+
 		wp_localize_script(
 			'booking-plugin-admin',
 			'BookingPluginAdmin',
@@ -62,6 +112,7 @@ class Booking_Plugin_Admin {
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'apiUrl'   => esc_url_raw( rest_url( 'booking-plugin/v1' ) ),
 				'timezone' => wp_timezone_string(),
+				'section'  => $sections[ $slug ],
 			)
 		);
 	}
