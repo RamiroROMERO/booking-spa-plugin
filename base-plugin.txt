@@ -1,0 +1,57 @@
+Funciones Básicas del Plugin
+Para que el plugin sea funcional y competitivo, debes dividir las características en dos áreas: la experiencia del cliente (frontend) y la administración del negocio (backend).
+
+1. Experiencia del Cliente (Frontend)
+Flujo de reserva paso a paso: Un asistente (wizard) donde el cliente selecciona: Servicio -> Profesional (opcional) -> Fecha y Hora -> Datos Personales -> Pago/Confirmación.
+
+Filtros visuales: Capacidad de agrupar servicios por categorías (ej. Cabello, Uñas, Masajes).
+
+Zonas horarias: Detección automática de la zona horaria del cliente (útil si atienden turistas o consultas online).
+
+Panel de cliente: Una vista donde los usuarios registrados puedan ver, cancelar o reprogramar sus próximas citas.
+
+2. Administración y Gestión (Backend)
+Gestión de Servicios: Configuración de precio, duración exacta y tiempo de buffer (crucial en spas para limpiar la cabina o preparar herramientas entre clientes).
+
+Gestión de Personal (Staff): Perfiles individuales con horarios de trabajo, días libres, pausas para comer y vinculación de qué servicios específicos puede realizar cada profesional.
+
+Calendario Centralizado: Una vista interactiva (diaria, semanal, mensual) para que los recepcionistas vean la ocupación de todo el equipo, bloqueen horas manualmente y gestionen el estado de las citas (Pendiente, Confirmada, Completada, No asistió).
+
+Notificaciones automatizadas: Envío de correos de confirmación, recordatorios 24h antes (para reducir el ausentismo) y avisos de cancelación.
+
+Roadmap de Desarrollo
+Desarrollar para WordPress no significa que debas limitarte a PHP tradicional. Para un sistema interactivo como este, puedes construir el backend en PHP y exponer todo a través de la WP REST API para consumir los datos desde interfaces modernas.
+
+Arquitectura y Base de Datos
+
+Define cómo almacenarás la información. Aunque WordPress utiliza Custom Post Types (CPTs) y postmeta para casi todo, para un sistema de reservas relacional (Cita -> Cliente, Servicio, Staff), crear tablas personalizadas en MySQL al activar el plugin mejorará drásticamente el rendimiento de las consultas y evitará cuellos de botella en la tabla wp_postmeta.
+
+Diseña el diagrama de la base de datos (tablas para appointments, services, staff, staff_services, etc.).
+
+Desarrollo del Core (PHP + WP REST API)
+
+Crea la estructura base del plugin, los hooks de activación (para crear las tablas) y de desactivación.
+
+Desarrolla los endpoints de la API REST de WordPress. Necesitarás rutas seguras para CRUD de servicios/staff y rutas públicas para consultar disponibilidad y crear nuevas reservas.
+
+Implementa la lógica central: el algoritmo que calcula los espacios de tiempo disponibles cruzando el horario del local, el horario del profesional, la duración del servicio y el tiempo de buffer.
+
+Construcción de las Interfaces (Admin y Frontend)
+
+Panel de Administración: En lugar de recargar páginas en el admin de WP, puedes montar una Single Page Application (SPA) usando React. Puedes encolar los scripts de React en una página de menú de WordPress y usar librerías de componentes (como Material UI o Tailwind) para crear un calendario interactivo y formularios fluidos.
+
+Widget de Reserva: Crea un Shortcode o un bloque nativo de Gutenberg que inyecte tu aplicación frontend para que el cliente haga la reserva sin recargar la página.
+
+Integración de Pagos y Correos
+
+Conecta la función wp_mail() para disparar las plantillas de correo electrónico en los cambios de estado de la cita.
+
+Para los pagos, la ruta más rápida es crear una integración con WooCommerce (haciendo que cada cita genere un pedido en "Espera"). Si quieres un plugin independiente, deberás integrar los SDKs de Stripe o PayPal directamente.
+
+Pruebas de Casos Extremos
+
+Simula colisiones de reservas (dos personas intentando reservar la misma hora exacta).
+
+Prueba los límites de los tiempos de buffer y las pausas del personal.
+
+Verifica la correcta carga de scripts en servidores web (como Apache) asegurando que las reglas de reescritura de la API REST funcionen bien.

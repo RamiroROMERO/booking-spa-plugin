@@ -1,0 +1,16 @@
+{
+  "name": "booking-plugin",
+  "version": "0.1.0",
+  "description": "Booking functionality for WordPress.",
+  "private": true,
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "format": "wp-scripts format",
+    "lint:js": "wp-scripts lint-js",
+    "lint:css": "wp-scripts lint-style"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0"
+  }
+}
