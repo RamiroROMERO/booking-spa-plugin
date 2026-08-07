@@ -17,5 +17,9 @@ class Booking_Plugin {
 		$admin = new Booking_Plugin_Admin();
 		add_action( 'admin_menu', array( $admin, 'register_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_assets' ) );
+
+		$shortcode = new Booking_Plugin_Shortcode();
+		$shortcode->register();
+		add_action( 'wp_enqueue_scripts', array( $shortcode, 'maybe_enqueue_assets' ) );
 	}
 }
