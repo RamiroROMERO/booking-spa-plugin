@@ -1,6 +1,6 @@
 # SPEC 01 — Core y Arquitectura de Datos
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** —
 > **Date:** 2026-08-07
 > **Objective:** Sentar la base ejecutable del plugin (hooks de activación/desactivación) y el modelo de datos relacional (tablas personalizadas) para categorías, servicios, staff, horarios y citas, sobre el que se construirán todas las specs siguientes.
@@ -167,12 +167,12 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] Al activar el plugin en WordPress, existen las 8 tablas `wp_booking_*` descritas en el modelo de datos, con las columnas e índices especificados.
-- [ ] La opción `booking_plugin_db_version` en `wp_options` queda establecida tras la activación.
-- [ ] Al desactivar el plugin, las 8 tablas y sus datos siguen existiendo en la base de datos.
-- [ ] Reactivar el plugin varias veces seguidas no produce errores de SQL ni tablas/columnas duplicadas.
-- [ ] No existe `uninstall.php` en el plugin (comportamiento por defecto de WordPress conserva los datos al desinstalar).
-- [ ] El plugin se activa sin errores fatales ni warnings de PHP en un WP 5.8+/PHP 7.4+ limpio, sin necesidad de ningún endpoint REST ni pantalla de administración todavía.
+- [x] Al activar el plugin en WordPress, existen las 8 tablas `wp_booking_*` descritas en el modelo de datos, con las columnas e índices especificados.
+- [x] La opción `booking_plugin_db_version` en `wp_options` queda establecida tras la activación.
+- [x] Al desactivar el plugin, las 8 tablas y sus datos siguen existiendo en la base de datos.
+- [x] Reactivar el plugin varias veces seguidas no produce errores de SQL ni tablas/columnas duplicadas.
+- [x] No existe `uninstall.php` en el plugin (comportamiento por defecto de WordPress conserva los datos al desinstalar).
+- [x] El plugin se activa sin errores fatales ni warnings de PHP en un WP 5.8+/PHP 7.4+ limpio, sin necesidad de ningún endpoint REST ni pantalla de administración todavía.
 
 ---
 
