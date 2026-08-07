@@ -1,6 +1,6 @@
 # SPEC 06 — Widget de Reserva (Frontend)
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03
 > **Date:** 2026-08-07
 > **Objective:** Construir el widget público de reserva (shortcode `[booking_widget]`) con un wizard de 5 pasos (Servicio → Profesional opcional → Fecha/Hora → Datos personales → Confirmación), filtros por categoría y detección automática de la zona horaria del cliente, consumiendo la API pública de SPEC 02 y SPEC 03.
@@ -90,18 +90,18 @@ Internamente reutiliza `Booking_Plugin_Availability::get_available_slots()` día
 
 ## Acceptance criteria
 
-- [ ] `[booking_widget]` insertado en cualquier página/entrada muestra el wizard sin errores de consola ni de PHP.
-- [ ] El paso Servicio permite filtrar por categoría y elegir un servicio; el precio y duración mostrados coinciden con los datos de SPEC 02.
-- [ ] El paso Profesional muestra solo el staff vinculado a ese servicio (`staff_services`, SPEC 01/02), más la opción "cualquier profesional disponible".
-- [ ] El calendario visual resalta únicamente los días con al menos un hueco libre real para el servicio/profesional elegidos.
-- [ ] Las horas mostradas en la lista de horarios corresponden a la zona horaria detectada del navegador, no a UTC crudo.
-- [ ] Usar el botón "Atrás" para cambiar el servicio elegido limpia la selección de profesional, fecha y hora ya hechas.
-- [ ] Con una sesión WP activa, el paso de Datos personales no pide nombre/email/teléfono y muestra un resumen con los datos de la cuenta.
-- [ ] Sin sesión, el paso de Datos personales exige nombre, email y teléfono antes de avanzar.
-- [ ] Confirmar la reserva crea una cita visible en `GET /appointments` (SPEC 03) con `status='pending'`.
-- [ ] La pantalla de éxito muestra un `access_token` visible/copiable.
-- [ ] Si el slot elegido se ocupa entre la selección y la confirmación (`409`), el widget muestra un mensaje claro y vuelve al paso de fecha/hora con los horarios de ese día recargados, sin perder el servicio/profesional ya elegidos.
-- [ ] El CSS del tema activo del sitio no rompe visualmente el widget en una instalación de WordPress con el tema por defecto (Twenty Twenty-Four o similar).
+- [x] `[booking_widget]` insertado en cualquier página/entrada muestra el wizard sin errores de consola ni de PHP.
+- [x] El paso Servicio permite filtrar por categoría y elegir un servicio; el precio y duración mostrados coinciden con los datos de SPEC 02.
+- [x] El paso Profesional muestra solo el staff vinculado a ese servicio (`staff_services`, SPEC 01/02), más la opción "cualquier profesional disponible".
+- [x] El calendario visual resalta únicamente los días con al menos un hueco libre real para el servicio/profesional elegidos.
+- [x] Las horas mostradas en la lista de horarios corresponden a la zona horaria detectada del navegador, no a UTC crudo.
+- [x] Usar el botón "Atrás" para cambiar el servicio elegido limpia la selección de profesional, fecha y hora ya hechas.
+- [x] Con una sesión WP activa, el paso de Datos personales no pide nombre/email/teléfono y muestra un resumen con los datos de la cuenta.
+- [x] Sin sesión, el paso de Datos personales exige nombre, email y teléfono antes de avanzar.
+- [x] Confirmar la reserva crea una cita visible en `GET /appointments` (SPEC 03) con `status='pending'`.
+- [x] La pantalla de éxito muestra un `access_token` visible/copiable.
+- [x] Si el slot elegido se ocupa entre la selección y la confirmación (`409`), el widget muestra un mensaje claro y vuelve al paso de fecha/hora con los horarios de ese día recargados, sin perder el servicio/profesional ya elegidos.
+- [x] El CSS del tema activo del sitio no rompe visualmente el widget en una instalación de WordPress con el tema por defecto (Twenty Twenty-Four o similar).
 
 ---
 

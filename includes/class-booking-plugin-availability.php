@@ -75,6 +75,72 @@ class Booking_Plugin_Availability {
 		return $this->resolve_candidate_staff_ids( $service_id, null );
 	}
 
+	/**
+	 * Igual que get_available_slots() pero corta en cuanto encuentra el
+	 * primer slot que cumple, en vez de acumular todos. La usa
+	 * GET /availability/days para resaltar dias con hueco libre sin tener
+	 * que calcular ni devolver la lista completa de slots de cada dia.
+	 */
+	public function has_available_slot( $service_id, $date, $timezone = null, $staff_id = null ) {
+		$service = $this->get_active_service( $service_id );
+
+		if ( is_wp_error( $service ) ) {
+			return $service;
+		}
+
+		$request_tz = $this->resolve_timezone( $timezone );
+
+		if ( is_wp_error( $request_tz ) ) {
+			return $request_tz;
+		}
+
+		$day_start_local = DateTimeImmutable::createFromFormat( 'Y-m-d H:i:s', $date . ' 00:00:00', $request_tz );
+
+		if ( ! $day_start_local ) {
+			return new WP_Error( 'booking_rest_invalid_date', __( 'date must be in Y-m-d format.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$day_start_utc = $day_start_local->setTimezone( new DateTimeZone( 'UTC' ) );
+		$day_end_utc   = $day_start_utc->modify( '+1 day' );
+
+		$staff_ids = $this->resolve_candidate_staff_ids( $service_id, $staff_id );
+
+		if ( is_wp_error( $staff_ids ) ) {
+			return $staff_ids;
+		}
+
+		$settings            = Booking_Plugin_Settings::get_settings();
+		$now_utc             = new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) );
+		$site_tz             = wp_timezone();
+		$business_hours_map  = $this->get_business_hours_map();
+		$duration_minutes    = (int) $service->duration_minutes;
+		$slot_interval       = max( 1, (int) $settings['slot_interval_minutes'] );
+
+		foreach ( $staff_ids as $sid ) {
+			$schedules_map  = $this->get_staff_schedules_map( $sid );
+			$exceptions_map = $this->get_staff_exceptions_map( $sid, $day_start_local );
+			$blocked_ranges = $this->get_blocked_ranges( $sid, $day_start_utc, $day_end_utc );
+
+			$cursor = $day_start_utc;
+
+			while ( true ) {
+				$candidate_end = $cursor->modify( '+' . $duration_minutes . ' minutes' );
+
+				if ( $candidate_end > $day_end_utc ) {
+					break;
+				}
+
+				if ( $this->slot_fits( $cursor, $candidate_end, $business_hours_map, $schedules_map, $exceptions_map, $blocked_ranges, $settings, $site_tz, $now_utc ) ) {
+					return true;
+				}
+
+				$cursor = $cursor->modify( '+' . $slot_interval . ' minutes' );
+			}
+		}
+
+		return false;
+	}
+
 	public function is_staff_slot_available( $service_id, $staff_id, $start_datetime, $exclude_appointment_id = 0 ) {
 		$service = $this->get_active_service( $service_id );
 

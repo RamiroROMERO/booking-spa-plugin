@@ -1,0 +1,189 @@
+import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+
+import { detectTimezone } from './utils';
+import ServiceStep from './ServiceStep';
+import StaffStep from './StaffStep';
+import DateTimeStep from './DateTimeStep';
+import PersonalDataStep from './PersonalDataStep';
+import ConfirmationStep from './ConfirmationStep';
+import SuccessScreen from './SuccessScreen';
+
+const STEP_ORDER = [ 'service', 'staff', 'datetime', 'personal', 'confirmation' ];
+
+const STEP_LABELS = {
+	service: __( 'Servicio', 'booking-plugin' ),
+	staff: __( 'Profesional', 'booking-plugin' ),
+	datetime: __( 'Fecha y hora', 'booking-plugin' ),
+	personal: __( 'Tus datos', 'booking-plugin' ),
+	confirmation: __( 'Confirmación', 'booking-plugin' ),
+};
+
+export default function App() {
+	const settings = window.BookingPluginFrontend || {};
+	const currentUser = settings.currentUser || null;
+
+	const [ step, setStep ] = useState( 'service' );
+	const [ timezone ] = useState( () => detectTimezone( settings.timezone ) );
+	const [ bookingResult, setBookingResult ] = useState( null );
+	const [ collisionNotice, setCollisionNotice ] = useState( null );
+	const [ selection, setSelection ] = useState( {
+		category_id: null,
+		service: null,
+		staff_id: null,
+		date: null,
+		slot: null,
+		personalData: { name: '', email: '', phone: '', notes: '' },
+	} );
+
+	// Cambiar el servicio (o el profesional) limpia las selecciones que
+	// dependen de el, para que el criterio de aceptacion de "Atras" se
+	// cumpla sin necesitar logica especial de navegacion hacia atras: se
+	// dispara igual la primera vez que se elige algo (donde ya eran null).
+	const handleSelectService = ( service ) => {
+		setCollisionNotice( null );
+		setSelection( ( current ) => ( {
+			...current,
+			service,
+			staff_id: null,
+			date: null,
+			slot: null,
+		} ) );
+		setStep( 'staff' );
+	};
+
+	const handleSelectCategory = ( categoryId ) => {
+		setSelection( ( current ) => ( { ...current, category_id: categoryId } ) );
+	};
+
+	const handleSelectStaff = ( staffId ) => {
+		setCollisionNotice( null );
+		setSelection( ( current ) => ( {
+			...current,
+			staff_id: staffId,
+			date: null,
+			slot: null,
+		} ) );
+		setStep( 'datetime' );
+	};
+
+	// El slot viene de GET /availability y trae su propio staff_id, aunque
+	// selection.staff_id sea null ("cualquier profesional"): un slot con
+	// staff_id null mezcla horarios de varios profesionales elegibles, asi
+	// que hay que fijar el staff_id de ESE slot puntual al confirmar, en vez
+	// de reenviar null y dejar que el servidor auto-asigne de nuevo (podria
+	// elegir a otro profesional distinto del que se mostro en pantalla).
+	const handleSelectSlot = ( date, slot ) => {
+		setCollisionNotice( null );
+		setSelection( ( current ) => ( {
+			...current,
+			date,
+			staff_id: slot.staff_id,
+			slot: { start_datetime: slot.start_datetime, end_datetime: slot.end_datetime },
+		} ) );
+		setStep( 'personal' );
+	};
+
+	const handlePersonalDataSubmit = ( personalData ) => {
+		setSelection( ( current ) => ( { ...current, personalData } ) );
+		setStep( 'confirmation' );
+	};
+
+	// El 409 de colision (SPEC 03) vuelve al paso de fecha/hora: se limpia
+	// solo el slot (la fecha se mantiene) para que ese paso recargue los
+	// horarios de ese mismo dia al volver a montarse, sin perder servicio
+	// ni profesional ya elegidos.
+	const handleCollision = () => {
+		setCollisionNotice(
+			__(
+				'Ese horario ya no está disponible: alguien más lo reservó primero. Elige otro horario.',
+				'booking-plugin'
+			)
+		);
+		setSelection( ( current ) => ( { ...current, slot: null } ) );
+		setStep( 'datetime' );
+	};
+
+	const handleBookingSuccess = ( result ) => {
+		setBookingResult( result );
+		setStep( 'success' );
+	};
+
+	const handleBack = () => {
+		const currentIndex = STEP_ORDER.indexOf( step );
+
+		if ( currentIndex > 0 ) {
+			setStep( STEP_ORDER[ currentIndex - 1 ] );
+		}
+	};
+
+	const canGoBack = 'service' !== step && 'success' !== step;
+
+	return (
+		<div className="booking-plugin-widget">
+			{ 'success' !== step && (
+				<div className="booking-plugin-widget__steps">
+					{ STEP_ORDER.map( ( item, index ) => (
+						<span
+							key={ item }
+							className={
+								'booking-plugin-widget__step-indicator' +
+								( item === step ? ' is-active' : '' )
+							}
+						>
+							{ index + 1 }. { STEP_LABELS[ item ] }
+						</span>
+					) ) }
+				</div>
+			) }
+
+			{ canGoBack && (
+				<button type="button" className="booking-plugin-widget__back" onClick={ handleBack }>
+					{ __( '← Atrás', 'booking-plugin' ) }
+				</button>
+			) }
+
+			<div className="booking-plugin-widget__content">
+				{ 'service' === step && (
+					<ServiceStep
+						categoryId={ selection.category_id }
+						onSelectCategory={ handleSelectCategory }
+						onSelectService={ handleSelectService }
+					/>
+				) }
+				{ 'staff' === step && (
+					<StaffStep serviceId={ selection.service && selection.service.id } onSelectStaff={ handleSelectStaff } />
+				) }
+				{ 'datetime' === step && (
+					<DateTimeStep
+						serviceId={ selection.service && selection.service.id }
+						staffId={ selection.staff_id }
+						timezone={ timezone }
+						date={ selection.date }
+						collisionNotice={ collisionNotice }
+						onSelectSlot={ handleSelectSlot }
+					/>
+				) }
+				{ 'personal' === step && (
+					<PersonalDataStep
+						currentUser={ currentUser }
+						personalData={ selection.personalData }
+						onSubmit={ handlePersonalDataSubmit }
+					/>
+				) }
+				{ 'confirmation' === step && (
+					<ConfirmationStep
+						selection={ selection }
+						timezone={ timezone }
+						currentUser={ currentUser }
+						onSuccess={ handleBookingSuccess }
+						onCollision={ handleCollision }
+					/>
+				) }
+				{ 'success' === step && (
+					<SuccessScreen bookingResult={ bookingResult } timezone={ timezone } />
+				) }
+			</div>
+		</div>
+	);
+}
