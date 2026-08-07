@@ -354,7 +354,7 @@ class Booking_Plugin_Availability {
 			$wpdb->prepare(
 				"SELECT a.start_datetime, a.end_datetime, s.buffer_minutes
 				 FROM {$appointments_table} a
-				 INNER JOIN {$services_table} s ON s.id = a.service_id
+				 LEFT JOIN {$services_table} s ON s.id = a.service_id
 				 WHERE a.staff_id = %d
 				   AND a.status != 'cancelled'
 				   AND a.start_datetime < %s

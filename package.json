@@ -12,5 +12,12 @@
   },
   "devDependencies": {
     "@wordpress/scripts": "^30.0.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^7.52.0",
+    "@wordpress/components": "^38.0.0",
+    "@wordpress/date": "^5.52.0",
+    "@wordpress/element": "^8.4.0",
+    "@wordpress/i18n": "^6.25.0"
   }
 }

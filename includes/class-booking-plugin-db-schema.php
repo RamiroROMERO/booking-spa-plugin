@@ -90,7 +90,7 @@ class Booking_Plugin_DB_Schema {
 
 		$sql[] = "CREATE TABLE {$prefix}booking_appointments (
 			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-			service_id BIGINT UNSIGNED NOT NULL,
+			service_id BIGINT UNSIGNED NULL,
 			staff_id BIGINT UNSIGNED NOT NULL,
 			user_id BIGINT UNSIGNED NULL,
 			guest_name VARCHAR(191) NULL,
