@@ -27,6 +27,10 @@ require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-db-schema.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-activator.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-deactivator.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-categories-controller.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-services-controller.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-staff-controller.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-rest.php';
 
 register_activation_hook( __FILE__, array( 'Booking_Plugin_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Booking_Plugin_Deactivator', 'deactivate' ) );
