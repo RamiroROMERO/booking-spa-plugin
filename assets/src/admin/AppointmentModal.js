@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Modal, Button, Notice } from '@wordpress/components';
 
 import { getLocalDate, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
+import { getApiErrorMessage } from './utils/apiError';
 
 const STATUS_LABELS = {
 	pending: __( 'Pendiente', 'booking-plugin' ),
@@ -35,7 +36,7 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 				onUpdated();
 				onClose();
 			} )
-			.catch( ( err ) => setError( err.message || String( err ) ) )
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsSaving( false ) );
 	};
 

@@ -213,3 +213,84 @@
 		color: #2271b1;
 	}
 }
+
+.booking-plugin-categories {
+	max-width: 600px;
+	margin-bottom: 16px;
+
+	&__list {
+		margin: 0 0 12px;
+		padding: 0;
+		list-style: none;
+	}
+
+	&__item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 0;
+		border-bottom: 1px solid #f0f0f1;
+
+		span {
+			flex: 1;
+		}
+	}
+
+	&__new {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+	}
+}
+
+.booking-plugin-services__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 12px;
+}
+
+.booking-plugin-exceptions {
+	max-width: 700px;
+	margin-bottom: 16px;
+
+	&__list {
+		margin-bottom: 12px;
+	}
+
+	&__card {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 10px;
+		border: 1px solid #dcdcde;
+		border-radius: 3px;
+		margin-bottom: 6px;
+		background: #fff;
+	}
+
+	&__form {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+}
+
+.booking-plugin-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+
+	th,
+	td {
+		text-align: left;
+		padding: 8px 10px;
+		border-bottom: 1px solid #f0f0f1;
+	}
+
+	thead th {
+		background: #f6f7f7;
+		font-weight: 600;
+	}
+}

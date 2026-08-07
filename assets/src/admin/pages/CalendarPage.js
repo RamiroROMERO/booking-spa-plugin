@@ -3,11 +3,12 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Button, CheckboxControl } from '@wordpress/components';
 
-import Calendar from './Calendar';
-import MonthView from './MonthView';
-import AppointmentModal from './AppointmentModal';
-import BlockModal from './BlockModal';
-import { getVisibleRange, today, addDays, addMonths, API_NAMESPACE } from './utils';
+import Calendar from '../Calendar';
+import MonthView from '../MonthView';
+import AppointmentModal from '../AppointmentModal';
+import BlockModal from '../BlockModal';
+import { getVisibleRange, today, addDays, addMonths, API_NAMESPACE } from '../utils';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const VIEWS = [
 	{ id: 'day', label: __( 'Día', 'booking-plugin' ) },
@@ -15,7 +16,7 @@ const VIEWS = [
 	{ id: 'month', label: __( 'Mes', 'booking-plugin' ) },
 ];
 
-export default function App() {
+export default function CalendarPage() {
 	const [ view, setView ] = useState( 'week' );
 	const [ referenceDate, setReferenceDate ] = useState( today() );
 	const [ staff, setStaff ] = useState( [] );
@@ -33,7 +34,7 @@ export default function App() {
 				setStaff( result );
 				setVisibleStaffIds( result.map( ( member ) => member.id ) );
 			} )
-			.catch( ( err ) => setError( err.message || String( err ) ) );
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) );
 	}, [] );
 
 	const loadAppointments = useCallback( () => {
@@ -48,7 +49,7 @@ export default function App() {
 				setAppointments( result );
 				setError( null );
 			} )
-			.catch( ( err ) => setError( err.message || String( err ) ) )
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
 	}, [ view, referenceDate ] );
 
