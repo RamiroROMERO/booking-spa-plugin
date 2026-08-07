@@ -11,5 +11,7 @@ class Booking_Plugin {
 		if ( get_option( 'booking_plugin_db_version' ) !== BOOKING_PLUGIN_DB_VERSION ) {
 			Booking_Plugin_Activator::activate();
 		}
+
+		add_action( 'rest_api_init', array( 'Booking_Plugin_Rest', 'register_routes' ) );
 	}
 }

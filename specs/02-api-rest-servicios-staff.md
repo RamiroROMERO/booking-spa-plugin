@@ -1,6 +1,6 @@
 # SPEC 02 — API REST: Servicios y Staff
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01
 > **Date:** 2026-08-07
 > **Objective:** Exponer una API REST (`booking-plugin/v1`) con lectura pública y escritura protegida por `manage_options` para gestionar categorías, servicios y staff —incluyendo sus servicios permitidos, horarios y excepciones— sobre el modelo de datos de SPEC 01.
@@ -127,16 +127,16 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] `GET /wp-json/booking-plugin/v1/categories` sin autenticación responde `200` (lectura pública funciona sin login).
-- [ ] `POST /wp-json/booking-plugin/v1/services` sin sesión admin responde `401` o `403` (escritura protegida).
-- [ ] `POST /services` con `duration_minutes = 0` responde `400` con un mensaje de validación.
-- [ ] Crear un servicio sin enviar `slug` genera automáticamente uno único vía `sanitize_title( name )`.
-- [ ] `DELETE /services/{id}` deja la fila en `wp_booking_services` con `status = 'inactive'` (no la borra); deja de aparecer en `GET /services` público pero sigue apareciendo en `GET /services?status=inactive` autenticado.
-- [ ] `PUT /staff/{id}` con `service_ids: [1,4]` dos veces seguidas (la segunda con `[1]`) deja exactamente una fila en `wp_booking_staff_services` para ese staff (reemplazo completo, no acumulación).
-- [ ] `PUT /staff/{id}` con `schedules`/`exceptions` reemplaza por completo las filas previas en `wp_booking_staff_schedules`/`wp_booking_staff_exceptions` de ese staff.
-- [ ] `DELETE /categories/{id}` responde `409` si existe al menos un servicio (activo o inactivo) con ese `category_id`.
-- [ ] `DELETE /categories/{id}` sin servicios asociados borra físicamente la fila de `wp_booking_service_categories`.
-- [ ] `GET /staff/{id}` sin autenticación no incluye `email` ni `phone` en la respuesta; la misma petición autenticada con `manage_options` sí los incluye.
+- [x] `GET /wp-json/booking-plugin/v1/categories` sin autenticación responde `200` (lectura pública funciona sin login).
+- [x] `POST /wp-json/booking-plugin/v1/services` sin sesión admin responde `401` o `403` (escritura protegida).
+- [x] `POST /services` con `duration_minutes = 0` responde `400` con un mensaje de validación.
+- [x] Crear un servicio sin enviar `slug` genera automáticamente uno único vía `sanitize_title( name )`.
+- [x] `DELETE /services/{id}` deja la fila en `wp_booking_services` con `status = 'inactive'` (no la borra); deja de aparecer en `GET /services` público pero sigue apareciendo en `GET /services?status=inactive` autenticado.
+- [x] `PUT /staff/{id}` con `service_ids: [1,4]` dos veces seguidas (la segunda con `[1]`) deja exactamente una fila en `wp_booking_staff_services` para ese staff (reemplazo completo, no acumulación).
+- [x] `PUT /staff/{id}` con `schedules`/`exceptions` reemplaza por completo las filas previas en `wp_booking_staff_schedules`/`wp_booking_staff_exceptions` de ese staff.
+- [x] `DELETE /categories/{id}` responde `409` si existe al menos un servicio (activo o inactivo) con ese `category_id`.
+- [x] `DELETE /categories/{id}` sin servicios asociados borra físicamente la fila de `wp_booking_service_categories`.
+- [x] `GET /staff/{id}` sin autenticación no incluye `email` ni `phone` en la respuesta; la misma petición autenticada con `manage_options` sí los incluye.
 
 ---
 
