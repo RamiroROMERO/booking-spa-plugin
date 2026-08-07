@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'BOOKING_PLUGIN_VERSION', '0.1.0' );
 define( 'BOOKING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BOOKING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'BOOKING_PLUGIN_DB_VERSION', '1.1.0' );
+define( 'BOOKING_PLUGIN_DB_VERSION', '1.2.0' );
 
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-db-schema.php';
@@ -37,6 +37,7 @@ require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-business-hou
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-availability-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-appointments-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-rest.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-admin.php';
 
 register_activation_hook( __FILE__, array( 'Booking_Plugin_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Booking_Plugin_Deactivator', 'deactivate' ) );

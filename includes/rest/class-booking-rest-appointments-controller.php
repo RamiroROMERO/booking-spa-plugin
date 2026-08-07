@@ -28,6 +28,18 @@ class Booking_Rest_Appointments_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/block',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_block' ),
+					'permission_callback' => array( $this, 'admin_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)',
 			array(
 				array(
@@ -227,6 +239,109 @@ class Booking_Rest_Appointments_Controller {
 		return new WP_Error( 'booking_rest_slot_unavailable', __( 'The requested slot is not available.', 'booking-plugin' ), array( 'status' => 409 ) );
 	}
 
+	public function create_block( $request ) {
+		global $wpdb;
+
+		$staff_id = $request->get_param( 'staff_id' );
+
+		if ( empty( $staff_id ) ) {
+			return new WP_Error( 'booking_rest_invalid_staff', __( 'staff_id is required.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$staff_table  = $wpdb->prefix . 'booking_staff';
+		$staff_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$staff_table} WHERE id = %d", (int) $staff_id ) );
+
+		if ( ! $staff_exists ) {
+			return new WP_Error( 'booking_rest_invalid_staff', __( 'Staff not found.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$start = $request->get_param( 'start_datetime' );
+		$end   = $request->get_param( 'end_datetime' );
+
+		if ( empty( $start ) || empty( $end ) ) {
+			return new WP_Error( 'booking_rest_invalid_datetime', __( 'start_datetime and end_datetime are required.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		try {
+			$start_dt = new DateTimeImmutable( $start, new DateTimeZone( 'UTC' ) );
+			$end_dt   = new DateTimeImmutable( $end, new DateTimeZone( 'UTC' ) );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'booking_rest_invalid_datetime', __( 'start_datetime and end_datetime must be valid ISO 8601 datetimes.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		if ( $end_dt <= $start_dt ) {
+			return new WP_Error( 'booking_rest_invalid_datetime', __( 'end_datetime must be after start_datetime.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$appointments_table = $wpdb->prefix . 'booking_appointments';
+		$services_table      = $wpdb->prefix . 'booking_services';
+		$lock_from            = $start_dt->modify( '-1 day' )->format( 'Y-m-d H:i:s' );
+		$lock_to              = $end_dt->modify( '+1 day' )->format( 'Y-m-d H:i:s' );
+
+		$wpdb->query( 'START TRANSACTION' );
+
+		$wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id FROM {$appointments_table} WHERE staff_id = %d AND status != 'cancelled' AND start_datetime < %s AND start_datetime >= %s FOR UPDATE",
+				(int) $staff_id,
+				$lock_to,
+				$lock_from
+			)
+		);
+
+		$collision = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT a.id FROM {$appointments_table} a
+				 LEFT JOIN {$services_table} s ON s.id = a.service_id
+				 WHERE a.staff_id = %d
+				   AND a.status != 'cancelled'
+				   AND a.start_datetime < %s
+				   AND DATE_ADD( a.end_datetime, INTERVAL COALESCE( s.buffer_minutes, 0 ) MINUTE ) > %s
+				 LIMIT 1",
+				(int) $staff_id,
+				$end_dt->format( 'Y-m-d H:i:s' ),
+				$start_dt->format( 'Y-m-d H:i:s' )
+			)
+		);
+
+		if ( $collision ) {
+			$wpdb->query( 'ROLLBACK' );
+
+			return new WP_Error( 'booking_rest_slot_unavailable', __( 'The requested range overlaps with an existing appointment.', 'booking-plugin' ), array( 'status' => 409 ) );
+		}
+
+		$now = current_time( 'mysql', true );
+
+		$wpdb->insert(
+			$appointments_table,
+			array(
+				'service_id'     => null,
+				'staff_id'       => (int) $staff_id,
+				'user_id'        => null,
+				'guest_name'     => null,
+				'guest_email'    => null,
+				'guest_phone'    => null,
+				'start_datetime' => $start_dt->format( 'Y-m-d H:i:s' ),
+				'end_datetime'   => $end_dt->format( 'Y-m-d H:i:s' ),
+				'status'         => 'blocked',
+				'notes'          => $request->get_param( 'notes' ),
+				'created_at'     => $now,
+				'updated_at'     => $now,
+			)
+		);
+
+		$new_id = (int) $wpdb->insert_id;
+
+		$wpdb->query( 'COMMIT' );
+
+		$row = $this->get_row( $new_id );
+
+		$response = rest_ensure_response( $this->prepare_item( $row ) );
+		$response->set_status( 201 );
+
+		return $response;
+	}
+
 	public function update_item( $request ) {
 		$row = $this->get_row( (int) $request['id'] );
 
@@ -246,13 +361,13 @@ class Booking_Rest_Appointments_Controller {
 		$new_start = $request->get_param( 'start_datetime' );
 
 		if ( null !== $status ) {
-			$allowed_statuses = array( 'confirmed', 'completed', 'no_show', 'cancelled' );
+			$allowed_statuses = array( 'confirmed', 'completed', 'no_show', 'cancelled', 'blocked' );
 
 			if ( ! in_array( $status, $allowed_statuses, true ) ) {
 				return new WP_Error( 'booking_rest_invalid_status', __( 'Invalid status value.', 'booking-plugin' ), array( 'status' => 400 ) );
 			}
 
-			if ( in_array( $status, array( 'confirmed', 'completed', 'no_show' ), true ) && ! $is_admin ) {
+			if ( in_array( $status, array( 'confirmed', 'completed', 'no_show', 'blocked' ), true ) && ! $is_admin ) {
 				return new WP_Error( 'booking_rest_forbidden', __( 'Only an administrator can set this status.', 'booking-plugin' ), array( 'status' => 403 ) );
 			}
 
@@ -470,7 +585,7 @@ class Booking_Rest_Appointments_Controller {
 	protected function prepare_item( $row ) {
 		return array(
 			'id'             => (int) $row->id,
-			'service_id'     => (int) $row->service_id,
+			'service_id'     => $row->service_id ? (int) $row->service_id : null,
 			'staff_id'       => (int) $row->staff_id,
 			'user_id'        => $row->user_id ? (int) $row->user_id : null,
 			'guest_name'     => $row->guest_name,

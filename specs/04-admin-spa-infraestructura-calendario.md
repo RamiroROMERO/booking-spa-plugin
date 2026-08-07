@@ -1,6 +1,6 @@
 # SPEC 04 — Admin SPA: Infraestructura y Calendario
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03
 > **Date:** 2026-08-07
 > **Objective:** Construir el SPA de administración (montado en un menú del admin de WP con React vía `@wordpress/element`) con un calendario interactivo día/semana/mes por staff, gestión de estados de citas y bloqueo manual de horarios, consumiendo la API de SPEC 03.
@@ -109,16 +109,16 @@ Reutiliza la misma transacción `SELECT ... FOR UPDATE` de SPEC 03 para validar 
 
 ## Acceptance criteria
 
-- [ ] El menú "Reservas" aparece en el admin de WP para usuarios con `manage_options` y no es visible para roles sin ese capability.
-- [ ] El calendario ofrece vistas día, semana y mes, con navegación anterior/siguiente funcional en las tres.
-- [ ] Las vistas día/semana muestran una columna por staff activo, con un selector que permite mostrar/ocultar columnas específicas.
-- [ ] Una cita creada con un `start_datetime` UTC conocido se muestra en la hora correcta según la zona horaria configurada en Ajustes > General de WordPress.
-- [ ] Clic en una cita abre un modal que permite cambiar su `status` (Confirmada/Completada/No asistió/Cancelada) y el cambio persiste tras recargar la página.
-- [ ] El mismo modal permite reprogramar la cita (nuevo `start_datetime`) vía `PATCH`.
-- [ ] "Bloquear horario" crea una fila en `wp_booking_appointments` con `status='blocked'` y `service_id NULL`, y ese rango deja de aparecer en `GET /availability` para ese staff.
-- [ ] Un bloqueo existente puede desbloquearse (`status` pasa a `cancelled`) y el horario vuelve a aparecer en `GET /availability`.
-- [ ] `npm run build` genera `assets/build/admin.js`, `admin.css` (si aplica) y `admin.asset.php` sin errores.
-- [ ] Una llamada REST de escritura sin el nonce válido responde `401`/`403` (verificable removiendo el nonce en devtools).
+- [x] El menú "Reservas" aparece en el admin de WP para usuarios con `manage_options` y no es visible para roles sin ese capability.
+- [x] El calendario ofrece vistas día, semana y mes, con navegación anterior/siguiente funcional en las tres.
+- [x] Las vistas día/semana muestran una columna por staff activo, con un selector que permite mostrar/ocultar columnas específicas.
+- [x] Una cita creada con un `start_datetime` UTC conocido se muestra en la hora correcta según la zona horaria configurada en Ajustes > General de WordPress.
+- [x] Clic en una cita abre un modal que permite cambiar su `status` (Confirmada/Completada/No asistió/Cancelada) y el cambio persiste tras recargar la página.
+- [x] El mismo modal permite reprogramar la cita (nuevo `start_datetime`) vía `PATCH`.
+- [x] "Bloquear horario" crea una fila en `wp_booking_appointments` con `status='blocked'` y `service_id NULL`, y ese rango deja de aparecer en `GET /availability` para ese staff.
+- [x] Un bloqueo existente puede desbloquearse (`status` pasa a `cancelled`) y el horario vuelve a aparecer en `GET /availability`.
+- [x] `npm run build` genera `assets/build/admin.js`, `admin.css` (si aplica) y `admin.asset.php` sin errores.
+- [x] Una llamada REST de escritura sin el nonce válido responde `401`/`403` (verificable removiendo el nonce en devtools).
 
 ---
 
