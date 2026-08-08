@@ -169,16 +169,57 @@ class Booking_Plugin_Notifications {
 			return null;
 		}
 
+		return array(
+			'subject' => $this->interpolate( $template['subject'], $context ),
+			'body'    => wpautop( $this->interpolate( $template['body'], $context ) ),
+		);
+	}
+
+	protected function interpolate( $text, array $context ) {
 		$replacements = array();
 
 		foreach ( $context as $placeholder => $value ) {
 			$replacements[ '{{' . $placeholder . '}}' ] = $value;
 		}
 
+		return strtr( $text, $replacements );
+	}
+
+	public function get_example_context() {
 		return array(
-			'subject' => strtr( $template['subject'], $replacements ),
-			'body'    => wpautop( strtr( $template['body'], $replacements ) ),
+			'client_name'   => __( 'Juana Pérez', 'booking-plugin' ),
+			'client_email'  => 'juana.perez@example.com',
+			'client_phone'  => '+54 9 11 1234-5678',
+			'service_name'  => __( 'Corte de cabello', 'booking-plugin' ),
+			'staff_name'    => __( 'Carlos Gómez', 'booking-plugin' ),
+			'date'          => wp_date( get_option( 'date_format' ) ),
+			'time'          => wp_date( get_option( 'time_format' ) ),
+			'business_name' => get_bloginfo( 'name' ),
+			'manage_url'    => home_url( '/' ),
 		);
+	}
+
+	public function send_test( $to, $subject, $body ) {
+		if ( empty( $to ) || ! is_email( $to ) ) {
+			return new WP_Error( 'booking_plugin_invalid_recipient', __( 'Invalid recipient email.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$context = $this->get_example_context();
+
+		$rendered_subject = $this->interpolate( $subject, $context );
+		$rendered_body    = wpautop( $this->interpolate( $body, $context ) );
+
+		add_filter( 'wp_mail_content_type', array( $this, 'get_html_content_type' ) );
+
+		$sent = wp_mail( $to, $rendered_subject, $rendered_body );
+
+		remove_filter( 'wp_mail_content_type', array( $this, 'get_html_content_type' ) );
+
+		if ( ! $sent ) {
+			return new WP_Error( 'booking_plugin_test_send_failed', __( 'wp_mail() failed to send the test email.', 'booking-plugin' ), array( 'status' => 500 ) );
+		}
+
+		return true;
 	}
 
 	protected function send( $to, $key, array $context, $appointment_id ) {

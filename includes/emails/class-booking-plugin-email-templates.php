@@ -70,10 +70,19 @@ class Booking_Plugin_Email_Templates {
 		foreach ( $defaults as $key => $default ) {
 			$override = isset( $stored[ $key ] ) && is_array( $stored[ $key ] ) ? $stored[ $key ] : array();
 
+			$subject = isset( $override['subject'] ) && '' !== $override['subject'] ? $override['subject'] : $default['subject'];
+			$body    = isset( $override['body'] ) && '' !== $override['body'] ? $override['body'] : $default['body'];
+
 			$templates[ $key ] = array(
-				'subject'      => isset( $override['subject'] ) && '' !== $override['subject'] ? $override['subject'] : $default['subject'],
-				'body'         => isset( $override['body'] ) && '' !== $override['body'] ? $override['body'] : $default['body'],
-				'is_customized' => ! empty( $override['subject'] ) || ! empty( $override['body'] ),
+				'subject'       => $subject,
+				'body'          => $body,
+				// Comparado contra el default, no solo "hay override guardado":
+				// save_templates() siempre persiste las 5 plantillas juntas (PUT
+				// exige el payload completo), así que editar una sola termina
+				// re-guardando el texto default sin cambios para las otras 4 --
+				// si is_customized solo mirara "hay un override no vacío", esas
+				// 4 quedarían marcadas como "Personalizada" por error.
+				'is_customized' => $subject !== $default['subject'] || $body !== $default['body'],
 			);
 		}
 
@@ -121,6 +130,20 @@ class Booking_Plugin_Email_Templates {
 		}
 
 		update_option( self::OPTION_NAME, $sanitized );
+
+		return self::get_all_templates();
+	}
+
+	public static function restore_default( $key ) {
+		$stored = get_option( self::OPTION_NAME, array() );
+
+		if ( ! is_array( $stored ) ) {
+			$stored = array();
+		}
+
+		unset( $stored[ $key ] );
+
+		update_option( self::OPTION_NAME, $stored );
 
 		return self::get_all_templates();
 	}
