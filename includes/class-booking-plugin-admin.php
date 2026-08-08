@@ -5,10 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Booking_Plugin_Admin {
 
-	const SLUG_CALENDAR = 'booking-plugin';
-	const SLUG_SERVICES = 'booking-plugin-services';
-	const SLUG_STAFF    = 'booking-plugin-staff';
-	const SLUG_SETTINGS = 'booking-plugin-settings';
+	const SLUG_CALENDAR      = 'booking-plugin';
+	const SLUG_SERVICES      = 'booking-plugin-services';
+	const SLUG_STAFF         = 'booking-plugin-staff';
+	const SLUG_SETTINGS      = 'booking-plugin-settings';
+	const SLUG_NOTIFICATIONS = 'booking-plugin-notifications';
 
 	protected $hook_suffixes = array();
 
@@ -57,6 +58,15 @@ class Booking_Plugin_Admin {
 			self::SLUG_SETTINGS,
 			array( $this, 'render_page' )
 		);
+
+		$this->hook_suffixes[ self::SLUG_NOTIFICATIONS ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Notificaciones', 'booking-plugin' ),
+			__( 'Notificaciones', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_NOTIFICATIONS,
+			array( $this, 'render_page' )
+		);
 	}
 
 	public function render_page() {
@@ -99,10 +109,11 @@ class Booking_Plugin_Admin {
 		}
 
 		$sections = array(
-			self::SLUG_CALENDAR => 'calendar',
-			self::SLUG_SERVICES => 'services',
-			self::SLUG_STAFF    => 'staff',
-			self::SLUG_SETTINGS => 'settings',
+			self::SLUG_CALENDAR      => 'calendar',
+			self::SLUG_SERVICES      => 'services',
+			self::SLUG_STAFF         => 'staff',
+			self::SLUG_SETTINGS      => 'settings',
+			self::SLUG_NOTIFICATIONS => 'notifications',
 		);
 
 		wp_localize_script(

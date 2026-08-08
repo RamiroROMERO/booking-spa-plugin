@@ -1,6 +1,6 @@
 # SPEC 09 — Admin SPA: Editor de Plantillas de Email
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 04, SPEC 05, SPEC 08
 > **Date:** 2026-08-07
 > **Objective:** Construir la página "Notificaciones" del admin (submenú bajo "Reservas") donde el negocio edita el asunto y cuerpo con formato enriquecido de las 5 plantillas de correo de SPEC 08, con vista previa y envío de prueba, usando `@wordpress/rich-text` sobre la misma base de React del SPA.
@@ -78,14 +78,14 @@ Envía el contenido recibido en el body (no necesariamente el guardado) con dato
 
 ## Acceptance criteria
 
-- [ ] El submenú "Notificaciones" aparece en "Reservas" junto a Calendario/Servicios/Staff/Configuración y requiere `manage_options`.
-- [ ] Las 5 plantillas se listan con su estado correcto (Personalizada/Predeterminada).
-- [ ] El editor de cuerpo permite aplicar negrita, cursiva y agregar un enlace; el HTML resultante se guarda tal como se editó.
-- [ ] Cada plantilla muestra únicamente los placeholders relevantes para ese caso (ej. las plantillas de negocio incluyen datos de contacto del cliente; las del cliente no se autorreferencian).
-- [ ] La vista previa refleja el asunto y cuerpo actuales en edición, incluso sin haber guardado todavía.
-- [ ] "Enviar correo de prueba" hace llegar un correo real a la cuenta del administrador actual con el contenido en edición.
-- [ ] "Restaurar predeterminado" descarta el override guardado y vuelve a mostrar el texto original de SPEC 08.
-- [ ] Guardar una plantilla personalizada hace que la siguiente cita real creada reciba el correo con ese contenido, no el default (verificable contra los disparadores de SPEC 08).
+- [x] El submenú "Notificaciones" aparece en "Reservas" junto a Calendario/Servicios/Staff/Configuración y requiere `manage_options`.
+- [x] Las 5 plantillas se listan con su estado correcto (Personalizada/Predeterminada).
+- [x] El editor de cuerpo permite aplicar negrita, cursiva y agregar un enlace; el HTML resultante se guarda tal como se editó.
+- [x] Cada plantilla muestra únicamente los placeholders relevantes para ese caso (ej. las plantillas de negocio incluyen datos de contacto del cliente; las del cliente no se autorreferencian).
+- [x] La vista previa refleja el asunto y cuerpo actuales en edición, incluso sin haber guardado todavía.
+- [x] "Enviar correo de prueba" hace llegar un correo real a la cuenta del administrador actual con el contenido en edición.
+- [x] "Restaurar predeterminado" descarta el override guardado y vuelve a mostrar el texto original de SPEC 08.
+- [x] Guardar una plantilla personalizada hace que la siguiente cita real creada reciba el correo con ese contenido, no el default (verificable contra los disparadores de SPEC 08).
 
 ---
 
