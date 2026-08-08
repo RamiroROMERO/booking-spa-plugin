@@ -84,6 +84,21 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 				</p>
 			) }
 
+			{ appointment.wc_order_id && (
+				<p>
+					<strong>{ __( 'Pago:', 'booking-plugin' ) }</strong>{ ' ' }
+					{ appointment.payment_status || __( 'Desconocido', 'booking-plugin' ) }
+					{ appointment.wc_order_edit_url && (
+						<>
+							{ ' — ' }
+							<a href={ appointment.wc_order_edit_url } target="_blank" rel="noreferrer">
+								{ __( 'Ver pedido', 'booking-plugin' ) }
+							</a>
+						</>
+					) }
+				</p>
+			) }
+
 			<div className="booking-plugin-modal__actions">
 				<Button
 					variant="secondary"

@@ -7,6 +7,7 @@ import {
 	TextControl,
 	SelectControl,
 	TextareaControl,
+	ToggleControl,
 	Notice,
 } from '@wordpress/components';
 
@@ -28,6 +29,9 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 		service ? String( service.buffer_minutes ) : '0'
 	);
 	const [ description, setDescription ] = useState( service ? service.description || '' : '' );
+	const [ requiresPayment, setRequiresPayment ] = useState(
+		service ? Boolean( service.requires_payment ) : false
+	);
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ validationError, setValidationError ] = useState( null );
@@ -65,6 +69,7 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 			duration_minutes: duration,
 			buffer_minutes: parseInt( bufferMinutes, 10 ) || 0,
 			description: description || null,
+			requires_payment: requiresPayment,
 		};
 
 		const path = isEditing
@@ -131,6 +136,15 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 				label={ __( 'Descripción', 'booking-plugin' ) }
 				value={ description }
 				onChange={ setDescription }
+			/>
+			<ToggleControl
+				label={ __( 'Requiere pago online', 'booking-plugin' ) }
+				help={ __(
+					'Al reservar este servicio se generará un pedido de WooCommerce y se pedirá pagar antes de confirmar la cita.',
+					'booking-plugin'
+				) }
+				checked={ requiresPayment }
+				onChange={ setRequiresPayment }
 			/>
 
 			<Button variant="primary" disabled={ isSaving } onClick={ handleSubmit }>

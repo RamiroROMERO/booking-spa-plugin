@@ -163,13 +163,23 @@ class Booking_Rest_Services_Controller {
 				'duration_minutes' => (int) $request->get_param( 'duration_minutes' ),
 				'buffer_minutes'   => null !== $request->get_param( 'buffer_minutes' ) ? (int) $request->get_param( 'buffer_minutes' ) : 0,
 				'status'           => 'active',
+				'requires_payment' => $request->get_param( 'requires_payment' ) ? 1 : 0,
 				'created_at'       => $now,
 				'updated_at'       => $now,
 			),
-			array( '%d', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%s', '%s' )
+			array( '%d', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%d', '%s', '%s' )
 		);
 
-		$row = $this->get_row( (int) $wpdb->insert_id );
+		$service_id = (int) $wpdb->insert_id;
+
+		$row = $this->get_row( $service_id );
+
+		Booking_Plugin_WooCommerce::sync_product_for_service( $row );
+
+		// No reutilizar $wpdb->insert_id aca: sync_product_for_service() hace
+		// sus propios INSERT (WooCommerce guardando el producto), que pisan
+		// ese valor global -- se reusa el $service_id ya capturado arriba.
+		$row = $this->get_row( $service_id );
 
 		$response = rest_ensure_response( $this->prepare_item( $row ) );
 		$response->set_status( 201 );
@@ -252,12 +262,21 @@ class Booking_Rest_Services_Controller {
 			$formats[]       = '%s';
 		}
 
+		if ( $request->has_param( 'requires_payment' ) ) {
+			$data['requires_payment'] = $request->get_param( 'requires_payment' ) ? 1 : 0;
+			$formats[]                 = '%d';
+		}
+
 		if ( ! empty( $data ) ) {
 			$data['updated_at'] = current_time( 'mysql', true );
 			$formats[]           = '%s';
 
 			$wpdb->update( $table, $data, array( 'id' => $id ), $formats, array( '%d' ) );
 		}
+
+		$row = $this->get_row( $id );
+
+		Booking_Plugin_WooCommerce::sync_product_for_service( $row );
 
 		$row = $this->get_row( $id );
 
@@ -284,6 +303,10 @@ class Booking_Rest_Services_Controller {
 			array( '%s', '%s' ),
 			array( '%d' )
 		);
+
+		$row = $this->get_row( $id );
+
+		Booking_Plugin_WooCommerce::sync_product_for_service( $row );
 
 		$row = $this->get_row( $id );
 
@@ -343,6 +366,8 @@ class Booking_Rest_Services_Controller {
 			'duration_minutes'  => (int) $row->duration_minutes,
 			'buffer_minutes'    => (int) $row->buffer_minutes,
 			'status'            => $row->status,
+			'requires_payment'  => (bool) $row->requires_payment,
+			'wc_product_id'     => null !== $row->wc_product_id ? (int) $row->wc_product_id : null,
 			'created_at'        => $row->created_at,
 			'updated_at'        => $row->updated_at,
 		);

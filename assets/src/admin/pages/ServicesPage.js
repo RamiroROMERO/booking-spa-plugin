@@ -105,6 +105,7 @@ export default function ServicesPage() {
 							<th>{ __( 'Categoría', 'booking-plugin' ) }</th>
 							<th>{ __( 'Precio', 'booking-plugin' ) }</th>
 							<th>{ __( 'Duración', 'booking-plugin' ) }</th>
+							<th>{ __( 'Pago online', 'booking-plugin' ) }</th>
 							<th>{ __( 'Estado', 'booking-plugin' ) }</th>
 							<th></th>
 						</tr>
@@ -116,6 +117,11 @@ export default function ServicesPage() {
 								<td>{ categoryName( service.category_id ) }</td>
 								<td>{ service.price }</td>
 								<td>{ service.duration_minutes } min</td>
+								<td>
+									{ service.requires_payment
+										? __( 'Sí', 'booking-plugin' )
+										: __( 'No', 'booking-plugin' ) }
+								</td>
 								<td>
 									{ 'active' === service.status
 										? __( 'Activo', 'booking-plugin' )
@@ -139,7 +145,7 @@ export default function ServicesPage() {
 						) ) }
 						{ 0 === services.length && (
 							<tr>
-								<td colSpan={ 6 }>{ __( 'No hay servicios para mostrar.', 'booking-plugin' ) }</td>
+								<td colSpan={ 7 }>{ __( 'No hay servicios para mostrar.', 'booking-plugin' ) }</td>
 							</tr>
 						) }
 					</tbody>

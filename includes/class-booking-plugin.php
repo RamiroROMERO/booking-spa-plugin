@@ -20,6 +20,12 @@ class Booking_Plugin {
 		$reminder_cron = new Booking_Plugin_Reminder_Cron();
 		$reminder_cron->register();
 
+		$payment_sweep_cron = new Booking_Plugin_Payment_Sweep_Cron();
+		$payment_sweep_cron->register();
+
+		$woocommerce = new Booking_Plugin_WooCommerce();
+		$woocommerce->register_hooks();
+
 		$admin = new Booking_Plugin_Admin();
 		add_action( 'admin_menu', array( $admin, 'register_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_assets' ) );
