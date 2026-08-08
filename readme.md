@@ -2,7 +2,6 @@
 title: "Booking Plugin — Resumen de funcionalidades"
 tags: ["booking","reservas","wordpress","woocommerce","plugin"]
 status: "Implementado"
-implemented_specs: 10
 ---
 
 # Booking Plugin — Resumen de funcionalidades
@@ -77,5 +76,3 @@ Las 10 especificaciones están implementadas, probadas manualmente (incluyendo u
 - Probar integración de WooCommerce en entorno de staging antes de producción.
 
 ---
-
-Si se requiere, puedo crear también un README en inglés o añadir ejemplos de API/REST endpoints y documentación de placeholders en detalle.
