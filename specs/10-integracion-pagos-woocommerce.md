@@ -1,9 +1,9 @@
 # SPEC 10 — Integración de Pagos (WooCommerce)
 
-> **Status:** Aprovada
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04, SPEC 05, SPEC 06, SPEC 08
 > **Date:** 2026-08-07
-> **Objective:** Integrar el cobro online con WooCommerce (dependencia opcional): sincronizar un producto por servicio marcado como "requiere pago", generar un pedido en "En espera" al reservar, redirigir al checkout estándar de WooCommerce, y sincronizar automáticamente el estado de la cita con el estado del pago.
+> **Objective:** Integrar el cobro online con WooCommerce (dependencia opcional): sincronizar un producto por servicio marcado como "requiere pago", generar un pedido pendiente de pago al reservar, redirigir al checkout estándar de WooCommerce, y sincronizar automáticamente el estado de la cita con el estado del pago.
 
 ---
 
@@ -20,7 +20,7 @@ El documento base deja dos caminos para pagos: integrar WooCommerce (pedido en "
 - Detección de WooCommerce activo (`class_exists('WooCommerce')`) como interruptor central de toda esta funcionalidad.
 - Campo `requires_payment` por servicio (SPEC 02): solo los servicios marcados generan cobro; el resto sigue funcionando exactamente como en SPEC 01-09.
 - Producto de WooCommerce sincronizado por servicio (oculto del catálogo), creado/actualizado/despublicado junto con el ciclo de vida del servicio (SPEC 02: crear, editar precio/nombre, desactivar).
-- Al crear una cita de un servicio con `requires_payment=true` (`POST /appointments`, SPEC 03): se crea un pedido de WooCommerce en estado `on-hold` vinculado a esa cita, y la respuesta incluye una URL de pago (`checkout_url`).
+- Al crear una cita de un servicio con `requires_payment=true` (`POST /appointments`, SPEC 03): se crea un pedido de WooCommerce en estado `pending` (pendiente de pago) vinculado a esa cita, y la respuesta incluye una URL de pago (`checkout_url`).
 - Redirección al checkout estándar de WooCommerce (página de pago del pedido) — no un checkout embebido a medida.
 - Sincronización automática de estado: pedido pagado → cita `confirmed`; pedido cancelado/reembolsado → cita `cancelled` (libera el horario).
 - Barrido de WP-Cron (mismo patrón que el recordatorio de SPEC 08) que cancela automáticamente citas con pago pendiente vencido (`payment_window_hours`, nuevo campo en `booking_plugin_settings`, default 2 horas), liberando el horario para otros clientes.
@@ -67,14 +67,14 @@ ALTER TABLE {$wpdb->prefix}booking_appointments
 }
 ```
 
-Convención: el pedido de WooCommerce se crea directamente vía `wc_create_order()` (sin pasar por el carrito del sitio), con una única línea correspondiente al `wc_product_id` del servicio, cantidad 1, y el precio vigente del servicio en el momento de la reserva. Se redirige a `$order->get_checkout_payment_url()` — sigue usando todas las pasarelas configuradas en WooCommerce, sin interferir con cualquier otro contenido que el cliente tenga en su carrito.
+Convención: el pedido de WooCommerce se crea directamente vía `wc_create_order()` (sin pasar por el carrito del sitio), con una única línea correspondiente al `wc_product_id` del servicio, cantidad 1, y el precio vigente del servicio en el momento de la reserva. El pedido se crea en estado `pending` — es el único estado inicial que WooCommerce considera pagable (`needs_payment()` solo es `true` para `pending`/`failed`/`checkout-draft`; un pedido creado directo en `on-hold`, como se planteó originalmente, queda huérfano: la página de pago nunca ofrece pasarelas, porque en el propio modelo de WooCommerce `on-hold` significa "ya pasó por checkout, pago manual pendiente de verificación", no "pendiente de pagar"). Se redirige a `$order->get_checkout_payment_url()` — sigue usando todas las pasarelas configuradas en WooCommerce, sin interferir con cualquier otro contenido que el cliente tenga en su carrito. Tras el pago, cada pasarela hace su propia transición estándar de WooCommerce: pasarelas automáticas (tarjeta, etc.) → `processing`/`completed`; pasarelas manuales (cheque, transferencia bancaria) → `on-hold`, pendiente de verificación manual del admin antes de considerarse pagado.
 
 ---
 
 ## Implementation plan
 
 1. Editar `includes/class-booking-plugin-db-schema.php` para las dos migraciones aditivas de arriba; subir `BOOKING_PLUGIN_DB_VERSION`.
-2. Crear `includes/class-booking-plugin-woocommerce.php`: `is_active()`, `sync_product_for_service( $service )` (crea/actualiza un `WC_Product` oculto del catálogo, guarda `wc_product_id`), `create_order_for_appointment( $appointment )` (crea el pedido `on-hold`, guarda `wc_order_id`, devuelve la URL de pago).
+2. Crear `includes/class-booking-plugin-woocommerce.php`: `is_active()`, `sync_product_for_service( $service )` (crea/actualiza un `WC_Product` oculto del catálogo, guarda `wc_product_id`), `create_order_for_appointment( $appointment )` (crea el pedido en estado `pending`, guarda `wc_order_id`, devuelve la URL de pago).
 3. Editar `includes/rest/class-booking-rest-services-controller.php` (SPEC 02) para aceptar/devolver `requires_payment`, y llamar a `sync_product_for_service()` en create/update (y despublicar el producto cuando el servicio pasa a `inactive`).
 4. Editar `includes/rest/class-booking-rest-appointments-controller.php` (SPEC 03/04): tras crear una cita con `requires_payment=true` y WooCommerce activo, llamar a `create_order_for_appointment()` e incluir `checkout_url` en la respuesta.
 5. Registrar el hook `woocommerce_order_status_changed` en `includes/class-booking-plugin-woocommerce.php`: pedido pagado (`$order->is_paid()`) → `PATCH` interno de la cita a `confirmed`; pedido `cancelled`/`refunded` → cita a `cancelled`.
@@ -89,16 +89,16 @@ Convención: el pedido de WooCommerce se crea directamente vía `wc_create_order
 
 ## Acceptance criteria
 
-- [ ] Con WooCommerce inactivo, todo el flujo de reservas de SPEC 01-09 sigue funcionando sin errores ni cambios visibles.
-- [ ] Marcar un servicio como "Requiere pago online" (con WooCommerce activo) crea/sincroniza un producto WC oculto del catálogo, con el mismo nombre y precio del servicio.
-- [ ] Editar el precio de un servicio actualiza el precio del producto WC sincronizado.
-- [ ] Reservar un servicio con `requires_payment=true` genera un pedido de WooCommerce `on-hold` vinculado a la cita, y la respuesta de `POST /appointments` incluye `checkout_url`.
-- [ ] Reservar un servicio con `requires_payment=false` no genera ningún pedido de WooCommerce.
-- [ ] Completar el pago del pedido cambia el `status` de la cita de `pending` a `confirmed` automáticamente.
-- [ ] Cancelar o reembolsar el pedido desde WooCommerce cambia el `status` de la cita a `cancelled` automáticamente, liberando el horario en `GET /availability`.
-- [ ] Una reserva con pago pendiente por más de `payment_window_hours` (y cuyo pedido sigue impago al revalidarlo) se cancela automáticamente vía el barrido, liberando el horario.
-- [ ] El widget de reserva (SPEC 06) muestra el botón "Pagar ahora" hacia `checkout_url` cuando el servicio requiere pago, y no lo muestra cuando no lo requiere.
-- [ ] El modal de detalle de una cita en el calendario admin (SPEC 04) muestra el estado de pago y un enlace al pedido cuando corresponde.
+- [x] Con WooCommerce inactivo, todo el flujo de reservas de SPEC 01-09 sigue funcionando sin errores ni cambios visibles.
+- [x] Marcar un servicio como "Requiere pago online" (con WooCommerce activo) crea/sincroniza un producto WC oculto del catálogo, con el mismo nombre y precio del servicio.
+- [x] Editar el precio de un servicio actualiza el precio del producto WC sincronizado.
+- [x] Reservar un servicio con `requires_payment=true` genera un pedido de WooCommerce pendiente de pago (`pending`) vinculado a la cita, y la respuesta de `POST /appointments` incluye `checkout_url`.
+- [x] Reservar un servicio con `requires_payment=false` no genera ningún pedido de WooCommerce.
+- [x] Completar el pago del pedido cambia el `status` de la cita de `pending` a `confirmed` automáticamente.
+- [x] Cancelar o reembolsar el pedido desde WooCommerce cambia el `status` de la cita a `cancelled` automáticamente, liberando el horario en `GET /availability`.
+- [x] Una reserva con pago pendiente por más de `payment_window_hours` (y cuyo pedido sigue impago al revalidarlo) se cancela automáticamente vía el barrido, liberando el horario.
+- [x] El widget de reserva (SPEC 06) muestra el botón "Pagar ahora" hacia `checkout_url` cuando el servicio requiere pago, y no lo muestra cuando no lo requiere.
+- [x] El modal de detalle de una cita en el calendario admin (SPEC 04) muestra el estado de pago y un enlace al pedido cuando corresponde.
 
 ---
 
@@ -107,6 +107,7 @@ Convención: el pedido de WooCommerce se crea directamente vía `wc_create_order
 - **Sí:** WooCommerce como dependencia opcional. Razón: decisión explícita del usuario; el plugin ya funciona completo sin ella desde SPEC 01-09.
 - **Sí:** producto WC sincronizado por servicio (no uno genérico compartido). Razón: decisión explícita del usuario; permite reportes de WooCommerce desglosados por servicio.
 - **Sí:** pedido creado directamente vía `wc_create_order()` (sin pasar por el carrito) y redirección a `get_checkout_payment_url()`, en vez de agregar al carrito y redirigir a `/checkout/`. Razón: evita interferir con cualquier otro contenido que el cliente ya tenga en su carrito de WooCommerce, manteniendo el espíritu de "reutilizar el checkout estándar" que pidió el usuario.
+- **Sí (corregido durante la implementación):** el pedido se crea en estado `pending`, no `on-hold` como se planteó originalmente en esta spec. Razón: se descubrió mediante prueba manual real (con la pasarela "Pagos por cheque" de WooCommerce) que un pedido creado directo en `on-hold` nunca es pagable — `WC_Order::needs_payment()` solo devuelve `true` para `pending`/`failed`/`checkout-draft`, así que la página de pago nunca ofrecía ninguna pasarela y el botón "Pagar ahora" quedaba roto. Con `pending`, el checkout funciona normalmente y cada pasarela transiciona el pedido según su propio flujo (automáticas → `processing`/`completed`; manuales como cheque → `on-hold`, pendiente de verificación del admin) — el "on-hold" que pedía la spec sigue ocurriendo, pero después del checkout en vez de antes.
 - **Sí:** `requires_payment` configurable por servicio. Razón: decisión explícita del usuario; cubre negocios mixtos (servicios gratuitos o de pago en persona junto a servicios con cobro online).
 - **Sí:** el estado de la cita se sincroniza automáticamente con el estado del pedido (pagado→`confirmed`, cancelado/reembolsado→`cancelled`). Razón: evita que un admin tenga que confirmar manualmente cada cita ya pagada.
 - **Sí:** barrido de WP-Cron que auto-cancela reservas con pago vencido. Razón: sin esto, una reserva abandonada sin pagar bloquearía ese horario indefinidamente para otros clientes — es un problema de correctitud, no solo una mejora cosmética.

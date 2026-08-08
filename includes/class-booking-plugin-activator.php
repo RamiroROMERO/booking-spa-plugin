@@ -15,5 +15,6 @@ class Booking_Plugin_Activator {
 		update_option( 'booking_plugin_db_version', BOOKING_PLUGIN_DB_VERSION );
 
 		Booking_Plugin_Reminder_Cron::schedule();
+		Booking_Plugin_Payment_Sweep_Cron::schedule();
 	}
 }

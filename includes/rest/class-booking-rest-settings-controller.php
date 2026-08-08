@@ -36,7 +36,10 @@ class Booking_Rest_Settings_Controller {
 	}
 
 	public function get_item( $request ) {
-		return rest_ensure_response( Booking_Plugin_Settings::get_settings() );
+		$settings                       = Booking_Plugin_Settings::get_settings();
+		$settings['woocommerce_active'] = Booking_Plugin_WooCommerce::is_active();
+
+		return rest_ensure_response( $settings );
 	}
 
 	public function update_item( $request ) {

@@ -14,6 +14,7 @@ class Booking_Plugin_Settings {
 			'min_cancellation_hours' => 2,
 			'slot_interval_minutes'  => 15,
 			'notification_email'     => get_option( 'admin_email' ),
+			'payment_window_hours'   => 2,
 		);
 	}
 
@@ -43,6 +44,7 @@ class Booking_Plugin_Settings {
 			'min_cancellation_hours' => max( 0, (int) $merged['min_cancellation_hours'] ),
 			'slot_interval_minutes'  => max( 1, (int) $merged['slot_interval_minutes'] ),
 			'notification_email'     => $notification_email,
+			'payment_window_hours'   => max( 1, (int) $merged['payment_window_hours'] ),
 		);
 
 		update_option( self::OPTION_NAME, $sanitized );

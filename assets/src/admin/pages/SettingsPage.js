@@ -19,6 +19,8 @@ export default function SettingsPage() {
 	const [ minCancellationHours, setMinCancellationHours ] = useState( '0' );
 	const [ slotIntervalMinutes, setSlotIntervalMinutes ] = useState( '15' );
 	const [ notificationEmail, setNotificationEmail ] = useState( '' );
+	const [ paymentWindowHours, setPaymentWindowHours ] = useState( '2' );
+	const [ isWooCommerceActive, setIsWooCommerceActive ] = useState( false );
 	const [ isSavingHours, setIsSavingHours ] = useState( false );
 	const [ isSavingSettings, setIsSavingSettings ] = useState( false );
 	const [ hoursError, setHoursError ] = useState( null );
@@ -38,6 +40,8 @@ export default function SettingsPage() {
 				setMinCancellationHours( String( settings.min_cancellation_hours ) );
 				setSlotIntervalMinutes( String( settings.slot_interval_minutes ) );
 				setNotificationEmail( settings.notification_email || '' );
+				setPaymentWindowHours( String( settings.payment_window_hours ) );
+				setIsWooCommerceActive( Boolean( settings.woocommerce_active ) );
 			} )
 			.catch( ( err ) => setLoadError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
@@ -75,6 +79,7 @@ export default function SettingsPage() {
 				min_cancellation_hours: parseInt( minCancellationHours, 10 ) || 0,
 				slot_interval_minutes: parseInt( slotIntervalMinutes, 10 ) || 15,
 				notification_email: notificationEmail,
+				payment_window_hours: parseInt( paymentWindowHours, 10 ) || 2,
 			},
 		} )
 			.then( ( result ) => {
@@ -83,6 +88,7 @@ export default function SettingsPage() {
 				setMinCancellationHours( String( result.min_cancellation_hours ) );
 				setSlotIntervalMinutes( String( result.slot_interval_minutes ) );
 				setNotificationEmail( result.notification_email || '' );
+				setPaymentWindowHours( String( result.payment_window_hours ) );
 				setSettingsSaved( true );
 			} )
 			.catch( ( err ) => setSettingsError( getApiErrorMessage( err ) ) )
@@ -176,10 +182,34 @@ export default function SettingsPage() {
 				value={ notificationEmail }
 				onChange={ setNotificationEmail }
 			/>
+			<TextControl
+				label={ __( 'Ventana de pago (horas)', 'booking-plugin' ) }
+				help={ __(
+					'Tiempo máximo para pagar una reserva con pago online antes de cancelarla automáticamente.',
+					'booking-plugin'
+				) }
+				type="number"
+				min="1"
+				value={ paymentWindowHours }
+				onChange={ setPaymentWindowHours }
+			/>
 
 			<Button variant="primary" disabled={ isSavingSettings } onClick={ handleSaveSettings }>
 				{ __( 'Guardar configuración', 'booking-plugin' ) }
 			</Button>
+
+			<hr />
+
+			<h2>{ __( 'Pagos', 'booking-plugin' ) }</h2>
+
+			<Notice status={ isWooCommerceActive ? 'success' : 'warning' } isDismissible={ false }>
+				{ isWooCommerceActive
+					? __( 'WooCommerce está activo: los servicios pueden requerir pago online.', 'booking-plugin' )
+					: __(
+							'WooCommerce no está instalado o activo: ningún servicio puede cobrar pago online por ahora.',
+							'booking-plugin'
+					  ) }
+			</Notice>
 		</div>
 	);
 }

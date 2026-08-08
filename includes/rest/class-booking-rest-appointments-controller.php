@@ -254,16 +254,22 @@ class Booking_Rest_Appointments_Controller {
 
 				do_action( 'booking_plugin_appointment_created', $row );
 
-				$response = rest_ensure_response(
-					array(
-						'id'             => (int) $row->id,
-						'status'         => $row->status,
-						'start_datetime' => $this->to_iso( $row->start_datetime ),
-						'end_datetime'   => $this->to_iso( $row->end_datetime ),
-						'staff_id'       => (int) $row->staff_id,
-						'access_token'   => $row->access_token,
-					)
+				$response_data = array(
+					'id'             => (int) $row->id,
+					'status'         => $row->status,
+					'start_datetime' => $this->to_iso( $row->start_datetime ),
+					'end_datetime'   => $this->to_iso( $row->end_datetime ),
+					'staff_id'       => (int) $row->staff_id,
+					'access_token'   => $row->access_token,
 				);
+
+				$checkout_url = $this->maybe_create_payment_order( $row );
+
+				if ( $checkout_url ) {
+					$response_data['checkout_url'] = $checkout_url;
+				}
+
+				$response = rest_ensure_response( $response_data );
 				$response->set_status( 201 );
 
 				return $response;
@@ -271,6 +277,40 @@ class Booking_Rest_Appointments_Controller {
 		}
 
 		return new WP_Error( 'booking_rest_slot_unavailable', __( 'The requested slot is not available.', 'booking-plugin' ), array( 'status' => 409 ) );
+	}
+
+	protected function maybe_create_payment_order( $appointment ) {
+		if ( empty( $appointment->service_id ) ) {
+			return null;
+		}
+
+		global $wpdb;
+
+		$services_table   = $wpdb->prefix . 'booking_services';
+		$requires_payment = (bool) $wpdb->get_var(
+			$wpdb->prepare( "SELECT requires_payment FROM {$services_table} WHERE id = %d", (int) $appointment->service_id )
+		);
+
+		if ( ! $requires_payment ) {
+			return null;
+		}
+
+		if ( ! Booking_Plugin_WooCommerce::is_active() ) {
+			// Degradacion consciente (ver Risks de SPEC 10): sin WooCommerce
+			// activo, esta cita se trata como si no requiriera pago. Se deja
+			// constancia en el log para que el admin lo note (la pagina de
+			// Configuracion tambien muestra el estado de WooCommerce).
+			error_log(
+				sprintf(
+					'[booking-plugin] Cita #%d es de un servicio que requiere pago, pero WooCommerce esta inactivo: se omite la generacion del pedido.',
+					(int) $appointment->id
+				)
+			);
+
+			return null;
+		}
+
+		return Booking_Plugin_WooCommerce::create_order_for_appointment( $appointment );
 	}
 
 	public function create_block( $request ) {
@@ -622,7 +662,7 @@ class Booking_Rest_Appointments_Controller {
 	}
 
 	protected function prepare_item( $row ) {
-		return array(
+		$data = array(
 			'id'             => (int) $row->id,
 			'service_id'     => $row->service_id ? (int) $row->service_id : null,
 			'staff_id'       => (int) $row->staff_id,
@@ -635,8 +675,20 @@ class Booking_Rest_Appointments_Controller {
 			'status'         => $row->status,
 			'notes'          => $row->notes,
 			'access_token'   => $row->access_token,
+			'wc_order_id'    => $row->wc_order_id ? (int) $row->wc_order_id : null,
 			'created_at'     => $this->to_iso( $row->created_at ),
 			'updated_at'     => $this->to_iso( $row->updated_at ),
 		);
+
+		if ( $row->wc_order_id && Booking_Plugin_WooCommerce::is_active() ) {
+			$order = wc_get_order( (int) $row->wc_order_id );
+
+			if ( $order ) {
+				$data['payment_status']    = wc_get_order_status_name( $order->get_status() );
+				$data['wc_order_edit_url'] = $order->get_edit_order_url();
+			}
+		}
+
+		return $data;
 	}
 }

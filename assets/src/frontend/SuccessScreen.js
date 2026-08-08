@@ -36,6 +36,23 @@ export default function SuccessScreen( { bookingResult, timezone } ) {
 					</button>
 				</div>
 			</div>
+
+			{ bookingResult.checkout_url && (
+				<div className="booking-plugin-widget__payment">
+					<p>
+						{ __(
+							'Este servicio requiere pago online para confirmar la cita.',
+							'booking-plugin'
+						) }
+					</p>
+					<a
+						href={ bookingResult.checkout_url }
+						className="booking-plugin-widget__primary"
+					>
+						{ __( 'Pagar ahora', 'booking-plugin' ) }
+					</a>
+				</div>
+			) }
 		</div>
 	);
 }
