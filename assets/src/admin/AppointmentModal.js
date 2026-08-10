@@ -1,7 +1,7 @@
 import { useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { Modal, Button, Notice } from '@wordpress/components';
+import { Modal, Button, Notice, CheckboxControl } from '@wordpress/components';
 
 import { getLocalDate, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
@@ -21,7 +21,15 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 	const [ newDate, setNewDate ] = useState( getLocalDate( appointment.start_datetime ) );
 	const [ newTime, setNewTime ] = useState( formatTime( appointment.start_datetime ) );
 
+	const [ editingAddons, setEditingAddons ] = useState( false );
+	const [ availableAddons, setAvailableAddons ] = useState( null );
+	const [ isLoadingAddons, setIsLoadingAddons ] = useState( false );
+	const [ selectedAddonIds, setSelectedAddonIds ] = useState( [] );
+
 	const staffMember = staff.find( ( member ) => member.id === appointment.staff_id );
+
+	const canEditAddons =
+		! appointment.wc_order_id && [ 'pending', 'confirmed' ].includes( appointment.status );
 
 	const patchAppointment = ( data ) => {
 		setIsSaving( true );
@@ -43,6 +51,34 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 	const handleReschedule = () => {
 		const timezone = ( window.BookingPluginAdmin || {} ).timezone;
 		patchAppointment( { start_datetime: localToUtcIso( newDate, newTime, timezone ) } );
+	};
+
+	const startEditAddons = () => {
+		setEditingAddons( true );
+		setSelectedAddonIds( ( appointment.addons || [] ).map( ( addon ) => addon.addon_id ) );
+
+		if ( ! appointment.service_id ) {
+			return;
+		}
+
+		setIsLoadingAddons( true );
+
+		apiFetch( { path: `${ API_NAMESPACE }/services/${ appointment.service_id }/addons` } )
+			.then( setAvailableAddons )
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
+			.finally( () => setIsLoadingAddons( false ) );
+	};
+
+	const toggleAddon = ( addonId ) => {
+		setSelectedAddonIds( ( current ) =>
+			current.includes( addonId )
+				? current.filter( ( id ) => id !== addonId )
+				: [ ...current, addonId ]
+		);
+	};
+
+	const saveAddons = () => {
+		patchAppointment( { addon_ids: selectedAddonIds } );
 	};
 
 	return (
@@ -130,6 +166,54 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 					{ __( 'Cancelar', 'booking-plugin' ) }
 				</Button>
 			</div>
+
+			<hr />
+
+			<h3>{ __( 'Add-ons', 'booking-plugin' ) }</h3>
+
+			{ appointment.addons && appointment.addons.length > 0 ? (
+				<ul>
+					{ appointment.addons.map( ( addon ) => (
+						<li key={ addon.addon_id }>
+							{ addon.name } — { addon.price } — { addon.extra_time_minutes }{ ' ' }
+							{ __( 'min extra', 'booking-plugin' ) }
+						</li>
+					) ) }
+				</ul>
+			) : (
+				<p>{ __( 'Esta cita no tiene add-ons.', 'booking-plugin' ) }</p>
+			) }
+
+			{ canEditAddons && ! editingAddons && (
+				<Button variant="link" onClick={ startEditAddons }>
+					{ __( 'Editar add-ons', 'booking-plugin' ) }
+				</Button>
+			) }
+
+			{ canEditAddons && editingAddons && (
+				<div className="booking-plugin-modal__addons-editor">
+					{ isLoadingAddons && <p>{ __( 'Cargando…', 'booking-plugin' ) }</p> }
+					{ ! isLoadingAddons &&
+						availableAddons &&
+						availableAddons.map( ( addon ) => (
+							<CheckboxControl
+								key={ addon.id }
+								label={ `${ addon.name } — ${ addon.price } — ${ addon.extra_time_minutes } min` }
+								checked={ selectedAddonIds.includes( addon.id ) }
+								onChange={ () => toggleAddon( addon.id ) }
+							/>
+						) ) }
+					{ ! isLoadingAddons && availableAddons && 0 === availableAddons.length && (
+						<p>{ __( 'Este servicio no tiene add-ons activos.', 'booking-plugin' ) }</p>
+					) }
+					<Button variant="primary" disabled={ isSaving } onClick={ saveAddons }>
+						{ __( 'Guardar add-ons', 'booking-plugin' ) }
+					</Button>
+					<Button variant="tertiary" onClick={ () => setEditingAddons( false ) }>
+						{ __( 'Cancelar', 'booking-plugin' ) }
+					</Button>
+				</div>
+			) }
 
 			<hr />
 

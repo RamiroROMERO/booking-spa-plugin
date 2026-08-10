@@ -114,6 +114,31 @@ class Booking_Plugin_DB_Schema {
 			UNIQUE KEY access_token (access_token)
 		) $charset_collate;";
 
+		$sql[] = "CREATE TABLE {$prefix}booking_service_addons (
+			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			service_id BIGINT UNSIGNED NOT NULL,
+			name VARCHAR(191) NOT NULL,
+			price DECIMAL(10,2) NOT NULL DEFAULT 0,
+			extra_time_minutes SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+			status VARCHAR(20) NOT NULL DEFAULT 'active',
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			KEY service_id (service_id),
+			KEY status (status)
+		) $charset_collate;";
+
+		$sql[] = "CREATE TABLE {$prefix}booking_appointment_addons (
+			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			appointment_id BIGINT UNSIGNED NOT NULL,
+			addon_id BIGINT UNSIGNED NOT NULL,
+			name VARCHAR(191) NOT NULL,
+			price DECIMAL(10,2) NOT NULL,
+			extra_time_minutes SMALLINT UNSIGNED NOT NULL,
+			UNIQUE KEY appointment_addon (appointment_id, addon_id),
+			KEY appointment_id (appointment_id),
+			KEY addon_id (addon_id)
+		) $charset_collate;";
+
 		return $sql;
 	}
 }

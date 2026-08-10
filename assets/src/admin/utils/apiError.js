@@ -12,6 +12,18 @@ const MESSAGES_BY_CODE = {
 	booking_rest_invalid_duration: __( 'La duración debe ser mayor a 0.', 'booking-plugin' ),
 	booking_rest_invalid_price: __( 'El precio no puede ser negativo.', 'booking-plugin' ),
 	booking_rest_invalid_buffer: __( 'El buffer no puede ser negativo.', 'booking-plugin' ),
+	booking_rest_invalid_extra_time: __(
+		'Los minutos extra no pueden ser negativos.',
+		'booking-plugin'
+	),
+	booking_rest_invalid_addons: __(
+		'Uno de los add-ons seleccionados no es válido para este servicio.',
+		'booking-plugin'
+	),
+	booking_rest_addons_not_editable: __(
+		'Los add-ons de esta cita ya no se pueden editar.',
+		'booking-plugin'
+	),
 	booking_rest_invalid_name: __( 'El nombre es obligatorio.', 'booking-plugin' ),
 	booking_rest_invalid_email: __( 'El email no es válido.', 'booking-plugin' ),
 	booking_rest_invalid_guest_name: __( 'El nombre del cliente es obligatorio.', 'booking-plugin' ),

@@ -1,6 +1,6 @@
 # SPEC 11 — Add-ons (Extras y Upselling)
 
-> **Status:** Aprovado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04, SPEC 05, SPEC 06, SPEC 10
 > **Date:** 2026-08-10
 > **Objective:** Permitir que cada servicio tenga extras opcionales (add-ons) con precio y tiempo adicional, que el cliente seleccione en el wizard de reserva, que el motor de disponibilidad los sume a la duración de la cita, y que su costo se refleje en el pedido de WooCommerce cuando el servicio requiere pago online.
@@ -109,16 +109,16 @@ Convención: `appointment_addons` guarda una copia de `name`/`price`/`extra_time
 
 ## Acceptance criteria
 
-- [ ] Crear un add-on desde `ServiceFormModal.js` lo persiste en `service_addons` ligado al `service_id` correcto.
-- [ ] Desactivar un add-on (`DELETE`) lo saca de la lista pública (`GET /services/{id}/addons` sin `manage_options`) pero no borra las filas de `appointment_addons` de citas pasadas que lo usaron.
-- [ ] El widget muestra el paso de add-ons entre la elección de servicio y la de profesional, y lo salta automáticamente si el servicio no tiene add-ons activos.
-- [ ] Seleccionar add-ons en el widget hace que `GET /availability` devuelva huecos que respetan la duración del servicio + minutos extra de los add-ons elegidos.
-- [ ] `POST /appointments` con `addon_ids` crea la cita, revalida el hueco con la duración total, y guarda en `appointment_addons` una copia de nombre/precio/minutos (no solo el id).
-- [ ] Editar el nombre o precio de un add-on después de una reserva no altera los valores ya guardados en `appointment_addons` de citas anteriores.
-- [ ] En un servicio con `requires_payment=true` (SPEC 10), reservar con add-ons genera un pedido de WooCommerce con una única línea cuyo precio es servicio + add-ons, y los nombres de los add-ons aparecen como metadata del ítem.
-- [ ] El modal de cita en el admin (SPEC 04) permite editar los add-ons de una cita `pending`/`confirmed` sin `wc_order_id`, revalidando disponibilidad; no ofrece esa opción si la cita ya tiene `wc_order_id`.
-- [ ] El panel de autoservicio del cliente (SPEC 07) no ofrece ninguna opción para editar add-ons.
-- [ ] `npm run build` genera `assets/build/frontend.js`/`admin.js` sin errores tras los cambios.
+- [x] Crear un add-on desde `ServiceFormModal.js` lo persiste en `service_addons` ligado al `service_id` correcto.
+- [x] Desactivar un add-on (`DELETE`) lo saca de la lista pública (`GET /services/{id}/addons` sin `manage_options`) pero no borra las filas de `appointment_addons` de citas pasadas que lo usaron.
+- [x] El widget muestra el paso de add-ons entre la elección de servicio y la de profesional, y lo salta automáticamente si el servicio no tiene add-ons activos.
+- [x] Seleccionar add-ons en el widget hace que `GET /availability` devuelva huecos que respetan la duración del servicio + minutos extra de los add-ons elegidos.
+- [x] `POST /appointments` con `addon_ids` crea la cita, revalida el hueco con la duración total, y guarda en `appointment_addons` una copia de nombre/precio/minutos (no solo el id).
+- [x] Editar el nombre o precio de un add-on después de una reserva no altera los valores ya guardados en `appointment_addons` de citas anteriores.
+- [x] En un servicio con `requires_payment=true` (SPEC 10), reservar con add-ons genera un pedido de WooCommerce con una única línea cuyo precio es servicio + add-ons, y los nombres de los add-ons aparecen como metadata del ítem.
+- [x] El modal de cita en el admin (SPEC 04) permite editar los add-ons de una cita `pending`/`confirmed` sin `wc_order_id`, revalidando disponibilidad; no ofrece esa opción si la cita ya tiene `wc_order_id`.
+- [x] El panel de autoservicio del cliente (SPEC 07) no ofrece ninguna opción para editar add-ons.
+- [x] `npm run build` genera `assets/build/frontend.js`/`admin.js` sin errores tras los cambios.
 
 ---
 

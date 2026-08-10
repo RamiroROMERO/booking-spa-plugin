@@ -89,6 +89,19 @@ class Booking_Plugin_WooCommerce {
 			return null;
 		}
 
+		$addons = self::get_appointment_addons( (int) $appointment->id );
+
+		$addons_total = 0.0;
+
+		foreach ( $addons as $addon ) {
+			$addons_total += (float) $addon->price;
+		}
+
+		// Una unica linea con precio = servicio + suma de add-ons (ver SPEC 11);
+		// no se crea una linea por add-on porque eso requeriria un producto WC
+		// propio por cada uno, sin beneficio confirmado.
+		$total_price = (float) $service->price + $addons_total;
+
 		// "pending" (no "on-hold"): es el unico estado inicial que WooCommerce
 		// considera pagable (needs_payment() solo es true para pending/failed/
 		// checkout-draft). Crear directo en on-hold deja el pedido huerfano
@@ -99,14 +112,16 @@ class Booking_Plugin_WooCommerce {
 		// originalmente pedia la spec, solo que despues del pago en vez de antes).
 		$order = wc_create_order( array( 'status' => 'pending' ) );
 
-		$order->add_product(
+		$item_id = $order->add_product(
 			$product,
 			1,
 			array(
-				'subtotal' => $service->price,
-				'total'    => $service->price,
+				'subtotal' => $total_price,
+				'total'    => $total_price,
 			)
 		);
+
+		self::apply_addon_metadata( $order, $item_id, $addons );
 
 		list( $email, $name ) = self::resolve_customer( $appointment );
 
@@ -134,6 +149,34 @@ class Booking_Plugin_WooCommerce {
 		);
 
 		return $order->get_checkout_payment_url();
+	}
+
+	protected static function get_appointment_addons( $appointment_id ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_appointment_addons';
+
+		return $wpdb->get_results( $wpdb->prepare( "SELECT name, price FROM {$table} WHERE appointment_id = %d ORDER BY id ASC", $appointment_id ) );
+	}
+
+	// Un meta por add-on (clave = nombre, valor = precio formateado) para que
+	// salga en el recibo del pedido -- ver SPEC 11.
+	protected static function apply_addon_metadata( $order, $item_id, array $addons ) {
+		if ( ! $item_id || empty( $addons ) ) {
+			return;
+		}
+
+		$item = $order->get_item( $item_id );
+
+		if ( ! $item ) {
+			return;
+		}
+
+		foreach ( $addons as $addon ) {
+			$item->add_meta_data( $addon->name, get_woocommerce_currency_symbol() . number_format( (float) $addon->price, 2 ), true );
+		}
+
+		$item->save();
 	}
 
 	protected static function resolve_customer( $appointment ) {

@@ -103,6 +103,41 @@
 		font-size: 13px;
 	}
 
+	&__addons-grid {
+		display: grid;
+		grid-template-columns: repeat( auto-fill, minmax( 200px, 1fr ) );
+		gap: 12px;
+		margin-bottom: 16px;
+	}
+
+	&__addon-card {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		padding: 12px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		background: #fff;
+		cursor: pointer;
+
+		&:hover {
+			border-color: #2271b1;
+		}
+
+		input {
+			align-self: flex-start;
+		}
+	}
+
+	&__addon-name {
+		font-weight: 600;
+	}
+
+	&__addon-meta {
+		font-size: 13px;
+		color: #646970;
+	}
+
 	&__staff-grid {
 		display: grid;
 		grid-template-columns: repeat( auto-fill, minmax( 180px, 1fr ) );
@@ -292,6 +327,13 @@
 			margin: 0;
 			font-weight: 600;
 		}
+	}
+
+	&__summary-addons {
+		margin: 0;
+		padding-left: 18px;
+		font-weight: 400;
+		font-size: 13px;
 	}
 
 	&__success {

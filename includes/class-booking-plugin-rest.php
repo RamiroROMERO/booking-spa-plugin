@@ -9,6 +9,7 @@ class Booking_Plugin_Rest {
 		$controllers = array(
 			new Booking_Rest_Categories_Controller(),
 			new Booking_Rest_Services_Controller(),
+			new Booking_Rest_Addons_Controller(),
 			new Booking_Rest_Staff_Controller(),
 			new Booking_Rest_Settings_Controller(),
 			new Booking_Rest_Business_Hours_Controller(),

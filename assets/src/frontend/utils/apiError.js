@@ -10,6 +10,10 @@ const MESSAGES_BY_CODE = {
 	),
 	booking_rest_invalid_staff: __( 'Ese profesional ya no está disponible.', 'booking-plugin' ),
 	booking_rest_invalid_datetime: __( 'La fecha u hora no es válida.', 'booking-plugin' ),
+	booking_rest_invalid_addons: __(
+		'Uno de los extras elegidos ya no está disponible para este servicio. Vuelve a elegirlos.',
+		'booking-plugin'
+	),
 	booking_rest_invalid_guest_name: __( 'El nombre es obligatorio.', 'booking-plugin' ),
 	booking_rest_invalid_guest_email: __( 'El email no es válido.', 'booking-plugin' ),
 	booking_rest_slot_unavailable: __(
