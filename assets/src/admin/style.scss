@@ -397,6 +397,70 @@
 	}
 }
 
+.booking-plugin-package-services {
+	max-width: 700px;
+	margin-bottom: 16px;
+
+	&__list {
+		margin-bottom: 12px;
+	}
+
+	&__card {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 10px;
+		border: 1px solid #dcdcde;
+		border-radius: 3px;
+		margin-bottom: 6px;
+		background: #fff;
+
+		span {
+			flex: 1;
+		}
+	}
+
+	&__form {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+}
+
+.booking-plugin-credits {
+	max-width: 900px;
+
+	&__search {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	&__results {
+		list-style: none;
+		margin: 0 0 16px;
+		padding: 0;
+
+		li {
+			padding: 4px 0;
+		}
+	}
+
+	&__detail {
+		margin-top: 16px;
+	}
+
+	&__grant {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+		flex-wrap: wrap;
+		margin-top: 8px;
+	}
+}
+
 .booking-plugin-table {
 	width: 100%;
 	border-collapse: collapse;

@@ -39,13 +39,19 @@ export default function App() {
 		date: null,
 		slot: null,
 		personalData: { name: '', email: '', phone: '', notes: '' },
+		use_credit_id: null,
+		credit: null,
 	} );
 
 	// Cambiar el servicio (o el profesional) limpia las selecciones que
 	// dependen de el, para que el criterio de aceptacion de "Atras" se
 	// cumpla sin necesitar logica especial de navegacion hacia atras: se
 	// dispara igual la primera vez que se elige algo (donde ya eran null).
-	const handleSelectService = ( service ) => {
+	//
+	// `credit` llega desde ServiceStep cuando el usuario acepta gastar una
+	// sesion de su paquete (SPEC 12): en ese caso se salta AddonsStep por
+	// completo -- un servicio pagado con credito nunca ofrece add-ons.
+	const handleSelectService = ( service, credit ) => {
 		setCollisionNotice( null );
 		setSelection( ( current ) => ( {
 			...current,
@@ -56,8 +62,10 @@ export default function App() {
 			staff_id: null,
 			date: null,
 			slot: null,
+			use_credit_id: credit ? credit.id : null,
+			credit: credit || null,
 		} ) );
-		setStep( 'addons' );
+		setStep( credit ? 'staff' : 'addons' );
 	};
 
 	// AddonsStep se salta solo si el servicio no tiene add-ons activos (ver
@@ -144,9 +152,13 @@ export default function App() {
 
 		let prevIndex = currentIndex - 1;
 
-		// El servicio actual no tiene add-ons: al volver atras desde "staff"
-		// se salta "addons" tambien, para no caer en un paso vacio.
-		if ( 'addons' === STEP_ORDER[ prevIndex ] && false === selection.hasAddons ) {
+		// El servicio actual no tiene add-ons, o se reserva con credito
+		// (que nunca ofrece add-ons, ver SPEC 12): al volver atras desde
+		// "staff" se salta "addons" tambien, para no caer en un paso vacio.
+		if (
+			'addons' === STEP_ORDER[ prevIndex ] &&
+			( false === selection.hasAddons || selection.use_credit_id )
+		) {
 			prevIndex -= 1;
 		}
 
@@ -183,6 +195,7 @@ export default function App() {
 				{ 'service' === step && (
 					<ServiceStep
 						categoryId={ selection.category_id }
+						currentUser={ currentUser }
 						onSelectCategory={ handleSelectCategory }
 						onSelectService={ handleSelectService }
 					/>

@@ -1,6 +1,6 @@
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Modal, Button, Notice, CheckboxControl } from '@wordpress/components';
 
 import { getLocalDate, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
@@ -25,8 +25,25 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 	const [ availableAddons, setAvailableAddons ] = useState( null );
 	const [ isLoadingAddons, setIsLoadingAddons ] = useState( false );
 	const [ selectedAddonIds, setSelectedAddonIds ] = useState( [] );
+	const [ creditPackageName, setCreditPackageName ] = useState( null );
 
 	const staffMember = staff.find( ( member ) => member.id === appointment.staff_id );
+
+	// El endpoint de citas no trae el nombre del paquete (solo el id del
+	// credito usado, ver SPEC 12): se busca aparte en los creditos del
+	// cliente para mostrarlo en el modal.
+	useEffect( () => {
+		if ( ! appointment.paid_with_credit_id || ! appointment.user_id ) {
+			return;
+		}
+
+		apiFetch( { path: `${ API_NAMESPACE }/users/${ appointment.user_id }/credits` } )
+			.then( ( credits ) => {
+				const credit = credits.find( ( item ) => item.id === appointment.paid_with_credit_id );
+				setCreditPackageName( credit ? credit.package_name : null );
+			} )
+			.catch( () => setCreditPackageName( null ) );
+	}, [ appointment.paid_with_credit_id, appointment.user_id ] );
 
 	const canEditAddons =
 		! appointment.wc_order_id && [ 'pending', 'confirmed' ].includes( appointment.status );
@@ -132,6 +149,19 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 							</a>
 						</>
 					) }
+				</p>
+			) }
+
+			{ appointment.paid_with_credit_id && (
+				<p>
+					<strong>{ __( 'Pago:', 'booking-plugin' ) }</strong>{ ' ' }
+					{ creditPackageName
+						? sprintf(
+								/* translators: %s: nombre del paquete */
+								__( 'Pagada con crédito (%s)', 'booking-plugin' ),
+								creditPackageName
+						  )
+						: __( 'Pagada con crédito', 'booking-plugin' ) }
 				</p>
 			) }
 

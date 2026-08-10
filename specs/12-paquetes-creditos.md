@@ -1,6 +1,6 @@
 # SPEC 12 — Paquetes (Sesiones Prepagadas / Créditos)
 
-> **Status:** Aprovado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04, SPEC 05, SPEC 06, SPEC 07, SPEC 10, SPEC 11
 > **Date:** 2026-08-10
 > **Objective:** Permitir que un cliente compre un paquete de sesiones prepagadas (vía WooCommerce, o asignado manualmente desde el admin), y que el wizard de reserva le ofrezca gastar una sesión de su saldo en vez de pagar, confirmando la cita directamente sin pasar por el checkout.
@@ -125,17 +125,17 @@ Convención: `use_credit_id` es mutuamente excluyente con el flujo de pago de SP
 
 ## Acceptance criteria
 
-- [ ] Crear un paquete con varios servicios y costos en créditos distintos lo persiste correctamente en `packages`/`package_services`.
-- [ ] Con WooCommerce activo, un paquete activo tiene un producto WC sincronizado (oculto del catálogo), igual patrón que SPEC 10 con servicios.
-- [ ] Completar un pedido de WooCommerce de un producto de paquete inserta una fila en `user_credits` con `remaining_sessions = total_sessions` del paquete, asociada al comprador.
-- [ ] `GET /credits/mine?service_id=` solo devuelve créditos del usuario autenticado actual, aplicables a ese servicio, nunca de otro usuario.
-- [ ] El wizard muestra el aviso de saldo disponible solo a usuarios logueados con `remaining_sessions > 0` aplicable al servicio elegido.
-- [ ] Reservar usando `use_credit_id` confirma la cita directamente (`status=confirmed`), no genera pedido de WooCommerce, y descuenta exactamente el `credit_cost` de ese servicio dentro del paquete.
-- [ ] Al usar crédito, el wizard no ofrece el paso de add-ons (SPEC 11).
-- [ ] Cancelar una cita pagada con crédito, dentro de la ventana mínima permitida, devuelve `credits_consumed` a `remaining_sessions` del crédito original.
-- [ ] Reprogramar una cita pagada con crédito no modifica ningún saldo.
-- [ ] Con WooCommerce inactivo, "Otorgar crédito manual" desde el admin sigue funcionando y el resto del plugin (SPEC 01-11) no se ve afectado.
-- [ ] El modal de cita en el admin (SPEC 04) indica cuando una cita fue pagada con crédito y con qué paquete.
+- [x] Crear un paquete con varios servicios y costos en créditos distintos lo persiste correctamente en `packages`/`package_services`.
+- [x] Con WooCommerce activo, un paquete activo tiene un producto WC sincronizado (oculto del catálogo), igual patrón que SPEC 10 con servicios.
+- [x] Completar un pedido de WooCommerce de un producto de paquete inserta una fila en `user_credits` con `remaining_sessions = total_sessions` del paquete, asociada al comprador.
+- [x] `GET /credits/mine?service_id=` solo devuelve créditos del usuario autenticado actual, aplicables a ese servicio, nunca de otro usuario. (Verificado por revisión de código — query parametrizada por `get_current_user_id()` — no probado en vivo con un segundo usuario.)
+- [x] El wizard muestra el aviso de saldo disponible solo a usuarios logueados con `remaining_sessions > 0` aplicable al servicio elegido.
+- [x] Reservar usando `use_credit_id` confirma la cita directamente (`status=confirmed`), no genera pedido de WooCommerce, y descuenta exactamente el `credit_cost` de ese servicio dentro del paquete.
+- [x] Al usar crédito, el wizard no ofrece el paso de add-ons (SPEC 11).
+- [x] Cancelar una cita pagada con crédito, dentro de la ventana mínima permitida, devuelve `credits_consumed` a `remaining_sessions` del crédito original.
+- [x] Reprogramar una cita pagada con crédito no modifica ningún saldo.
+- [x] Con WooCommerce inactivo, "Otorgar crédito manual" desde el admin sigue funcionando y el resto del plugin (SPEC 01-11) no se ve afectado. (El código de otorgamiento manual no invoca ningún método de WooCommerce; no se desactivó el plugin en el sitio de pruebas compartido para no afectar otras specs activas.)
+- [x] El modal de cita en el admin (SPEC 04) indica cuando una cita fue pagada con crédito y con qué paquete.
 
 ---
 
