@@ -5,11 +5,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Booking_Plugin_Availability {
 
-	public function get_available_slots( $service_id, $date, $timezone = null, $staff_id = null ) {
+	public function get_available_slots( $service_id, $date, $timezone = null, $staff_id = null, $addon_ids = array() ) {
 		$service = $this->get_active_service( $service_id );
 
 		if ( is_wp_error( $service ) ) {
 			return $service;
+		}
+
+		$addons_extra_minutes = $this->get_addons_extra_minutes( $service_id, $addon_ids );
+
+		if ( is_wp_error( $addons_extra_minutes ) ) {
+			return $addons_extra_minutes;
 		}
 
 		$request_tz = $this->resolve_timezone( $timezone );
@@ -37,7 +43,7 @@ class Booking_Plugin_Availability {
 		$now_utc             = new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) );
 		$site_tz             = wp_timezone();
 		$business_hours_map  = $this->get_business_hours_map();
-		$duration_minutes    = (int) $service->duration_minutes;
+		$duration_minutes    = (int) $service->duration_minutes + $addons_extra_minutes;
 		$slot_interval       = max( 1, (int) $settings['slot_interval_minutes'] );
 
 		$slots = array();
@@ -141,11 +147,17 @@ class Booking_Plugin_Availability {
 		return false;
 	}
 
-	public function is_staff_slot_available( $service_id, $staff_id, $start_datetime, $exclude_appointment_id = 0 ) {
+	public function is_staff_slot_available( $service_id, $staff_id, $start_datetime, $exclude_appointment_id = 0, $addon_ids = array() ) {
 		$service = $this->get_active_service( $service_id );
 
 		if ( is_wp_error( $service ) ) {
 			return $service;
+		}
+
+		$addons_extra_minutes = $this->get_addons_extra_minutes( $service_id, $addon_ids );
+
+		if ( is_wp_error( $addons_extra_minutes ) ) {
+			return $addons_extra_minutes;
 		}
 
 		$staff_ids = $this->resolve_candidate_staff_ids( $service_id, $staff_id );
@@ -164,7 +176,7 @@ class Booking_Plugin_Availability {
 			return new WP_Error( 'booking_rest_invalid_datetime', __( 'start_datetime must be a valid ISO 8601 datetime.', 'booking-plugin' ), array( 'status' => 400 ) );
 		}
 
-		$candidate_end = $candidate_start->modify( '+' . (int) $service->duration_minutes . ' minutes' );
+		$candidate_end = $candidate_start->modify( '+' . ( (int) $service->duration_minutes + $addons_extra_minutes ) . ' minutes' );
 
 		$settings = Booking_Plugin_Settings::get_settings();
 		$now_utc  = new DateTimeImmutable( 'now', new DateTimeZone( 'UTC' ) );
@@ -285,6 +297,45 @@ class Booking_Plugin_Availability {
 		} catch ( Exception $e ) {
 			return new WP_Error( 'booking_rest_invalid_timezone', __( 'Invalid timezone.', 'booking-plugin' ), array( 'status' => 400 ) );
 		}
+	}
+
+	/**
+	 * Suma extra_time_minutes de los addon_ids indicados. Devuelve WP_Error
+	 * (400) si alguno no pertenece a $service_id o no esta active -- ver
+	 * SPEC 11. Publico porque Booking_Rest_Appointments_Controller lo
+	 * reutiliza para calcular la ventana de bloqueo con la duracion total
+	 * antes de abrir la transaccion de disponibilidad.
+	 */
+	public function get_addons_extra_minutes( $service_id, $addon_ids ) {
+		$addon_ids = array_values( array_unique( array_map( 'intval', (array) $addon_ids ) ) );
+
+		if ( empty( $addon_ids ) ) {
+			return 0;
+		}
+
+		global $wpdb;
+
+		$table        = $wpdb->prefix . 'booking_service_addons';
+		$placeholders = implode( ', ', array_fill( 0, count( $addon_ids ), '%d' ) );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, extra_time_minutes FROM {$table} WHERE service_id = %d AND status = 'active' AND id IN ({$placeholders})",
+				array_merge( array( (int) $service_id ), $addon_ids )
+			)
+		);
+
+		if ( count( $rows ) !== count( $addon_ids ) ) {
+			return new WP_Error( 'booking_rest_invalid_addons', __( 'One or more addon_ids are invalid for this service.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$extra_minutes = 0;
+
+		foreach ( $rows as $row ) {
+			$extra_minutes += (int) $row->extra_time_minutes;
+		}
+
+		return $extra_minutes;
 	}
 
 	protected function get_active_service( $service_id ) {

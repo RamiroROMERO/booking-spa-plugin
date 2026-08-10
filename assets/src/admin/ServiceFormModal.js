@@ -13,6 +13,7 @@ import {
 
 import { API_NAMESPACE } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
+import AddonsEditor from './components/AddonsEditor';
 
 export default function ServiceFormModal( { service, categories, onClose, onSaved } ) {
 	const isEditing = Boolean( service );
@@ -150,6 +151,10 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 			<Button variant="primary" disabled={ isSaving } onClick={ handleSubmit }>
 				{ __( 'Guardar', 'booking-plugin' ) }
 			</Button>
+
+			<hr />
+
+			<AddonsEditor serviceId={ service ? service.id : null } />
 		</Modal>
 	);
 }

@@ -47,15 +47,17 @@ class Booking_Rest_Availability_Controller {
 			return new WP_Error( 'booking_rest_invalid_date', __( 'date is required.', 'booking-plugin' ), array( 'status' => 400 ) );
 		}
 
-		$staff_id = $request->get_param( 'staff_id' );
-		$timezone = $request->get_param( 'timezone' );
+		$staff_id  = $request->get_param( 'staff_id' );
+		$timezone  = $request->get_param( 'timezone' );
+		$addon_ids = $this->parse_addon_ids( $request->get_param( 'addon_ids' ) );
 
 		$availability = new Booking_Plugin_Availability();
 		$slots        = $availability->get_available_slots(
 			(int) $service_id,
 			$date,
 			$timezone,
-			$staff_id ? (int) $staff_id : null
+			$staff_id ? (int) $staff_id : null,
+			$addon_ids
 		);
 
 		if ( is_wp_error( $slots ) ) {
@@ -69,6 +71,23 @@ class Booking_Rest_Availability_Controller {
 				'slots'      => $slots,
 			)
 		);
+	}
+
+	protected function parse_addon_ids( $raw ) {
+		if ( empty( $raw ) ) {
+			return array();
+		}
+
+		$ids = is_array( $raw ) ? $raw : explode( ',', (string) $raw );
+
+		$ids = array_filter(
+			array_map( 'intval', $ids ),
+			function ( $id ) {
+				return $id > 0;
+			}
+		);
+
+		return array_values( array_unique( $ids ) );
 	}
 
 	public function get_days( $request ) {

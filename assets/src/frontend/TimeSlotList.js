@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { API_NAMESPACE, formatTimeInZone } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
-export default function TimeSlotList( { serviceId, staffId, date, timezone, onSelectSlot } ) {
+export default function TimeSlotList( { serviceId, staffId, addonIds, date, timezone, onSelectSlot } ) {
 	const [ slots, setSlots ] = useState( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
@@ -27,6 +27,10 @@ export default function TimeSlotList( { serviceId, staffId, date, timezone, onSe
 			params.set( 'staff_id', staffId );
 		}
 
+		if ( addonIds && addonIds.length > 0 ) {
+			params.set( 'addon_ids', addonIds.join( ',' ) );
+		}
+
 		apiFetch( { path: `${ API_NAMESPACE }/availability?${ params.toString() }` } )
 			.then( ( result ) => {
 				setSlots( result.slots );
@@ -34,7 +38,7 @@ export default function TimeSlotList( { serviceId, staffId, date, timezone, onSe
 			} )
 			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
-	}, [ serviceId, staffId, date, timezone ] );
+	}, [ serviceId, staffId, addonIds, date, timezone ] );
 
 	if ( ! date ) {
 		return <p>{ __( 'Elige un día en el calendario.', 'booking-plugin' ) }</p>;

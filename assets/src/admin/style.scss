@@ -277,6 +277,37 @@
 	}
 }
 
+.booking-plugin-addons {
+	max-width: 700px;
+	margin-bottom: 16px;
+
+	&__list {
+		margin-bottom: 12px;
+	}
+
+	&__card {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 6px 10px;
+		border: 1px solid #dcdcde;
+		border-radius: 3px;
+		margin-bottom: 6px;
+		background: #fff;
+
+		span {
+			flex: 1;
+		}
+	}
+
+	&__form {
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+}
+
 .booking-plugin-rich-text-body {
 	&__toolbar {
 		margin-bottom: 4px;

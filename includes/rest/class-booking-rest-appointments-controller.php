@@ -214,6 +214,17 @@ class Booking_Rest_Appointments_Controller {
 			}
 		}
 
+		$addon_ids = $this->parse_addon_ids( $request->get_param( 'addon_ids' ) );
+		$addons    = array();
+
+		if ( ! empty( $addon_ids ) ) {
+			$addons = $this->get_valid_addons( (int) $service_id, $addon_ids );
+
+			if ( is_wp_error( $addons ) ) {
+				return $addons;
+			}
+		}
+
 		$requested_staff_id = $request->get_param( 'staff_id' );
 		$requested_staff_id = empty( $requested_staff_id ) ? null : (int) $requested_staff_id;
 
@@ -243,7 +254,7 @@ class Booking_Rest_Appointments_Controller {
 		);
 
 		foreach ( $candidate_staff_ids as $staff_id ) {
-			$result = $this->attempt_booking( (int) $service_id, (int) $staff_id, $start_datetime, $insert_data );
+			$result = $this->attempt_booking( (int) $service_id, (int) $staff_id, $start_datetime, $insert_data, $addon_ids, $addons );
 
 			if ( is_wp_error( $result ) ) {
 				return $result;
@@ -432,8 +443,31 @@ class Booking_Rest_Appointments_Controller {
 		$is_admin        = ( 'admin' === $access );
 		$previous_status = $row->status;
 
-		$status    = $request->get_param( 'status' );
-		$new_start = $request->get_param( 'start_datetime' );
+		$status             = $request->get_param( 'status' );
+		$new_start          = $request->get_param( 'start_datetime' );
+		$addon_ids_provided = $request->has_param( 'addon_ids' );
+		$new_addon_ids      = array();
+		$new_addons         = array();
+
+		if ( $addon_ids_provided ) {
+			if ( ! $is_admin ) {
+				return new WP_Error( 'booking_rest_forbidden', __( 'Only an administrator can edit add-ons.', 'booking-plugin' ), array( 'status' => 403 ) );
+			}
+
+			if ( null !== $row->wc_order_id || ! in_array( $row->status, array( 'pending', 'confirmed' ), true ) ) {
+				return new WP_Error( 'booking_rest_addons_not_editable', __( 'Add-ons can only be edited on pending or confirmed appointments that do not have a WooCommerce order yet.', 'booking-plugin' ), array( 'status' => 409 ) );
+			}
+
+			$new_addon_ids = $this->parse_addon_ids( $request->get_param( 'addon_ids' ) );
+
+			if ( ! empty( $new_addon_ids ) ) {
+				$new_addons = $this->get_valid_addons( (int) $row->service_id, $new_addon_ids );
+
+				if ( is_wp_error( $new_addons ) ) {
+					return $new_addons;
+				}
+			}
+		}
 
 		if ( null !== $status ) {
 			$allowed_statuses = array( 'confirmed', 'completed', 'no_show', 'cancelled', 'blocked' );
@@ -459,7 +493,7 @@ class Booking_Rest_Appointments_Controller {
 
 		$table = $wpdb->prefix . 'booking_appointments';
 
-		if ( null !== $new_start ) {
+		if ( null !== $new_start || $addon_ids_provided ) {
 			if ( ! $is_admin ) {
 				$window_error = $this->check_cancellation_window( $row );
 
@@ -468,7 +502,10 @@ class Booking_Rest_Appointments_Controller {
 				}
 			}
 
-			$lock = $this->lock_and_revalidate( (int) $row->service_id, (int) $row->staff_id, $new_start, (int) $row->id );
+			$start_for_lock = null !== $new_start ? $new_start : $this->to_iso( $row->start_datetime );
+			$lock_addon_ids = $addon_ids_provided ? $new_addon_ids : $this->get_appointment_addon_ids( (int) $row->id );
+
+			$lock = $this->lock_and_revalidate( (int) $row->service_id, (int) $row->staff_id, $start_for_lock, (int) $row->id, $lock_addon_ids );
 
 			if ( is_wp_error( $lock ) ) {
 				return $lock;
@@ -492,6 +529,10 @@ class Booking_Rest_Appointments_Controller {
 
 			$wpdb->update( $table, $data, array( 'id' => (int) $row->id ) );
 
+			if ( $addon_ids_provided ) {
+				$this->replace_appointment_addons( (int) $row->id, $new_addons );
+			}
+
 			$wpdb->query( 'COMMIT' );
 		} elseif ( null !== $status ) {
 			$wpdb->update(
@@ -513,10 +554,10 @@ class Booking_Rest_Appointments_Controller {
 		return rest_ensure_response( $this->prepare_item( $row ) );
 	}
 
-	protected function attempt_booking( $service_id, $staff_id, $start_datetime, array $insert_data ) {
+	protected function attempt_booking( $service_id, $staff_id, $start_datetime, array $insert_data, array $addon_ids = array(), array $addons = array() ) {
 		global $wpdb;
 
-		$lock = $this->lock_and_revalidate( $service_id, $staff_id, $start_datetime );
+		$lock = $this->lock_and_revalidate( $service_id, $staff_id, $start_datetime, 0, $addon_ids );
 
 		if ( is_wp_error( $lock ) ) {
 			return $lock;
@@ -550,6 +591,8 @@ class Booking_Rest_Appointments_Controller {
 
 		$new_id = (int) $wpdb->insert_id;
 
+		$this->insert_appointment_addons( $new_id, $addons );
+
 		$wpdb->query( 'COMMIT' );
 
 		return $new_id;
@@ -563,7 +606,7 @@ class Booking_Rest_Appointments_Controller {
 	 * to proceed. Returns a WP_Error (transaction already rolled back, if
 	 * one was started) when the input itself is invalid.
 	 */
-	protected function lock_and_revalidate( $service_id, $staff_id, $start_datetime, $exclude_appointment_id = 0 ) {
+	protected function lock_and_revalidate( $service_id, $staff_id, $start_datetime, $exclude_appointment_id = 0, $addon_ids = array() ) {
 		global $wpdb;
 
 		$services_table = $wpdb->prefix . 'booking_services';
@@ -573,13 +616,21 @@ class Booking_Rest_Appointments_Controller {
 			return new WP_Error( 'booking_rest_invalid_service', __( 'Service not found or inactive.', 'booking-plugin' ), array( 'status' => 404 ) );
 		}
 
+		$availability = new Booking_Plugin_Availability();
+
+		$addons_extra_minutes = $availability->get_addons_extra_minutes( $service_id, $addon_ids );
+
+		if ( is_wp_error( $addons_extra_minutes ) ) {
+			return $addons_extra_minutes;
+		}
+
 		try {
 			$candidate_start = new DateTimeImmutable( $start_datetime, new DateTimeZone( 'UTC' ) );
 		} catch ( Exception $e ) {
 			return new WP_Error( 'booking_rest_invalid_datetime', __( 'start_datetime must be a valid ISO 8601 datetime.', 'booking-plugin' ), array( 'status' => 400 ) );
 		}
 
-		$candidate_end = $candidate_start->modify( '+' . (int) $service->duration_minutes . ' minutes' );
+		$candidate_end = $candidate_start->modify( '+' . ( (int) $service->duration_minutes + $addons_extra_minutes ) . ' minutes' );
 
 		$appointments_table = $wpdb->prefix . 'booking_appointments';
 		$lock_from           = $candidate_start->modify( '-1 day' )->format( 'Y-m-d H:i:s' );
@@ -597,8 +648,7 @@ class Booking_Rest_Appointments_Controller {
 			)
 		);
 
-		$availability = new Booking_Plugin_Availability();
-		$available    = $availability->is_staff_slot_available( $service_id, $staff_id, $start_datetime, $exclude_appointment_id );
+		$available = $availability->is_staff_slot_available( $service_id, $staff_id, $start_datetime, $exclude_appointment_id, $addon_ids );
 
 		if ( is_wp_error( $available ) ) {
 			$wpdb->query( 'ROLLBACK' );
@@ -657,6 +707,107 @@ class Booking_Rest_Appointments_Controller {
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ) );
 	}
 
+	protected function parse_addon_ids( $raw ) {
+		if ( empty( $raw ) ) {
+			return array();
+		}
+
+		$ids = is_array( $raw ) ? $raw : explode( ',', (string) $raw );
+
+		$ids = array_filter(
+			array_map( 'intval', $ids ),
+			function ( $id ) {
+				return $id > 0;
+			}
+		);
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * Valida que cada addon_id pertenezca a $service_id y este active.
+	 * Devuelve las filas completas (para el snapshot en appointment_addons)
+	 * o un WP_Error 400 si alguno no es valido.
+	 */
+	protected function get_valid_addons( $service_id, array $addon_ids ) {
+		global $wpdb;
+
+		$table        = $wpdb->prefix . 'booking_service_addons';
+		$placeholders = implode( ', ', array_fill( 0, count( $addon_ids ), '%d' ) );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE service_id = %d AND status = 'active' AND id IN ({$placeholders})",
+				array_merge( array( $service_id ), $addon_ids )
+			)
+		);
+
+		if ( count( $rows ) !== count( $addon_ids ) ) {
+			return new WP_Error( 'booking_rest_invalid_addons', __( 'One or more addon_ids are invalid for this service.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		return $rows;
+	}
+
+	protected function insert_appointment_addons( $appointment_id, array $addons ) {
+		if ( empty( $addons ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_appointment_addons';
+
+		foreach ( $addons as $addon ) {
+			$wpdb->insert(
+				$table,
+				array(
+					'appointment_id'     => $appointment_id,
+					'addon_id'           => (int) $addon->id,
+					'name'               => $addon->name,
+					'price'              => (float) $addon->price,
+					'extra_time_minutes' => (int) $addon->extra_time_minutes,
+				),
+				array( '%d', '%d', '%s', '%f', '%d' )
+			);
+		}
+	}
+
+	protected function replace_appointment_addons( $appointment_id, array $addons ) {
+		global $wpdb;
+
+		$wpdb->delete( $wpdb->prefix . 'booking_appointment_addons', array( 'appointment_id' => $appointment_id ), array( '%d' ) );
+
+		$this->insert_appointment_addons( $appointment_id, $addons );
+	}
+
+	protected function get_appointment_addon_ids( $appointment_id ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_appointment_addons';
+
+		return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT addon_id FROM {$table} WHERE appointment_id = %d", $appointment_id ) ) );
+	}
+
+	protected function get_appointment_addons( $appointment_id ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_appointment_addons';
+		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT addon_id, name, price, extra_time_minutes FROM {$table} WHERE appointment_id = %d ORDER BY id ASC", $appointment_id ) );
+
+		return array_map(
+			function ( $row ) {
+				return array(
+					'addon_id'           => (int) $row->addon_id,
+					'name'               => $row->name,
+					'price'              => (float) $row->price,
+					'extra_time_minutes' => (int) $row->extra_time_minutes,
+				);
+			},
+			$rows
+		);
+	}
+
 	protected function to_iso( $mysql_datetime ) {
 		return ( new DateTimeImmutable( $mysql_datetime, new DateTimeZone( 'UTC' ) ) )->format( 'Y-m-d\TH:i:s\Z' );
 	}
@@ -676,6 +827,7 @@ class Booking_Rest_Appointments_Controller {
 			'notes'          => $row->notes,
 			'access_token'   => $row->access_token,
 			'wc_order_id'    => $row->wc_order_id ? (int) $row->wc_order_id : null,
+			'addons'         => $this->get_appointment_addons( (int) $row->id ),
 			'created_at'     => $this->to_iso( $row->created_at ),
 			'updated_at'     => $this->to_iso( $row->updated_at ),
 		);

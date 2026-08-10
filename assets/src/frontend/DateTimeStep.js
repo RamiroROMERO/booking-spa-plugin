@@ -3,7 +3,15 @@ import { useState } from '@wordpress/element';
 import MonthCalendar from './MonthCalendar';
 import TimeSlotList from './TimeSlotList';
 
-export default function DateTimeStep( { serviceId, staffId, timezone, date, collisionNotice, onSelectSlot } ) {
+export default function DateTimeStep( {
+	serviceId,
+	staffId,
+	addonIds,
+	timezone,
+	date,
+	collisionNotice,
+	onSelectSlot,
+} ) {
 	const [ selectedDate, setSelectedDate ] = useState( date );
 
 	return (
@@ -23,6 +31,7 @@ export default function DateTimeStep( { serviceId, staffId, timezone, date, coll
 				<TimeSlotList
 					serviceId={ serviceId }
 					staffId={ staffId }
+					addonIds={ addonIds }
 					date={ selectedDate }
 					timezone={ timezone }
 					onSelectSlot={ ( slot ) => onSelectSlot( selectedDate, slot ) }

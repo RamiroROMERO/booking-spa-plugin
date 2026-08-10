@@ -3,16 +3,18 @@ import { __ } from '@wordpress/i18n';
 
 import { detectTimezone } from './utils';
 import ServiceStep from './ServiceStep';
+import AddonsStep from './AddonsStep';
 import StaffStep from './StaffStep';
 import DateTimeStep from './DateTimeStep';
 import PersonalDataStep from './PersonalDataStep';
 import ConfirmationStep from './ConfirmationStep';
 import SuccessScreen from './SuccessScreen';
 
-const STEP_ORDER = [ 'service', 'staff', 'datetime', 'personal', 'confirmation' ];
+const STEP_ORDER = [ 'service', 'addons', 'staff', 'datetime', 'personal', 'confirmation' ];
 
 const STEP_LABELS = {
 	service: __( 'Servicio', 'booking-plugin' ),
+	addons: __( 'Extras', 'booking-plugin' ),
 	staff: __( 'Profesional', 'booking-plugin' ),
 	datetime: __( 'Fecha y hora', 'booking-plugin' ),
 	personal: __( 'Tus datos', 'booking-plugin' ),
@@ -30,6 +32,9 @@ export default function App() {
 	const [ selection, setSelection ] = useState( {
 		category_id: null,
 		service: null,
+		addon_ids: [],
+		addons: [],
+		hasAddons: null,
 		staff_id: null,
 		date: null,
 		slot: null,
@@ -45,9 +50,30 @@ export default function App() {
 		setSelection( ( current ) => ( {
 			...current,
 			service,
+			addon_ids: [],
+			addons: [],
+			hasAddons: null,
 			staff_id: null,
 			date: null,
 			slot: null,
+		} ) );
+		setStep( 'addons' );
+	};
+
+	// AddonsStep se salta solo si el servicio no tiene add-ons activos (ver
+	// SPEC 11): lo detecta el propio paso al hacer su fetch y avisa aca via
+	// onNoAddons en vez de precargar la lista en este componente.
+	const handleNoAddons = () => {
+		setSelection( ( current ) => ( { ...current, addon_ids: [], addons: [], hasAddons: false } ) );
+		setStep( 'staff' );
+	};
+
+	const handleSelectAddons = ( selectedAddons ) => {
+		setSelection( ( current ) => ( {
+			...current,
+			addon_ids: selectedAddons.map( ( addon ) => addon.id ),
+			addons: selectedAddons,
+			hasAddons: true,
 		} ) );
 		setStep( 'staff' );
 	};
@@ -112,9 +138,19 @@ export default function App() {
 	const handleBack = () => {
 		const currentIndex = STEP_ORDER.indexOf( step );
 
-		if ( currentIndex > 0 ) {
-			setStep( STEP_ORDER[ currentIndex - 1 ] );
+		if ( currentIndex <= 0 ) {
+			return;
 		}
+
+		let prevIndex = currentIndex - 1;
+
+		// El servicio actual no tiene add-ons: al volver atras desde "staff"
+		// se salta "addons" tambien, para no caer en un paso vacio.
+		if ( 'addons' === STEP_ORDER[ prevIndex ] && false === selection.hasAddons ) {
+			prevIndex -= 1;
+		}
+
+		setStep( STEP_ORDER[ prevIndex ] );
 	};
 
 	const canGoBack = 'service' !== step && 'success' !== step;
@@ -151,6 +187,14 @@ export default function App() {
 						onSelectService={ handleSelectService }
 					/>
 				) }
+				{ 'addons' === step && (
+					<AddonsStep
+						serviceId={ selection.service && selection.service.id }
+						selectedAddonIds={ selection.addon_ids }
+						onContinue={ handleSelectAddons }
+						onNoAddons={ handleNoAddons }
+					/>
+				) }
 				{ 'staff' === step && (
 					<StaffStep serviceId={ selection.service && selection.service.id } onSelectStaff={ handleSelectStaff } />
 				) }
@@ -158,6 +202,7 @@ export default function App() {
 					<DateTimeStep
 						serviceId={ selection.service && selection.service.id }
 						staffId={ selection.staff_id }
+						addonIds={ selection.addon_ids }
 						timezone={ timezone }
 						date={ selection.date }
 						collisionNotice={ collisionNotice }
@@ -181,7 +226,7 @@ export default function App() {
 					/>
 				) }
 				{ 'success' === step && (
-					<SuccessScreen bookingResult={ bookingResult } timezone={ timezone } />
+					<SuccessScreen bookingResult={ bookingResult } timezone={ timezone } selection={ selection } />
 				) }
 			</div>
 		</div>
