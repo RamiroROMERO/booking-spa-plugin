@@ -1,6 +1,6 @@
 import { useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 import { API_NAMESPACE, formatTimeInZone } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
@@ -9,7 +9,16 @@ export default function ConfirmationStep( { selection, timezone, currentUser, on
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
 	const [ error, setError ] = useState( null );
 
-	const { service, addons, addon_ids: addonIds, staff_id: staffId, slot, personalData } = selection;
+	const {
+		service,
+		addons,
+		addon_ids: addonIds,
+		staff_id: staffId,
+		slot,
+		personalData,
+		use_credit_id: useCreditId,
+		credit,
+	} = selection;
 
 	const addonsTotal = addons.reduce( ( sum, addon ) => sum + Number( addon.price ), 0 );
 	const totalPrice = Number( service.price ) + addonsTotal;
@@ -27,6 +36,13 @@ export default function ConfirmationStep( { selection, timezone, currentUser, on
 			start_datetime: slot.start_datetime,
 			addon_ids: addonIds,
 		};
+
+		// use_credit_id es excluyente con add-ons y con el flujo de pago de
+		// WooCommerce (SPEC 12): addon_ids ya llega vacio porque ServiceStep
+		// salta AddonsStep en este flujo.
+		if ( useCreditId ) {
+			data.use_credit_id = useCreditId;
+		}
 
 		if ( currentUser ) {
 			if ( personalData.notes ) {
@@ -95,8 +111,27 @@ export default function ConfirmationStep( { selection, timezone, currentUser, on
 					{ totalDuration } { __( 'min', 'booking-plugin' ) }
 				</dd>
 
-				<dt>{ __( 'Precio total', 'booking-plugin' ) }</dt>
-				<dd>${ totalPrice }</dd>
+				{ credit ? (
+					<>
+						<dt>{ __( 'Pago', 'booking-plugin' ) }</dt>
+						<dd>
+							{ sprintf(
+								/* translators: 1: nombre del paquete, 2: sesiones que quedarán */
+								__(
+									'Se pagará con 1 sesión de tu paquete %1$s (te quedarán %2$d después).',
+									'booking-plugin'
+								),
+								credit.package_name,
+								Math.max( 0, credit.remaining_sessions - credit.credit_cost )
+							) }
+						</dd>
+					</>
+				) : (
+					<>
+						<dt>{ __( 'Precio total', 'booking-plugin' ) }</dt>
+						<dd>${ totalPrice }</dd>
+					</>
+				) }
 
 				<dt>{ __( 'A nombre de', 'booking-plugin' ) }</dt>
 				<dd>{ currentUser ? currentUser.name : personalData.name }</dd>

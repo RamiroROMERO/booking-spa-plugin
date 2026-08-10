@@ -46,6 +46,42 @@ class Booking_Plugin_WooCommerce {
 		}
 	}
 
+	public static function sync_product_for_package( $package ) {
+		if ( ! self::is_active() ) {
+			return;
+		}
+
+		$should_have_product = 'active' === $package->status;
+
+		if ( ! $should_have_product ) {
+			if ( ! empty( $package->wc_product_id ) ) {
+				self::unpublish_product( (int) $package->wc_product_id );
+			}
+
+			return;
+		}
+
+		$product = ! empty( $package->wc_product_id ) ? wc_get_product( (int) $package->wc_product_id ) : false;
+
+		if ( ! $product ) {
+			$product = new WC_Product_Simple();
+		}
+
+		// Mismo prefijo "[Reserva]" que los productos de servicios (ver SPEC 10).
+		$product->set_name( sprintf( '[Reserva] %s', $package->name ) );
+		$product->set_regular_price( (string) $package->price );
+		$product->set_price( (string) $package->price );
+		$product->set_catalog_visibility( 'hidden' );
+		$product->set_status( 'publish' );
+		$product->set_virtual( true );
+
+		$product_id = $product->save();
+
+		if ( (int) $package->wc_product_id !== (int) $product_id ) {
+			self::save_wc_product_id_for_package( (int) $package->id, (int) $product_id );
+		}
+	}
+
 	protected static function unpublish_product( $product_id ) {
 		$product = wc_get_product( $product_id );
 
@@ -62,6 +98,18 @@ class Booking_Plugin_WooCommerce {
 			$wpdb->prefix . 'booking_services',
 			array( 'wc_product_id' => $product_id ),
 			array( 'id' => $service_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+	}
+
+	protected static function save_wc_product_id_for_package( $package_id, $product_id ) {
+		global $wpdb;
+
+		$wpdb->update(
+			$wpdb->prefix . 'booking_packages',
+			array( 'wc_product_id' => $product_id ),
+			array( 'id' => $package_id ),
 			array( '%d' ),
 			array( '%d' )
 		);
@@ -197,6 +245,65 @@ class Booking_Plugin_WooCommerce {
 		}
 
 		add_action( 'woocommerce_order_status_changed', array( $this, 'handle_order_status_changed' ), 10, 4 );
+		add_action( 'woocommerce_order_status_completed', array( $this, 'handle_order_completed_for_packages' ), 10, 2 );
+	}
+
+	// Otorga créditos al completar un pedido que incluye un producto de
+	// paquete (SPEC 12). Se usa "completed" (no "processing"/is_paid())
+	// porque un paquete no reserva ningún horario -- no hay motivo para
+	// adelantar el crédito antes de que el pedido se de por finalizado.
+	public function handle_order_completed_for_packages( $order_id, $order ) {
+		if ( ! $order ) {
+			return;
+		}
+
+		$customer_id = (int) $order->get_customer_id();
+
+		if ( ! $customer_id ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$packages_table = $wpdb->prefix . 'booking_packages';
+		$credits_table  = $wpdb->prefix . 'booking_user_credits';
+
+		foreach ( $order->get_items() as $item ) {
+			$product_id = $item->get_product_id();
+			$package    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$packages_table} WHERE wc_product_id = %d", $product_id ) );
+
+			if ( ! $package ) {
+				continue;
+			}
+
+			$already_credited = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$credits_table} WHERE woo_order_id = %d AND package_id = %d",
+					$order_id,
+					$package->id
+				)
+			);
+
+			if ( $already_credited ) {
+				continue;
+			}
+
+			$wpdb->insert(
+				$credits_table,
+				array(
+					'wp_user_id'         => $customer_id,
+					'package_id'         => (int) $package->id,
+					'total_sessions'     => (int) $package->total_sessions,
+					'remaining_sessions' => (int) $package->total_sessions,
+					'source'             => 'woocommerce',
+					'woo_order_id'       => $order_id,
+					'granted_by'         => null,
+					'note'               => null,
+					'created_at'         => current_time( 'mysql', true ),
+				),
+				array( '%d', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s' )
+			);
+		}
 	}
 
 	public function handle_order_status_changed( $order_id, $old_status, $new_status, $order ) {

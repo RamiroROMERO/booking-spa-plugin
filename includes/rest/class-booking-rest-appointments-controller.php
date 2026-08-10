@@ -225,6 +225,25 @@ class Booking_Rest_Appointments_Controller {
 			}
 		}
 
+		$use_credit_id = $request->get_param( 'use_credit_id' );
+		$credit        = null;
+
+		if ( ! empty( $use_credit_id ) ) {
+			if ( ! is_user_logged_in() ) {
+				return new WP_Error( 'booking_rest_forbidden', __( 'You must be logged in to use a credit.', 'booking-plugin' ), array( 'status' => 403 ) );
+			}
+
+			if ( ! empty( $addon_ids ) ) {
+				return new WP_Error( 'booking_rest_credit_addons_not_allowed', __( 'A credit cannot be combined with add-ons.', 'booking-plugin' ), array( 'status' => 400 ) );
+			}
+
+			$credit = $this->validate_credit( (int) $use_credit_id, (int) $service_id, get_current_user_id() );
+
+			if ( is_wp_error( $credit ) ) {
+				return $credit;
+			}
+		}
+
 		$requested_staff_id = $request->get_param( 'staff_id' );
 		$requested_staff_id = empty( $requested_staff_id ) ? null : (int) $requested_staff_id;
 
@@ -254,7 +273,7 @@ class Booking_Rest_Appointments_Controller {
 		);
 
 		foreach ( $candidate_staff_ids as $staff_id ) {
-			$result = $this->attempt_booking( (int) $service_id, (int) $staff_id, $start_datetime, $insert_data, $addon_ids, $addons );
+			$result = $this->attempt_booking( (int) $service_id, (int) $staff_id, $start_datetime, $insert_data, $addon_ids, $addons, $credit );
 
 			if ( is_wp_error( $result ) ) {
 				return $result;
@@ -274,10 +293,15 @@ class Booking_Rest_Appointments_Controller {
 					'access_token'   => $row->access_token,
 				);
 
-				$checkout_url = $this->maybe_create_payment_order( $row );
+				if ( $credit ) {
+					$response_data['paid_with_credit_id'] = (int) $row->paid_with_credit_id;
+					$response_data['credits_consumed']    = (int) $row->credits_consumed;
+				} else {
+					$checkout_url = $this->maybe_create_payment_order( $row );
 
-				if ( $checkout_url ) {
-					$response_data['checkout_url'] = $checkout_url;
+					if ( $checkout_url ) {
+						$response_data['checkout_url'] = $checkout_url;
+					}
 				}
 
 				$response = rest_ensure_response( $response_data );
@@ -322,6 +346,70 @@ class Booking_Rest_Appointments_Controller {
 		}
 
 		return Booking_Plugin_WooCommerce::create_order_for_appointment( $appointment );
+	}
+
+	/**
+	 * Chequeo rapido (sin lock) de que use_credit_id pertenece al usuario,
+	 * cubre el service_id elegido y tiene saldo. El descuento real vuelve a
+	 * verificar el saldo bajo FOR UPDATE dentro de attempt_booking() (ver
+	 * Risks de SPEC 12) para evitar una condicion de carrera entre dos
+	 * reservas simultaneas con el mismo credito.
+	 */
+	protected function validate_credit( $credit_id, $service_id, $wp_user_id ) {
+		global $wpdb;
+
+		$credits_table = $wpdb->prefix . 'booking_user_credits';
+		$pivot_table   = $wpdb->prefix . 'booking_package_services';
+
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$credits_table} WHERE id = %d", $credit_id ) );
+
+		if ( ! $row || (int) $row->wp_user_id !== $wp_user_id ) {
+			return new WP_Error( 'booking_rest_invalid_credit', __( 'use_credit_id does not belong to the current user.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		$credit_cost = $wpdb->get_var(
+			$wpdb->prepare( "SELECT credit_cost FROM {$pivot_table} WHERE package_id = %d AND service_id = %d", (int) $row->package_id, $service_id )
+		);
+
+		if ( null === $credit_cost ) {
+			return new WP_Error( 'booking_rest_invalid_credit', __( 'This service is not included in the package for this credit.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		if ( (int) $row->remaining_sessions < (int) $credit_cost ) {
+			return new WP_Error( 'booking_rest_insufficient_credit', __( 'Insufficient credit balance.', 'booking-plugin' ), array( 'status' => 409 ) );
+		}
+
+		return array(
+			'id'          => (int) $row->id,
+			'credit_cost' => (int) $credit_cost,
+		);
+	}
+
+	/**
+	 * Bloquea la fila de user_credits (FOR UPDATE) dentro de la transaccion
+	 * ya abierta por lock_and_revalidate(), revalida el saldo y lo descuenta.
+	 * Debe llamarse solo entre START TRANSACTION y COMMIT/ROLLBACK.
+	 */
+	protected function lock_and_consume_credit( $credit_id, $credit_cost ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_user_credits';
+
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d FOR UPDATE", $credit_id ) );
+
+		if ( ! $row || (int) $row->remaining_sessions < $credit_cost ) {
+			return false;
+		}
+
+		$wpdb->update(
+			$table,
+			array( 'remaining_sessions' => (int) $row->remaining_sessions - $credit_cost ),
+			array( 'id' => $credit_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+
+		return true;
 	}
 
 	public function create_block( $request ) {
@@ -548,13 +636,33 @@ class Booking_Rest_Appointments_Controller {
 		$row = $this->get_row( (int) $row->id );
 
 		if ( 'cancelled' === $row->status && ! in_array( $previous_status, array( 'cancelled', 'blocked' ), true ) ) {
+			$this->maybe_refund_credit( $row );
+
 			do_action( 'booking_plugin_appointment_cancelled', $row );
 		}
 
 		return rest_ensure_response( $this->prepare_item( $row ) );
 	}
 
-	protected function attempt_booking( $service_id, $staff_id, $start_datetime, array $insert_data, array $addon_ids = array(), array $addons = array() ) {
+	protected function maybe_refund_credit( $row ) {
+		if ( empty( $row->paid_with_credit_id ) || empty( $row->credits_consumed ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_user_credits';
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET remaining_sessions = remaining_sessions + %d WHERE id = %d",
+				(int) $row->credits_consumed,
+				(int) $row->paid_with_credit_id
+			)
+		);
+	}
+
+	protected function attempt_booking( $service_id, $staff_id, $start_datetime, array $insert_data, array $addon_ids = array(), array $addons = array(), $credit = null ) {
 		global $wpdb;
 
 		$lock = $this->lock_and_revalidate( $service_id, $staff_id, $start_datetime, 0, $addon_ids );
@@ -569,25 +677,36 @@ class Booking_Rest_Appointments_Controller {
 			return false;
 		}
 
+		if ( $credit ) {
+			$consumed = $this->lock_and_consume_credit( (int) $credit['id'], (int) $credit['credit_cost'] );
+
+			if ( ! $consumed ) {
+				$wpdb->query( 'ROLLBACK' );
+
+				return new WP_Error( 'booking_rest_insufficient_credit', __( 'Insufficient credit balance.', 'booking-plugin' ), array( 'status' => 409 ) );
+			}
+		}
+
 		$appointments_table = $wpdb->prefix . 'booking_appointments';
 		$access_token        = wp_generate_password( 32, false, false );
 		$now                 = current_time( 'mysql', true );
 
-		$wpdb->insert(
-			$appointments_table,
-			array_merge(
-				$insert_data,
-				array(
-					'staff_id'       => $staff_id,
-					'start_datetime' => $lock['candidate_start']->format( 'Y-m-d H:i:s' ),
-					'end_datetime'   => $lock['candidate_end']->format( 'Y-m-d H:i:s' ),
-					'status'         => 'pending',
-					'access_token'   => $access_token,
-					'created_at'     => $now,
-					'updated_at'     => $now,
-				)
-			)
+		$extra = array(
+			'staff_id'       => $staff_id,
+			'start_datetime' => $lock['candidate_start']->format( 'Y-m-d H:i:s' ),
+			'end_datetime'   => $lock['candidate_end']->format( 'Y-m-d H:i:s' ),
+			'status'         => $credit ? 'confirmed' : 'pending',
+			'access_token'   => $access_token,
+			'created_at'     => $now,
+			'updated_at'     => $now,
 		);
+
+		if ( $credit ) {
+			$extra['paid_with_credit_id'] = (int) $credit['id'];
+			$extra['credits_consumed']    = (int) $credit['credit_cost'];
+		}
+
+		$wpdb->insert( $appointments_table, array_merge( $insert_data, $extra ) );
 
 		$new_id = (int) $wpdb->insert_id;
 
@@ -827,6 +946,8 @@ class Booking_Rest_Appointments_Controller {
 			'notes'          => $row->notes,
 			'access_token'   => $row->access_token,
 			'wc_order_id'    => $row->wc_order_id ? (int) $row->wc_order_id : null,
+			'paid_with_credit_id' => $row->paid_with_credit_id ? (int) $row->paid_with_credit_id : null,
+			'credits_consumed'    => $row->credits_consumed ? (int) $row->credits_consumed : null,
 			'addons'         => $this->get_appointment_addons( (int) $row->id ),
 			'created_at'     => $this->to_iso( $row->created_at ),
 			'updated_at'     => $this->to_iso( $row->updated_at ),

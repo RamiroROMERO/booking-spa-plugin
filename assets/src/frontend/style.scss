@@ -310,6 +310,36 @@
 		}
 	}
 
+	&__secondary {
+		display: inline-block;
+		padding: 10px 20px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		background: #fff;
+		color: #1e1e1e;
+		font-weight: 600;
+		cursor: pointer;
+
+		&:hover {
+			border-color: #2271b1;
+		}
+	}
+
+	&__credit-offer {
+		padding: 16px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		background: #f0f6fc;
+
+		p {
+			margin-top: 0;
+		}
+
+		button {
+			margin-right: 8px;
+		}
+	}
+
 	&__payment {
 		margin-top: 16px;
 	}

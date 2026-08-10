@@ -1,5 +1,5 @@
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 import { formatTimeInZone } from './utils';
 
@@ -8,6 +8,8 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 
 	const service = selection && selection.service;
 	const addons = ( selection && selection.addons ) || [];
+	const credit = selection && selection.credit;
+	const paidWithCredit = Boolean( bookingResult.paid_with_credit_id );
 
 	const addonsTotal = addons.reduce( ( sum, addon ) => sum + Number( addon.price ), 0 );
 	const totalPrice = service ? Number( service.price ) + addonsTotal : null;
@@ -48,12 +50,25 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 				</div>
 			) }
 
-			{ null !== totalPrice && (
+			{ paidWithCredit ? (
 				<p>
-					{ __( 'Duración total:', 'booking-plugin' ) } { totalDuration }{ ' ' }
-					{ __( 'min', 'booking-plugin' ) } — { __( 'Precio total:', 'booking-plugin' ) } $
-					{ totalPrice }
+					{ sprintf(
+						/* translators: 1: nombre del paquete, 2: sesiones restantes */
+						__( 'Se usó 1 sesión de tu paquete %1$s — te quedan %2$d.', 'booking-plugin' ),
+						credit ? credit.package_name : '',
+						credit
+							? Math.max( 0, credit.remaining_sessions - bookingResult.credits_consumed )
+							: 0
+					) }
 				</p>
+			) : (
+				null !== totalPrice && (
+					<p>
+						{ __( 'Duración total:', 'booking-plugin' ) } { totalDuration }{ ' ' }
+						{ __( 'min', 'booking-plugin' ) } — { __( 'Precio total:', 'booking-plugin' ) } $
+						{ totalPrice }
+					</p>
+				)
 			) }
 
 			<div className="booking-plugin-widget__token">
