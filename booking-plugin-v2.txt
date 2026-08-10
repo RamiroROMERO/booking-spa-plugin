@@ -1,0 +1,62 @@
+Fase 1: Add-ons (Extras y Upselling)
+El reto aquí es que el Add-on no solo afecta el precio que se enviará a WooCommerce, sino que altera el cálculo de disponibilidad en tu calendario, ya que añade tiempo a la cita.
+
+Esquema de Base de Datos (MySQL):
+
+Crea una tabla service_addons con columnas: id, service_id (relación al servicio principal), name, price (decimal), y extra_time (minutos).
+
+Crea una tabla appointment_addons (relación muchos a muchos) para guardar qué extras se seleccionaron en una reserva específica.
+
+Lógica del Backend (API REST):
+
+Modifica el endpoint de disponibilidad. Cuando el cliente selecciona un servicio + add-on, el algoritmo debe sumar tiempo del servicio + extra_time para buscar huecos en el calendario.
+
+Interfaz Frontend (React):
+
+Añade un paso intermedio en el wizard de reservas. Puedes usar Tailwind CSS para diseñar tarjetas limpias con un checkbox, donde se muestre el nombre del extra, el costo adicional y el tiempo extra.
+
+Integración con WooCommerce:
+
+Modifica el hook que envía los datos al carrito. El precio dinámico del "producto oculto" ahora será el precio_base + suma_de_addons. Guarda los nombres de los add-ons como metadata del ítem en WooCommerce para que salgan en el recibo.
+
+Fase 2: Paquetes (Múltiples Sesiones Prepagadas)
+Los paquetes funcionan como una "billetera virtual" de servicios. El usuario compra el paquete por WooCommerce y luego "gasta" sus créditos en tu calendario.
+
+Esquema de Base de Datos:
+
+Crea una tabla user_credits con columnas: id, wp_user_id, service_id (o grupo de servicios), total_sessions, remaining_sessions, y woo_order_id (para trazabilidad).
+
+Lógica de Compra (WooCommerce -> Plugin):
+
+Crea productos normales en WooCommerce llamados "Paquete de 10 Masajes".
+
+Usa el hook woocommerce_order_status_completed. Cuando se pague este producto, inserta un registro en tu tabla user_credits asignando las sesiones al usuario que compró.
+
+Flujo de Reserva (React):
+
+Cuando un usuario logueado abre el wizard, consulta a la API si tiene remaining_sessions > 0 para el servicio seleccionado.
+
+Si tiene saldo, muéstrale un mensaje (ej. "Tienes 3 sesiones disponibles. ¿Usar una ahora?").
+
+Bypass de Pago: Si elige usar su crédito, al finalizar la reserva no lo redirijas a WooCommerce. Cambia el estado de la cita directamente a "Confirmada" (o "Completada" cuando asista) y resta 1 a remaining_sessions mediante la API.
+
+Fase 3: Comisiones (Nómina del Staff)
+Ya que WooCommerce manejará los reportes de ventas generales del negocio, este módulo se enfocará 100% en calcular cuánto hay que pagarle a cada profesional (staff) por los servicios realizados.
+
+Esquema de Base de Datos:
+
+En la tabla staff (o staff_services), añade commission_type (fija o porcentaje) y commission_value.
+
+Crea una tabla payroll_logs con: id, appointment_id, staff_id, total_service_amount (incluyendo add-ons), commission_earned, y created_at.
+
+Lógica de Cálculo Automático:
+
+Crea un evento en tu backend: cuando el estado de una cita pase a completed (asumiendo que el recepcionista marca esto en el panel al irse el cliente), ejecuta una función PHP que lea el total de la cita, calcule la comisión del empleado y la inserte en payroll_logs.
+
+Optimización de Consultas (Performance):
+
+Para evitar que el panel de administración se vuelva lento al calcular las nóminas, te sugiero crear una Vista en MySQL (View) que agrupe los datos de payroll_logs. Puedes diseñar la vista para que calcule las sumatorias diarias y semanales por cada staff_id. Así, tu API REST solo hace un SELECT sencillo a la vista y devuelve los datos rapidísimo.
+
+Dashboard de Administración (React):
+
+Crea una pantalla de "Nómina" donde el administrador filtre por fechas y vea cuánto debe pagarle a cada empleado, consumiendo los datos de la vista optimizada.

@@ -1,0 +1,86 @@
+BOOKING PLUGIN - RESUMEN DE FUNCIONALIDADES
+(10 specs implementadas)
+
+Plugin nativo de WordPress para gestion de reservas de servicios (turnos),
+sin dependencias externas obligatorias. WooCommerce es opcional, solo para
+cobro online.
+
+------------------------------------------------------------
+1. MOTOR DE RESERVAS (backend)
+------------------------------------------------------------
+- Catalogo de categorias y servicios (nombre, precio, duracion, buffer
+  entre citas).
+- Gestion de staff: horario semanal por profesional, excepciones (dias
+  libres/feriados), asignacion a servicios.
+- Horario comercial del negocio, configurable por dia.
+- Motor de disponibilidad: calcula slots reales cruzando horario del
+  negocio + horario del staff + excepciones + buffer + citas ya tomadas.
+- Reservas con prevencion de condiciones de carrera (dos clientes no
+  pueden tomar el mismo horario a la vez).
+- Reprogramar y cancelar citas, con ventanas minimas configurables
+  (antelacion, cancelacion).
+- Bloqueo manual de horarios desde el admin (ej. vacaciones,
+  mantenimiento).
+
+------------------------------------------------------------
+2. PANEL DE ADMINISTRACION (SPA en React sobre @wordpress/element)
+------------------------------------------------------------
+- Calendario visual (vista dia/semana/mes) con detalle de cada cita.
+- Gestion de categorias, servicios y staff desde la UI.
+- Configuracion de horario comercial y reglas del negocio (antelacion
+  minima, ventana de cancelacion, intervalo de slots, email de
+  notificaciones).
+- Editor de plantillas de email con texto enriquecido (negrita/cursiva/
+  enlace), vista previa, envio de prueba y restaurar al valor
+  predeterminado.
+
+------------------------------------------------------------
+3. WIDGET DE RESERVA PUBLICO (frontend)
+------------------------------------------------------------
+- Shortcode embebible en cualquier pagina.
+- Flujo guiado: servicio -> profesional -> fecha/hora -> datos del
+  cliente -> confirmacion.
+- Soporta reserva como invitado o como usuario logueado.
+- Codigo de acceso unico por reserva para gestionarla despues sin
+  necesidad de cuenta.
+
+------------------------------------------------------------
+4. PANEL DE AUTOSERVICIO DEL CLIENTE
+------------------------------------------------------------
+- Shortcode donde el cliente ve y gestiona sus propias citas
+  (reprogramar/cancelar dentro de las ventanas permitidas), via login o
+  el codigo de acceso.
+
+------------------------------------------------------------
+5. NOTIFICACIONES POR EMAIL
+------------------------------------------------------------
+- 5 plantillas automaticas: confirmacion al cliente, recordatorio,
+  cancelacion al cliente, aviso de nueva reserva al negocio, aviso de
+  cancelacion al negocio.
+- Recordatorio automatico programado (cron) antes de la cita.
+- Placeholders dinamicos (nombre, servicio, fecha, hora, etc.)
+  documentados por plantilla.
+
+------------------------------------------------------------
+6. PAGOS ONLINE (integracion opcional con WooCommerce)
+------------------------------------------------------------
+- Cualquier servicio puede marcarse como "Requiere pago online".
+- Sincroniza automaticamente un producto de WooCommerce (oculto del
+  catalogo) por cada servicio con pago.
+- Al reservar, genera un pedido y redirige al checkout estandar de
+  WooCommerce (todas las pasarelas que el negocio ya tenga configuradas:
+  tarjeta, PayPal, transferencia, etc.).
+- La cita se confirma automaticamente cuando el pago se completa, y se
+  cancela automaticamente si el pago se cancela/reembolsa, liberando el
+  horario para otros clientes.
+- Barrido automatico que cancela reservas con pago pendiente vencido
+  (configurable), evitando que horarios queden bloqueados por reservas
+  abandonadas.
+- Si WooCommerce no esta instalado, el plugin sigue funcionando igual,
+  sin pagos online (degradacion consciente, sin errores).
+
+------------------------------------------------------------
+ESTADO
+------------------------------------------------------------
+Las 10 specs estan implementadas, probadas manualmente (incluyendo un
+ciclo de pago real con WooCommerce) y mergeadas a master.
