@@ -54,9 +54,12 @@ class Booking_Plugin_DB_Schema {
 			KEY status (status)
 		) $charset_collate;";
 
+		// commission_type: 'fixed' | 'percentage' | NULL (no configurado).
 		$sql[] = "CREATE TABLE {$prefix}booking_staff_services (
 			staff_id BIGINT UNSIGNED NOT NULL,
 			service_id BIGINT UNSIGNED NOT NULL,
+			commission_type VARCHAR(20) NULL,
+			commission_value DECIMAL(10,2) NULL,
 			PRIMARY KEY  (staff_id, service_id)
 		) $charset_collate;";
 
@@ -175,6 +178,34 @@ class Booking_Plugin_DB_Schema {
 			KEY package_id (package_id)
 		) $charset_collate;";
 
+		$sql[] = "CREATE TABLE {$prefix}booking_payroll_logs (
+			id                    BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			appointment_id        BIGINT UNSIGNED NOT NULL,
+			staff_id              BIGINT UNSIGNED NOT NULL,
+			total_service_amount  DECIMAL(10,2) NOT NULL,
+			commission_type       VARCHAR(20) NOT NULL,
+			commission_value      DECIMAL(10,2) NOT NULL,
+			commission_earned     DECIMAL(10,2) NOT NULL,
+			created_at            DATETIME NOT NULL,
+			UNIQUE KEY appointment_id (appointment_id),
+			KEY staff_id (staff_id),
+			KEY created_at (created_at)
+		) $charset_collate;";
+
 		return $sql;
+	}
+
+	public static function maybe_create_views() {
+		global $wpdb;
+
+		$wpdb->query( "CREATE OR REPLACE VIEW {$wpdb->prefix}booking_payroll_daily_summary AS
+			SELECT
+				staff_id,
+				DATE(created_at)            AS day,
+				COUNT(*)                    AS appointments_count,
+				SUM(total_service_amount)   AS total_service_amount,
+				SUM(commission_earned)      AS total_commission
+			FROM {$wpdb->prefix}booking_payroll_logs
+			GROUP BY staff_id, DATE(created_at);" );
 	}
 }

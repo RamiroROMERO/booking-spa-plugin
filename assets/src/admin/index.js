@@ -7,6 +7,7 @@ import StaffPage from './pages/StaffPage';
 import SettingsPage from './pages/SettingsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import PackagesPage from './pages/PackagesPage';
+import PayrollPage from './pages/PayrollPage';
 import './style.scss';
 
 const settings = window.BookingPluginAdmin || {};
@@ -27,6 +28,7 @@ const PAGES_BY_SECTION = {
 	settings: SettingsPage,
 	notifications: NotificationsPage,
 	packages: PackagesPage,
+	payroll: PayrollPage,
 };
 
 const root = document.getElementById( 'booking-plugin-admin-root' );

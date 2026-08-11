@@ -641,6 +641,10 @@ class Booking_Rest_Appointments_Controller {
 			do_action( 'booking_plugin_appointment_cancelled', $row );
 		}
 
+		if ( 'completed' === $row->status && 'completed' !== $previous_status ) {
+			Booking_Plugin_Payroll::log_commission_for_appointment( (int) $row->id );
+		}
+
 		return rest_ensure_response( $this->prepare_item( $row ) );
 	}
 

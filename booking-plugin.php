@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'BOOKING_PLUGIN_VERSION', '0.1.0' );
 define( 'BOOKING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BOOKING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'BOOKING_PLUGIN_DB_VERSION', '1.6.0' );
+define( 'BOOKING_PLUGIN_DB_VERSION', '1.7.0' );
 
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-db-schema.php';
@@ -34,6 +34,7 @@ require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-addons-contr
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-staff-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-settings.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-woocommerce.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-payroll.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-availability.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-settings-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-business-hours-controller.php';
@@ -42,6 +43,7 @@ require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-appointments
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-email-templates-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-packages-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-user-credits-controller.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-payroll-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-rest.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-notifications.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-reminder-cron.php';

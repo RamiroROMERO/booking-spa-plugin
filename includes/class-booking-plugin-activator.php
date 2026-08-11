@@ -12,6 +12,8 @@ class Booking_Plugin_Activator {
 			dbDelta( $sql );
 		}
 
+		Booking_Plugin_DB_Schema::maybe_create_views();
+
 		update_option( 'booking_plugin_db_version', BOOKING_PLUGIN_DB_VERSION );
 
 		Booking_Plugin_Reminder_Cron::schedule();
