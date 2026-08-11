@@ -1,7 +1,7 @@
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
-import { formatTimeInZone } from './utils';
+import { formatDateInZone, formatTimeInZone } from './utils';
 
 export default function SuccessScreen( { bookingResult, timezone, selection } ) {
 	const [ copied, setCopied ] = useState( false );
@@ -31,6 +31,7 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 			<h3>{ __( '¡Reserva confirmada!', 'booking-plugin' ) }</h3>
 			<p>
 				{ __( 'Tu cita quedó registrada para el', 'booking-plugin' ) }{ ' ' }
+				{ formatDateInZone( bookingResult.start_datetime, timezone ) }{ ' ' }
 				{ formatTimeInZone( bookingResult.start_datetime, timezone ) }.
 			</p>
 

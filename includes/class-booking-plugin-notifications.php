@@ -112,7 +112,10 @@ class Booking_Plugin_Notifications {
 			'client_phone'  => $client_phone,
 			'service_name'  => $service_name,
 			'staff_name'    => $staff_name,
-			'date'          => wp_date( get_option( 'date_format' ), $start_utc->getTimestamp() ),
+			// Formato fijo MM/DD/YYYY (no el date_format del sitio): el plugin
+			// esta pensado para spas de EE.UU., independientemente de como
+			// tenga configurado el admin Ajustes > Generales de WordPress.
+			'date'          => wp_date( 'm/d/Y', $start_utc->getTimestamp() ),
 			'time'          => wp_date( get_option( 'time_format' ), $start_utc->getTimestamp() ),
 			'business_name' => get_bloginfo( 'name' ),
 			'manage_url'    => $this->get_manage_url( $appointment ),
@@ -192,7 +195,7 @@ class Booking_Plugin_Notifications {
 			'client_phone'  => '+54 9 11 1234-5678',
 			'service_name'  => __( 'Corte de cabello', 'booking-plugin' ),
 			'staff_name'    => __( 'Carlos Gómez', 'booking-plugin' ),
-			'date'          => wp_date( get_option( 'date_format' ) ),
+			'date'          => wp_date( 'm/d/Y' ),
 			'time'          => wp_date( get_option( 'time_format' ) ),
 			'business_name' => get_bloginfo( 'name' ),
 			'manage_url'    => home_url( '/' ),

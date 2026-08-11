@@ -2,7 +2,6 @@ import { date as wpDate } from '@wordpress/date';
 
 export const API_NAMESPACE = '/booking-plugin/v1';
 export const ROW_HEIGHT = 48;
-export const HOURS = Array.from( { length: 24 }, ( _, hour ) => hour );
 const MINUTES_PER_DAY = 1440;
 
 export function toDateString( date ) {
@@ -69,6 +68,14 @@ export function getLocalDate( isoUtc ) {
 	return wpDate( 'Y-m-d', isoUtc );
 }
 
+// Fecha en formato MM/DD/YYYY (EE.UU.) para mostrar al admin -- el plugin
+// esta pensado para spas de EE.UU. sin importar el idioma/locale del sitio.
+// getLocalDate() sigue devolviendo Y-m-d para usos internos (comparaciones,
+// valor de <input type="date">).
+export function formatDateUS( isoUtc ) {
+	return wpDate( 'm/d/Y', isoUtc );
+}
+
 export function formatTime( isoUtc ) {
 	return wpDate( 'H:i', isoUtc );
 }
@@ -91,12 +98,48 @@ export function getDurationMinutes( startIsoUtc, endIsoUtc ) {
 	return Math.max( 1, Math.round( ( end - start ) / 60000 ) );
 }
 
-export function getTopPercent( isoUtc ) {
-	return ( getMinutesSinceMidnight( isoUtc ) / MINUTES_PER_DAY ) * 100;
+export function getTopPercent( isoUtc, windowStartMinutes, windowTotalMinutes ) {
+	return ( ( getMinutesSinceMidnight( isoUtc ) - windowStartMinutes ) / windowTotalMinutes ) * 100;
 }
 
-export function getHeightPercent( startIsoUtc, endIsoUtc ) {
-	return ( getDurationMinutes( startIsoUtc, endIsoUtc ) / MINUTES_PER_DAY ) * 100;
+export function getHeightPercent( startIsoUtc, endIsoUtc, windowTotalMinutes ) {
+	return ( getDurationMinutes( startIsoUtc, endIsoUtc ) / windowTotalMinutes ) * 100;
+}
+
+function timeToMinutes( timeStr ) {
+	const [ hours, minutes ] = timeStr.split( ':' ).map( Number );
+	return hours * 60 + minutes;
+}
+
+/**
+ * Calcula que franja de horas mostrar en el grid del calendario para un dia
+ * puntual: el horario de atencion del negocio ese day_of_week, ampliado si
+ * hace falta para no cortar citas/bloqueos que caigan fuera de el (ej. un
+ * bloqueo manual antes de la apertura). Si el negocio esta cerrado ese dia y
+ * no hay nada agendado, se muestra el dia completo en vez de un grid vacio.
+ */
+export function getHourRange( businessHours, dayOfWeek, dayAppointments ) {
+	const today = ( businessHours || [] ).find( ( day ) => day.day_of_week === dayOfWeek );
+
+	let startMinutes = today && today.open_time && today.close_time ? timeToMinutes( today.open_time ) : null;
+	let endMinutes = today && today.open_time && today.close_time ? timeToMinutes( today.close_time ) : null;
+
+	( dayAppointments || [] ).forEach( ( appointment ) => {
+		const apptStart = getMinutesSinceMidnight( appointment.start_datetime );
+		const apptEnd = apptStart + getDurationMinutes( appointment.start_datetime, appointment.end_datetime );
+
+		startMinutes = null === startMinutes ? apptStart : Math.min( startMinutes, apptStart );
+		endMinutes = null === endMinutes ? apptEnd : Math.max( endMinutes, apptEnd );
+	} );
+
+	if ( null === startMinutes || null === endMinutes ) {
+		return { startHour: 0, endHour: 24 };
+	}
+
+	return {
+		startHour: Math.max( 0, Math.floor( startMinutes / 60 ) ),
+		endHour: Math.min( 24, Math.ceil( endMinutes / 60 ) ),
+	};
 }
 
 export function formatTabLabel( dateStr ) {

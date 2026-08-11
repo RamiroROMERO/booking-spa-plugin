@@ -2,7 +2,7 @@ import { useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 
-import { API_NAMESPACE, formatTimeInZone } from './utils';
+import { API_NAMESPACE, formatDateStringUS, formatTimeInZone } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
 export default function ConfirmationStep( { selection, timezone, currentUser, onSuccess, onCollision } ) {
@@ -103,7 +103,7 @@ export default function ConfirmationStep( { selection, timezone, currentUser, on
 
 				<dt>{ __( 'Fecha y hora', 'booking-plugin' ) }</dt>
 				<dd>
-					{ selection.date } { formatTimeInZone( slot.start_datetime, timezone ) }
+					{ formatDateStringUS( selection.date ) } { formatTimeInZone( slot.start_datetime, timezone ) }
 				</dd>
 
 				<dt>{ __( 'Duración total', 'booking-plugin' ) }</dt>

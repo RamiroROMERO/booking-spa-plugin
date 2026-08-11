@@ -60,6 +60,14 @@ export function formatMonth( dateStr ) {
 	return dateStr.slice( 0, 7 );
 }
 
+// Fecha civil (Y-m-d, sin componente horario) en formato MM/DD/YYYY (EE.UU.)
+// -- el plugin esta pensado para spas de EE.UU. sin importar el idioma/locale
+// del navegador del cliente.
+export function formatDateStringUS( dateStr ) {
+	const [ year, month, day ] = dateStr.split( '-' );
+	return `${ month }/${ day }/${ year }`;
+}
+
 export function formatMonthLabel( monthStr ) {
 	const date = new Date( monthStr + '-01T00:00:00' );
 	return date.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
@@ -87,14 +95,18 @@ export function formatTimeInZone( isoUtc, timezone ) {
 // Misma logica que formatTimeInZone, para la fecha (SPEC 07: panel de
 // cliente). Formatear en la zona del cliente (no solo tomar el string UTC
 // crudo) evita mostrar el dia equivocado cerca de la medianoche.
+//
+// Locale forzado a 'en-US' (no el del navegador del cliente): el plugin esta
+// pensado para spas de EE.UU., por lo que la fecha siempre se muestra
+// MM/DD/YYYY sin importar el idioma/region del visitante.
 export function formatDateInZone( isoUtc, timezone ) {
-	const options = { dateStyle: 'long' };
+	const options = { month: '2-digit', day: '2-digit', year: 'numeric' };
 
 	try {
-		return new Intl.DateTimeFormat( undefined, { ...options, timeZone: timezone } ).format(
+		return new Intl.DateTimeFormat( 'en-US', { ...options, timeZone: timezone } ).format(
 			new Date( isoUtc )
 		);
 	} catch ( e ) {
-		return new Intl.DateTimeFormat( undefined, options ).format( new Date( isoUtc ) );
+		return new Intl.DateTimeFormat( 'en-US', options ).format( new Date( isoUtc ) );
 	}
 }

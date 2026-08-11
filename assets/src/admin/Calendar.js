@@ -2,9 +2,9 @@ import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 import CalendarColumn from './CalendarColumn';
-import { addDays, startOfWeek, getLocalDate, formatTabLabel, ROW_HEIGHT, HOURS } from './utils';
+import { addDays, startOfWeek, getLocalDate, formatTabLabel, getHourRange, ROW_HEIGHT } from './utils';
 
-export default function Calendar( { view, referenceDate, staff, appointments, onSelectAppointment } ) {
+export default function Calendar( { view, referenceDate, staff, appointments, businessHours, onSelectAppointment } ) {
 	const [ activeDate, setActiveDate ] = useState( referenceDate );
 
 	// Al navegar (anterior/hoy/siguiente) o cambiar de vista, el dia activo
@@ -22,6 +22,12 @@ export default function Calendar( { view, referenceDate, staff, appointments, on
 	const dayAppointments = appointments.filter(
 		( appointment ) => getLocalDate( appointment.start_datetime ) === activeDate
 	);
+
+	const dayOfWeek = new Date( activeDate + 'T00:00:00' ).getDay();
+	const { startHour, endHour } = getHourRange( businessHours, dayOfWeek, dayAppointments );
+	const hours = Array.from( { length: endHour - startHour }, ( _, i ) => startHour + i );
+	const windowStartMinutes = startHour * 60;
+	const windowTotalMinutes = ( endHour - startHour ) * 60;
 
 	return (
 		<div className="booking-plugin-calendar">
@@ -45,7 +51,7 @@ export default function Calendar( { view, referenceDate, staff, appointments, on
 
 			<div className="booking-plugin-calendar__grid">
 				<div className="booking-plugin-calendar__gutter">
-					{ HOURS.map( ( hour ) => (
+					{ hours.map( ( hour ) => (
 						<div
 							key={ hour }
 							className="booking-plugin-calendar__hour-label"
@@ -69,6 +75,9 @@ export default function Calendar( { view, referenceDate, staff, appointments, on
 							appointments={ dayAppointments.filter(
 								( appointment ) => appointment.staff_id === member.id
 							) }
+							bodyHeight={ hours.length * ROW_HEIGHT }
+							windowStartMinutes={ windowStartMinutes }
+							windowTotalMinutes={ windowTotalMinutes }
 							onSelectAppointment={ onSelectAppointment }
 						/>
 					) ) }

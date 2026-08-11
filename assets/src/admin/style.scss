@@ -93,7 +93,9 @@
 
 	&__column-body {
 		position: relative;
-		height: 1152px; // 24 horas * 48px
+		// El alto se fija inline en JS segun la cantidad de horas visibles
+		// ese dia (horario de atencion, ampliado si hay citas/bloqueos
+		// fuera de ese rango) -- ver Calendar.js / utils.getHourRange().
 		background-image: repeating-linear-gradient(
 			to bottom,
 			#f0f0f1,

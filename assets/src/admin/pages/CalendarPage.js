@@ -21,6 +21,7 @@ export default function CalendarPage() {
 	const [ referenceDate, setReferenceDate ] = useState( today() );
 	const [ staff, setStaff ] = useState( [] );
 	const [ visibleStaffIds, setVisibleStaffIds ] = useState( [] );
+	const [ businessHours, setBusinessHours ] = useState( [] );
 	const [ appointments, setAppointments ] = useState( [] );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
@@ -34,6 +35,10 @@ export default function CalendarPage() {
 				setStaff( result );
 				setVisibleStaffIds( result.map( ( member ) => member.id ) );
 			} )
+			.catch( ( err ) => setError( getApiErrorMessage( err ) ) );
+
+		apiFetch( { path: `${ API_NAMESPACE }/business-hours` } )
+			.then( ( result ) => setBusinessHours( result.days ) )
 			.catch( ( err ) => setError( getApiErrorMessage( err ) ) );
 	}, [] );
 
@@ -169,6 +174,7 @@ export default function CalendarPage() {
 						referenceDate={ referenceDate }
 						staff={ visibleStaff }
 						appointments={ appointments }
+						businessHours={ businessHours }
 						onSelectAppointment={ handleSelectAppointment }
 					/>
 				) }

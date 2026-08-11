@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Modal, Button, SelectControl, TextControl, Notice } from '@wordpress/components';
 
-import { getLocalDate, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
+import { getLocalDate, formatDateUS, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
 export default function BlockModal( { block, staff, defaultDate, onClose, onSaved } ) {
@@ -85,7 +85,7 @@ export default function BlockModal( { block, staff, defaultDate, onClose, onSave
 					</p>
 					<p>
 						<strong>{ __( 'Horario:', 'booking-plugin' ) }</strong>{ ' ' }
-						{ getLocalDate( block.start_datetime ) }{ ' ' }
+						{ formatDateUS( block.start_datetime ) }{ ' ' }
 						{ formatTimeRange( block.start_datetime, block.end_datetime ) }
 					</p>
 					{ block.notes && (

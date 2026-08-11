@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { Modal, Button, Notice, CheckboxControl } from '@wordpress/components';
 
-import { getLocalDate, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
+import { getLocalDate, formatDateUS, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
 const STATUS_LABELS = {
@@ -118,7 +118,7 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 
 			<p>
 				<strong>{ __( 'Horario:', 'booking-plugin' ) }</strong>{ ' ' }
-				{ getLocalDate( appointment.start_datetime ) }{ ' ' }
+				{ formatDateUS( appointment.start_datetime ) }{ ' ' }
 				{ formatTimeRange( appointment.start_datetime, appointment.end_datetime ) }
 			</p>
 

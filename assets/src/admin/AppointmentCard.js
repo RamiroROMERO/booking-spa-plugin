@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 
 import { formatTimeRange, getTopPercent, getHeightPercent } from './utils';
 
-export default function AppointmentCard( { appointment, onSelect } ) {
-	const top = getTopPercent( appointment.start_datetime );
-	const height = getHeightPercent( appointment.start_datetime, appointment.end_datetime );
+export default function AppointmentCard( { appointment, windowStartMinutes, windowTotalMinutes, onSelect } ) {
+	const top = getTopPercent( appointment.start_datetime, windowStartMinutes, windowTotalMinutes );
+	const height = getHeightPercent( appointment.start_datetime, appointment.end_datetime, windowTotalMinutes );
 
 	const isBlocked = 'blocked' === appointment.status;
 	const label = isBlocked
