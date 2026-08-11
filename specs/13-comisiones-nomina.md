@@ -1,6 +1,6 @@
 # SPEC 13 — Comisiones (Nómina del Staff)
 
-> **Status:** Aprovado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04, SPEC 05, SPEC 11
 > **Date:** 2026-08-10
 > **Objective:** Calcular automáticamente, cuando una cita pasa a `completed`, cuánto se le debe pagar de comisión al profesional que la atendió, y mostrarlo en un dashboard de "Nómina" filtrable por fecha y staff, con las sumas precalculadas en una vista de MySQL para que la consulta sea rápida.
@@ -98,15 +98,15 @@ Convención: una sola vista de grano diario (`payroll_daily_summary`) cubre tant
 
 ## Acceptance criteria
 
-- [ ] `StaffFormModal.js` permite definir `commission_type`/`commission_value` por cada servicio asignado a un staff, y se guarda correctamente en `staff_services`.
-- [ ] Marcar una cita como `completed` (solo posible con `manage_options`, SPEC 03) crea un `payroll_log` con el monto correcto (precio del servicio + add-ons de SPEC 11), usando el `commission_type`/`commission_value` configurado para ese staff+servicio.
-- [ ] Una cita `completed` de un staff+servicio sin comisión configurada no genera `payroll_log` y no produce ningún error visible en la UI.
-- [ ] Marcar la misma cita como `completed` más de una vez no duplica su `payroll_log`.
-- [ ] Revertir el `status` de una cita `completed` a otro estado no elimina ni modifica su `payroll_log` ya generado.
-- [ ] `GET /payroll?date_from=&date_to=` devuelve el total de comisión agrupado por staff dentro de ese rango, consultando la vista `payroll_daily_summary` (no `payroll_logs` directo).
-- [ ] El filtro opcional `staff_id` en `GET /payroll` limita el resultado a un solo profesional.
-- [ ] `PayrollPage.js` requiere `manage_options` y muestra los totales correctos al filtrar por fecha y, opcionalmente, por staff.
-- [ ] Una cita pagada con crédito de paquete (SPEC 12) genera comisión igual que una pagada normalmente, calculada sobre el precio de lista del servicio.
+- [x] `StaffFormModal.js` permite definir `commission_type`/`commission_value` por cada servicio asignado a un staff, y se guarda correctamente en `staff_services`.
+- [x] Marcar una cita como `completed` (solo posible con `manage_options`, SPEC 03) crea un `payroll_log` con el monto correcto (precio del servicio + add-ons de SPEC 11), usando el `commission_type`/`commission_value` configurado para ese staff+servicio.
+- [x] Una cita `completed` de un staff+servicio sin comisión configurada no genera `payroll_log` y no produce ningún error visible en la UI.
+- [x] Marcar la misma cita como `completed` más de una vez no duplica su `payroll_log`.
+- [x] Revertir el `status` de una cita `completed` a otro estado no elimina ni modifica su `payroll_log` ya generado.
+- [x] `GET /payroll?date_from=&date_to=` devuelve el total de comisión agrupado por staff dentro de ese rango, consultando la vista `payroll_daily_summary` (no `payroll_logs` directo).
+- [x] El filtro opcional `staff_id` en `GET /payroll` limita el resultado a un solo profesional.
+- [x] `PayrollPage.js` requiere `manage_options` y muestra los totales correctos al filtrar por fecha y, opcionalmente, por staff.
+- [x] Una cita pagada con crédito de paquete (SPEC 12) genera comisión igual que una pagada normalmente, calculada sobre el precio de lista del servicio.
 
 ---
 

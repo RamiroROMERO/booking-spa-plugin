@@ -151,6 +151,17 @@ class Booking_Rest_Staff_Controller {
 			return $validation;
 		}
 
+		$commissions_provided = $request->has_param( 'commissions' );
+		$commissions          = $request->get_param( 'commissions' );
+		$commissions          = null === $commissions ? array() : $commissions;
+
+		if ( $commissions_provided ) {
+			$validation = $this->validate_commissions( $commissions, $service_ids );
+			if ( is_wp_error( $validation ) ) {
+				return $validation;
+			}
+		}
+
 		$schedules  = $request->get_param( 'schedules' );
 		$schedules  = null === $schedules ? array() : $schedules;
 		$validation = $this->validate_schedules( $schedules );
@@ -185,7 +196,7 @@ class Booking_Rest_Staff_Controller {
 
 		$staff_id = (int) $wpdb->insert_id;
 
-		$this->replace_service_ids( $staff_id, $service_ids );
+		$this->replace_service_ids( $staff_id, $service_ids, $commissions_provided, $commissions );
 		$this->replace_schedules( $staff_id, $schedules );
 		$this->replace_exceptions( $staff_id, $exceptions );
 
@@ -249,10 +260,25 @@ class Booking_Rest_Staff_Controller {
 			$formats[]       = '%s';
 		}
 
-		if ( $request->has_param( 'service_ids' ) ) {
+		$service_ids_provided = $request->has_param( 'service_ids' );
+		if ( $service_ids_provided ) {
 			$service_ids = $request->get_param( 'service_ids' );
 			$validation  = $this->validate_service_ids( $service_ids );
 
+			if ( is_wp_error( $validation ) ) {
+				return $validation;
+			}
+			$final_service_ids = $service_ids;
+		} else {
+			$final_service_ids = $this->get_service_ids( $id );
+		}
+
+		$commissions_provided = $request->has_param( 'commissions' );
+		$commissions          = $request->get_param( 'commissions' );
+		$commissions          = null === $commissions ? array() : $commissions;
+
+		if ( $commissions_provided ) {
+			$validation = $this->validate_commissions( $commissions, $final_service_ids );
 			if ( is_wp_error( $validation ) ) {
 				return $validation;
 			}
@@ -283,8 +309,8 @@ class Booking_Rest_Staff_Controller {
 			$wpdb->update( $table, $data, array( 'id' => $id ), $formats, array( '%d' ) );
 		}
 
-		if ( isset( $service_ids ) ) {
-			$this->replace_service_ids( $id, $service_ids );
+		if ( $service_ids_provided || $commissions_provided ) {
+			$this->replace_service_ids( $id, $final_service_ids, $commissions_provided, $commissions );
 		}
 
 		if ( isset( $schedules ) ) {
@@ -350,6 +376,79 @@ class Booking_Rest_Staff_Controller {
 		return true;
 	}
 
+	protected function validate_commissions( $commissions, array $service_ids ) {
+		if ( ! is_array( $commissions ) ) {
+			return new WP_Error(
+				'booking_rest_invalid_commissions',
+				__( 'commissions must be an array.', 'booking-plugin' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$service_ids_ints = array_map( 'intval', $service_ids );
+
+		foreach ( $commissions as $entry ) {
+			if ( ! is_array( $entry ) ) {
+				return new WP_Error(
+					'booking_rest_invalid_commissions',
+					__( 'Cada entrada de comisión debe ser un arreglo.', 'booking-plugin' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			if ( ! isset( $entry['service_id'] ) || ! is_numeric( $entry['service_id'] ) || (int) $entry['service_id'] <= 0 ) {
+				return new WP_Error(
+					'booking_rest_invalid_commissions',
+					__( 'Cada entrada de comisión debe incluir un service_id válido mayor a 0.', 'booking-plugin' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$service_id = (int) $entry['service_id'];
+
+			if ( ! in_array( $service_id, $service_ids_ints, true ) ) {
+				return new WP_Error(
+					'booking_rest_invalid_commissions',
+					sprintf( __( 'No se puede configurar comisión para el service_id %d porque no está asignado al staff.', 'booking-plugin' ), $service_id ),
+					array( 'status' => 400 )
+				);
+			}
+
+			if ( isset( $entry['commission_type'] ) && null !== $entry['commission_type'] ) {
+				if ( ! in_array( $entry['commission_type'], array( 'fixed', 'percentage' ), true ) ) {
+					return new WP_Error(
+						'booking_rest_invalid_commissions',
+						__( 'El tipo de comisión debe ser "fixed" o "percentage".', 'booking-plugin' ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+
+			if ( isset( $entry['commission_value'] ) && null !== $entry['commission_value'] ) {
+				if ( ! is_numeric( $entry['commission_value'] ) || floatval( $entry['commission_value'] ) < 0 ) {
+					return new WP_Error(
+						'booking_rest_invalid_commissions',
+						__( 'El valor de comisión debe ser un número mayor o igual a 0.', 'booking-plugin' ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+
+			$type_set  = isset( $entry['commission_type'] ) && $entry['commission_type'] !== null && $entry['commission_type'] !== '';
+			$value_set = isset( $entry['commission_value'] ) && $entry['commission_value'] !== null && $entry['commission_value'] !== '';
+
+			if ( $type_set !== $value_set ) {
+				return new WP_Error(
+					'booking_rest_invalid_commissions',
+					__( 'El tipo de comisión y el valor de comisión deben configurarse juntos o no configurarse.', 'booking-plugin' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		return true;
+	}
+
 	protected function validate_schedules( $schedules ) {
 		if ( ! is_array( $schedules ) ) {
 			return new WP_Error( 'booking_rest_invalid_schedules', __( 'schedules must be an array.', 'booking-plugin' ), array( 'status' => 400 ) );
@@ -384,18 +483,95 @@ class Booking_Rest_Staff_Controller {
 		return true;
 	}
 
-	protected function replace_service_ids( $staff_id, array $service_ids ) {
+	protected function replace_service_ids( $staff_id, array $service_ids, $commissions_provided, array $commissions ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'booking_staff_services';
+		$table          = $wpdb->prefix . 'booking_staff_services';
+		$commission_map = array();
+
+		if ( $commissions_provided ) {
+			// Convert commissions list to a lookup associative array by service_id
+			$commissions_by_service = array();
+			foreach ( $commissions as $comm ) {
+				if ( isset( $comm['service_id'] ) ) {
+					$comm_service_id = (int) $comm['service_id'];
+					$comm_type       = isset( $comm['commission_type'] ) && $comm['commission_type'] !== '' ? $comm['commission_type'] : null;
+					$comm_val        = isset( $comm['commission_value'] ) && $comm['commission_value'] !== '' ? floatval( $comm['commission_value'] ) : null;
+					$commissions_by_service[ $comm_service_id ] = array(
+						'commission_type'  => $comm_type,
+						'commission_value' => $comm_val,
+					);
+				}
+			}
+
+			foreach ( $service_ids as $sid ) {
+				$sid = (int) $sid;
+				if ( isset( $commissions_by_service[ $sid ] ) ) {
+					$commission_map[ $sid ] = $commissions_by_service[ $sid ];
+				} else {
+					$commission_map[ $sid ] = array(
+						'commission_type'  => null,
+						'commission_value' => null,
+					);
+				}
+			}
+		} else {
+			// commissions_provided is false. We must preserve current commissions from DB.
+			// READ current commissions BEFORE deleting the rows!
+			$current_rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT service_id, commission_type, commission_value FROM {$table} WHERE staff_id = %d",
+					$staff_id
+				)
+			);
+
+			$db_commissions = array();
+			if ( $current_rows ) {
+				foreach ( $current_rows as $row ) {
+					$db_commissions[ (int) $row->service_id ] = array(
+						'commission_type'  => $row->commission_type !== null ? (string) $row->commission_type : null,
+						'commission_value' => $row->commission_value !== null ? floatval( $row->commission_value ) : null,
+					);
+				}
+			}
+
+			foreach ( $service_ids as $sid ) {
+				$sid = (int) $sid;
+				if ( isset( $db_commissions[ $sid ] ) ) {
+					$commission_map[ $sid ] = $db_commissions[ $sid ];
+				} else {
+					$commission_map[ $sid ] = array(
+						'commission_type'  => null,
+						'commission_value' => null,
+					);
+				}
+			}
+		}
+
+		// 2. Hacer el DELETE de todas las filas de staff_services para staff_id (igual que hoy)
 		$wpdb->delete( $table, array( 'staff_id' => $staff_id ), array( '%d' ) );
 
-		foreach ( array_unique( array_map( 'intval', $service_ids ) ) as $service_id ) {
+		// 3. Por cada service_id unico y valido (mayor a 0) en service_ids, hacer el wpdb->insert()
+		// incluyendo ahora tambien commission_type y commission_value tomados de commission_map
+		$unique_service_ids = array_unique( array_map( 'intval', $service_ids ) );
+		foreach ( $unique_service_ids as $service_id ) {
 			if ( $service_id <= 0 ) {
 				continue;
 			}
 
-			$wpdb->insert( $table, array( 'staff_id' => $staff_id, 'service_id' => $service_id ), array( '%d', '%d' ) );
+			$comm_type = isset( $commission_map[ $service_id ]['commission_type'] ) ? $commission_map[ $service_id ]['commission_type'] : null;
+			$comm_val  = isset( $commission_map[ $service_id ]['commission_value'] ) ? $commission_map[ $service_id ]['commission_value'] : null;
+
+			$data = array(
+				'staff_id'         => $staff_id,
+				'service_id'       => $service_id,
+				'commission_type'  => $comm_type,
+				'commission_value' => $comm_val,
+			);
+
+			$formats = array( '%d', '%d', '%s', '%f' );
+
+			$wpdb->insert( $table, $data, $formats );
 		}
 	}
 
@@ -460,6 +636,29 @@ class Booking_Rest_Staff_Controller {
 		return array_map( 'intval', $ids );
 	}
 
+	protected function get_commissions( $staff_id ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'booking_staff_services';
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT service_id, commission_type, commission_value FROM {$table} WHERE staff_id = %d ORDER BY service_id ASC",
+				$staff_id
+			)
+		);
+
+		return array_map(
+			function ( $row ) {
+				return array(
+					'service_id'       => (int) $row->service_id,
+					'commission_type'  => $row->commission_type !== null ? (string) $row->commission_type : null,
+					'commission_value' => $row->commission_value !== null ? floatval( $row->commission_value ) : null,
+				);
+			},
+			$rows
+		);
+	}
+
 	protected function get_schedules( $staff_id ) {
 		global $wpdb;
 
@@ -521,6 +720,7 @@ class Booking_Rest_Staff_Controller {
 			'phone'       => $row->phone,
 			'status'      => $row->status,
 			'service_ids' => $service_ids,
+			'commissions' => $this->get_commissions( (int) $row->id ),
 			'schedules'   => $this->get_schedules( (int) $row->id ),
 			'exceptions'  => $this->get_exceptions( (int) $row->id ),
 			'created_at'  => $row->created_at,

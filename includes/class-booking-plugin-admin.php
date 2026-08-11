@@ -11,6 +11,7 @@ class Booking_Plugin_Admin {
 	const SLUG_SETTINGS      = 'booking-plugin-settings';
 	const SLUG_NOTIFICATIONS = 'booking-plugin-notifications';
 	const SLUG_PACKAGES      = 'booking-plugin-packages';
+	const SLUG_PAYROLL       = 'booking-plugin-payroll';
 
 	protected $hook_suffixes = array();
 
@@ -77,6 +78,15 @@ class Booking_Plugin_Admin {
 			self::SLUG_PACKAGES,
 			array( $this, 'render_page' )
 		);
+
+		$this->hook_suffixes[ self::SLUG_PAYROLL ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Nómina', 'booking-plugin' ),
+			__( 'Nómina', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_PAYROLL,
+			array( $this, 'render_page' )
+		);
 	}
 
 	public function render_page() {
@@ -125,6 +135,7 @@ class Booking_Plugin_Admin {
 			self::SLUG_SETTINGS      => 'settings',
 			self::SLUG_NOTIFICATIONS => 'notifications',
 			self::SLUG_PACKAGES      => 'packages',
+			self::SLUG_PAYROLL       => 'payroll',
 		);
 
 		wp_localize_script(

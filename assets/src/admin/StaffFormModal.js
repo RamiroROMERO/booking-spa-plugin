@@ -1,7 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { Modal, Button, TextControl, CheckboxControl, Notice } from '@wordpress/components';
+import { Modal, Button, TextControl, CheckboxControl, Notice, SelectControl } from '@wordpress/components';
 
 import WeeklyScheduleEditor, {
 	createEmptyWeeklySchedule,
@@ -24,6 +24,7 @@ export default function StaffFormModal( { staffId, services, onClose, onSaved } 
 	const [ serviceIds, setServiceIds ] = useState( [] );
 	const [ scheduleRows, setScheduleRows ] = useState( createEmptyWeeklySchedule() );
 	const [ exceptions, setExceptions ] = useState( [] );
+	const [ commissionsByService, setCommissionsByService ] = useState( {} );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ validationError, setValidationError ] = useState( null );
@@ -48,6 +49,15 @@ export default function StaffFormModal( { staffId, services, onClose, onSaved } 
 				setServiceIds( result.service_ids || [] );
 				setScheduleRows( scheduleRowsFromStaffSchedules( result.schedules || [] ) );
 				setExceptions( result.exceptions || [] );
+
+				const commissionsMap = {};
+				( result.commissions || [] ).forEach( ( c ) => {
+					commissionsMap[ c.service_id ] = {
+						commission_type: c.commission_type || '',
+						commission_value: null !== c.commission_value && undefined !== c.commission_value ? String( c.commission_value ) : '',
+					};
+				} );
+				setCommissionsByService( commissionsMap );
 			} )
 			.catch( ( err ) => setLoadError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
@@ -59,6 +69,18 @@ export default function StaffFormModal( { staffId, services, onClose, onSaved } 
 				? current.filter( ( id ) => id !== serviceId )
 				: [ ...current, serviceId ]
 		);
+	};
+
+	const updateCommission = ( serviceId, field, value ) => {
+		setCommissionsByService( ( current ) => ( {
+			...current,
+			[ serviceId ]: {
+				commission_type: '',
+				commission_value: '',
+				...current[ serviceId ],
+				[ field ]: value,
+			},
+		} ) );
 	};
 
 	const handleSubmit = () => {
@@ -74,6 +96,18 @@ export default function StaffFormModal( { staffId, services, onClose, onSaved } 
 			return;
 		}
 
+		for ( const serviceId of serviceIds ) {
+			const commission = commissionsByService[ serviceId ];
+			if ( commission ) {
+				const hasType = '' !== commission.commission_type;
+				const hasValue = '' !== commission.commission_value;
+				if ( ( hasType && ! hasValue ) || ( ! hasType && hasValue ) ) {
+					setValidationError( __( 'Si configurás un tipo de comisión, también tenés que indicar el valor (y viceversa).', 'booking-plugin' ) );
+					return;
+				}
+			}
+		}
+
 		setIsSaving( true );
 		setError( null );
 
@@ -84,6 +118,16 @@ export default function StaffFormModal( { staffId, services, onClose, onSaved } 
 			service_ids: serviceIds,
 			schedules: staffSchedulesFromRows( scheduleRows ),
 			exceptions,
+			commissions: serviceIds.map( ( serviceId ) => {
+				const commission = commissionsByService[ serviceId ] || {};
+				const hasCommission = '' !== commission.commission_type && '' !== commission.commission_value;
+
+				return {
+					service_id: serviceId,
+					commission_type: hasCommission ? commission.commission_type : null,
+					commission_value: hasCommission ? Number( commission.commission_value ) : null,
+				};
+			} ),
 		};
 
 		if ( isEditing ) {
@@ -150,14 +194,42 @@ export default function StaffFormModal( { staffId, services, onClose, onSaved } 
 
 					<h3>{ __( 'Servicios que puede realizar', 'booking-plugin' ) }</h3>
 					<div className="booking-plugin-staff-modal__services">
-						{ services.map( ( service ) => (
-							<CheckboxControl
-								key={ service.id }
-								label={ service.name }
-								checked={ serviceIds.includes( service.id ) }
-								onChange={ () => toggleService( service.id ) }
-							/>
-						) ) }
+						{ services.map( ( service ) => {
+							const isAssigned = serviceIds.includes( service.id );
+							const commission = commissionsByService[ service.id ] || { commission_type: '', commission_value: '' };
+
+							return (
+								<div key={ service.id } className="booking-plugin-staff-modal__service-row">
+									<CheckboxControl
+										label={ service.name }
+										checked={ isAssigned }
+										onChange={ () => toggleService( service.id ) }
+									/>
+									{ isAssigned && (
+										<div className="booking-plugin-staff-modal__commission">
+											<SelectControl
+												label={ __( 'Tipo de comisión', 'booking-plugin' ) }
+												value={ commission.commission_type }
+												options={ [
+													{ label: __( 'Sin comisión configurada', 'booking-plugin' ), value: '' },
+													{ label: __( 'Fijo', 'booking-plugin' ), value: 'fixed' },
+													{ label: __( 'Porcentaje', 'booking-plugin' ), value: 'percentage' },
+												] }
+												onChange={ ( value ) => updateCommission( service.id, 'commission_type', value ) }
+											/>
+											<TextControl
+												label={ __( 'Valor de comisión', 'booking-plugin' ) }
+												type="number"
+												min="0"
+												step="0.01"
+												value={ commission.commission_value }
+												onChange={ ( value ) => updateCommission( service.id, 'commission_value', value ) }
+											/>
+										</div>
+									) }
+								</div>
+							);
+						} ) }
 						{ 0 === services.length && (
 							<p>{ __( 'No hay servicios activos todavía.', 'booking-plugin' ) }</p>
 						) }
