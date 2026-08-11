@@ -1,9 +1,9 @@
 ---
 name: spec-impl
-description: Implements an approved spec. Validates that the state means "Approved" (in any language), creates a git branch named after the spec, switches to it, and starts the implementation step by step with pauses to review diffs.
+description: Implements an approved spec. Validates that the state means "Approved" (in any language), creates a git branch named after the spec, switches to it, and delegates the implementation step by step to the gemini-executor subagent, pausing to review diffs.
 disable-model-invocation: true
 argument-hint: <NN-spec-name>
-allowed-tools: Read, Glob, Grep, Edit, Write, AskUserQuestion, Bash(git status:*), Bash(git branch:*), Bash(git checkout:*), Bash(git log:*), Bash(git diff:*), Bash(git stash:*), Bash(cat:*), Bash(ls:*)
+allowed-tools: Read, Glob, Grep, Edit, Write, Task, AskUserQuestion, Bash(git status:*), Bash(git branch:*), Bash(git checkout:*), Bash(git log:*), Bash(git diff:*), Bash(git stash:*), Bash(cat:*), Bash(ls:*)
 ---
 
 # /spec-impl — Implementer of approved specs
@@ -160,13 +160,15 @@ Match section headings by meaning, not by exact wording — the spec may be auth
 
 ---
 
-### Phase 4 — Implement step by step
+### Phase 4 — Implement step by step (delegated to gemini-executor)
 
 After showing the spec summary, tell the user:
 
 ```
 I am going to implement the spec following the implementation plan exactly.
-I will pause after each step so you can review the diff.
+Each step will be delegated to the gemini-executor subagent for execution;
+I will review the diff before moving on. I will pause after each step so
+you can review it too.
 
 Shall we start with Step 1?
 ```
@@ -175,16 +177,23 @@ Wait for explicit confirmation ("yes", "go ahead", "go", or equivalent). Do not 
 
 Once confirmed, follow these rules during the entire implementation:
 
-**Never commit automatically.** Not per step, not at the end. You write the code and show the diff; committing is the user's decision and the user's command. Only commit if they explicitly ask you to.
+**Never commit automatically.** Not per step, not at the end. Committing is the user's decision and the user's command. Only commit if they explicitly ask you to.
 
-**One rule above all:** implement what the spec says. If something in the spec looks suboptimal to you, mention it as an observation but implement what was agreed. Changes to the spec go into the spec, not into the code by surprise.
+**One rule above all:** implement what the spec says. If something in the spec looks suboptimal to you, mention it as an observation but implement what was agreed. Changes to the spec go into the spec, not into the code by surprise. This rule applies to the instruction you hand to `gemini-executor` too — do not let it improvise beyond the step's scope.
 
-**Work rhythm:**
+**Work rhythm (per step of the plan):**
 
-- Implement one step of the plan.
-- Show a summary of which files you touched and what you did.
-- Say: `Step N completed. Could you review the diff and let me know if I continue with Step N+1?`
-- Wait for confirmation before continuing.
+1. Translate the current step of the plan into a single, self-contained, unambiguous instruction — include the exact files or modules involved, the relevant part of the spec's scope, and any constraint from the acceptance criteria that applies to this step. Gemini has no memory of the conversation, so the instruction must stand on its own.
+2. Invoke the `gemini-executor` subagent (via the Task tool) with that instruction. Use `--approval-mode auto_edit` when the step requires writing/modifying files, or `--approval-mode plan` if the step is analysis-only.
+3. Run `git diff` to see exactly what `gemini-executor` changed.
+4. **Review the diff against the spec** before showing it to the user:
+   - If it matches the step's intent → continue to 5.
+   - If it partially matches or added things out of scope → do NOT silently fix it. Tell the user what looks off, and either (a) re-invoke `gemini-executor` with a more specific instruction, or (b) fix it yourself with `Edit`, explaining why you intervened directly instead of re-delegating.
+   - If it clearly failed (syntax errors, wrong files touched, etc.) → do not proceed; show the raw output from `gemini-executor` and ask the user how to proceed.
+5. If the project has a lint/typecheck/test command, run it now for the touched files. Report failures before asking the user to review.
+6. Show a summary of which files were touched and what was done.
+7. Say: `Step N completed (via gemini-executor). Could you review the diff and let me know if I continue with Step N+1?`
+8. Wait for confirmation before continuing.
 
 **If during the implementation you find an ambiguity** the spec does not resolve:
 
@@ -192,13 +201,13 @@ Once confirmed, follow these rules during the entire implementation:
 - Describe the ambiguity exactly.
 - Present two or three concrete options.
 - Wait for the user's decision.
-- Do not improvise.
+- Do not improvise, and do not pass an ambiguous instruction to `gemini-executor` hoping it resolves it.
 
 **If the user asks for something that is out of the spec's scope:**
 
 - Remind them that it is out of this spec's scope.
 - Suggest noting it down for the next spec.
-- Do not implement it on this branch.
+- Do not implement it on this branch, and do not delegate it to `gemini-executor` either.
 
 **When finishing the last step:**
 
@@ -221,7 +230,8 @@ in your repo's language) and make the final commit before merging this branch.
   Phase 2  →  Reads the state → "Approved" (or "Aprobado", etc.) → ✅ continues
   Phase 3  →  git checkout -b spec-01-mvp-arkanoid → git checkout spec-01-mvp-arkanoid
               Shows objective, scope, plan and criteria
-  Phase 4  →  Implements step by step with pauses
+  Phase 4  →  For each step: builds an instruction → delegates to gemini-executor →
+              reviews diff against the spec → runs lint/tests → pauses for user review
               Ends by reminding to verify the acceptance criteria
 
 /spec-impl 02-powerups  (state: Draft / Borrador)
