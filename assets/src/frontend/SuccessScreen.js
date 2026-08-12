@@ -87,7 +87,35 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 				</div>
 			</div>
 
-			{ bookingResult.checkout_url && (
+			{ bookingResult.checkout_url && undefined !== bookingResult.deposit_amount && (
+				<div className="booking-plugin-widget__payment">
+					<p>
+						{ sprintf(
+							/* translators: 1: porcentaje del depósito, 2: monto del depósito, 3: saldo pendiente */
+							__(
+								'Este servicio requiere un depósito del %1$s%% ($%2$s) para confirmar la cita. El saldo restante de $%3$s queda pendiente y se cobra por separado.',
+								'booking-plugin'
+							),
+							service ? service.deposit_percentage : '',
+							bookingResult.deposit_amount,
+							bookingResult.balance_due
+						) }
+					</p>
+					<a
+						href={ bookingResult.checkout_url }
+						className="booking-plugin-widget__primary"
+					>
+						{ sprintf(
+							/* translators: 1: monto del depósito, 2: porcentaje del depósito */
+							__( 'Pagar depósito ($%1$s — %2$s%%)', 'booking-plugin' ),
+							bookingResult.deposit_amount,
+							service ? service.deposit_percentage : ''
+						) }
+					</a>
+				</div>
+			) }
+
+			{ bookingResult.checkout_url && undefined === bookingResult.deposit_amount && (
 				<div className="booking-plugin-widget__payment">
 					<p>
 						{ __(

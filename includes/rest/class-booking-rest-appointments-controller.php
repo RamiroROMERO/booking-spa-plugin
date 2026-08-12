@@ -297,10 +297,30 @@ class Booking_Rest_Appointments_Controller {
 					$response_data['paid_with_credit_id'] = (int) $row->paid_with_credit_id;
 					$response_data['credits_consumed']    = (int) $row->credits_consumed;
 				} else {
-					$checkout_url = $this->maybe_create_payment_order( $row );
+					$payment_result = $this->maybe_create_payment_order( $row );
 
-					if ( $checkout_url ) {
-						$response_data['checkout_url'] = $checkout_url;
+					if ( $payment_result ) {
+						if ( ! empty( $payment_result['checkout_url'] ) ) {
+							$response_data['checkout_url'] = $payment_result['checkout_url'];
+						}
+
+						if ( null !== $payment_result['deposit_amount'] ) {
+							$response_data['deposit_amount'] = $payment_result['deposit_amount'];
+							$response_data['balance_due']    = $payment_result['balance_due'];
+
+							global $wpdb;
+
+							$wpdb->update(
+								$wpdb->prefix . 'booking_appointments',
+								array(
+									'deposit_amount' => $payment_result['deposit_amount'],
+									'balance_due'    => $payment_result['balance_due'],
+								),
+								array( 'id' => (int) $row->id ),
+								array( '%f', '%f' ),
+								array( '%d' )
+							);
+						}
 					}
 				}
 
@@ -530,6 +550,33 @@ class Booking_Rest_Appointments_Controller {
 
 		$is_admin        = ( 'admin' === $access );
 		$previous_status = $row->status;
+
+		if ( $request->has_param( 'balance_collected' ) && $request->get_param( 'balance_collected' ) ) {
+			if ( ! $is_admin ) {
+				return new WP_Error( 'booking_rest_forbidden', __( 'You are not allowed to perform this action.', 'booking-plugin' ), array( 'status' => 403 ) );
+			}
+
+			if ( null === $row->balance_due || null !== $row->balance_collected_at ) {
+				return new WP_Error( 'booking_rest_balance_not_collectible', __( 'This appointment has no pending balance to collect, or it was already collected.', 'booking-plugin' ), array( 'status' => 409 ) );
+			}
+
+			global $wpdb;
+
+			$wpdb->update(
+				$wpdb->prefix . 'booking_appointments',
+				array(
+					'balance_collected_at' => current_time( 'mysql', true ),
+					'updated_at'            => current_time( 'mysql', true ),
+				),
+				array( 'id' => (int) $row->id ),
+				array( '%s', '%s' ),
+				array( '%d' )
+			);
+
+			$row = $this->get_row( (int) $row->id );
+
+			return rest_ensure_response( $this->prepare_item( $row ) );
+		}
 
 		$status             = $request->get_param( 'status' );
 		$new_start          = $request->get_param( 'start_datetime' );
@@ -952,6 +999,9 @@ class Booking_Rest_Appointments_Controller {
 			'wc_order_id'    => $row->wc_order_id ? (int) $row->wc_order_id : null,
 			'paid_with_credit_id' => $row->paid_with_credit_id ? (int) $row->paid_with_credit_id : null,
 			'credits_consumed'    => $row->credits_consumed ? (int) $row->credits_consumed : null,
+			'deposit_amount'       => null !== $row->deposit_amount ? (float) $row->deposit_amount : null,
+			'balance_due'          => null !== $row->balance_due ? (float) $row->balance_due : null,
+			'balance_collected_at' => $row->balance_collected_at ? $this->to_iso( $row->balance_collected_at ) : null,
 			'addons'         => $this->get_appointment_addons( (int) $row->id ),
 			'created_at'     => $this->to_iso( $row->created_at ),
 			'updated_at'     => $this->to_iso( $row->updated_at ),

@@ -142,6 +142,12 @@ class Booking_Rest_Services_Controller {
 			return $validation_error;
 		}
 
+		$deposit_validation_error = $this->validate_deposit_fields( $request, null );
+
+		if ( is_wp_error( $deposit_validation_error ) ) {
+			return $deposit_validation_error;
+		}
+
 		$category_id = $request->get_param( 'category_id' );
 
 		if ( ! empty( $category_id ) && ! $this->category_exists( (int) $category_id ) ) {
@@ -164,11 +170,13 @@ class Booking_Rest_Services_Controller {
 				'buffer_minutes'   => null !== $request->get_param( 'buffer_minutes' ) ? (int) $request->get_param( 'buffer_minutes' ) : 0,
 				'status'           => 'active',
 				'requires_payment' => $request->get_param( 'requires_payment' ) ? 1 : 0,
+				'requires_deposit'   => $request->get_param( 'requires_deposit' ) ? 1 : 0,
+				'deposit_percentage' => $request->get_param( 'requires_deposit' ) ? (float) $request->get_param( 'deposit_percentage' ) : null,
 				'image_id'         => empty( $request->get_param( 'image_id' ) ) ? null : (int) $request->get_param( 'image_id' ),
 				'created_at'       => $now,
 				'updated_at'       => $now,
 			),
-			array( '%d', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%d', '%d', '%s', '%s' )
+			array( '%d', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%d', '%d', '%f', '%d', '%s', '%s' )
 		);
 
 		$service_id = (int) $wpdb->insert_id;
@@ -202,6 +210,12 @@ class Booking_Rest_Services_Controller {
 
 		if ( is_wp_error( $validation_error ) ) {
 			return $validation_error;
+		}
+
+		$deposit_validation_error = $this->validate_deposit_fields( $request, $row );
+
+		if ( is_wp_error( $deposit_validation_error ) ) {
+			return $deposit_validation_error;
 		}
 
 		$table   = $wpdb->prefix . 'booking_services';
@@ -266,6 +280,20 @@ class Booking_Rest_Services_Controller {
 		if ( $request->has_param( 'requires_payment' ) ) {
 			$data['requires_payment'] = $request->get_param( 'requires_payment' ) ? 1 : 0;
 			$formats[]                 = '%d';
+		}
+
+		if ( $request->has_param( 'requires_deposit' ) || $request->has_param( 'deposit_percentage' ) || $request->has_param( 'requires_payment' ) ) {
+			$effective_requires_deposit = $request->has_param( 'requires_deposit' )
+				? (bool) $request->get_param( 'requires_deposit' )
+				: (bool) $row->requires_deposit;
+
+			$data['requires_deposit'] = $effective_requires_deposit ? 1 : 0;
+			$formats[]                 = '%d';
+
+			$data['deposit_percentage'] = $effective_requires_deposit
+				? (float) ( $request->has_param( 'deposit_percentage' ) ? $request->get_param( 'deposit_percentage' ) : $row->deposit_percentage )
+				: null;
+			$formats[]                   = '%f';
 		}
 
 		if ( $request->has_param( 'image_id' ) ) {
@@ -347,6 +375,40 @@ class Booking_Rest_Services_Controller {
 		return true;
 	}
 
+	protected function validate_deposit_fields( $request, $existing_row = null ) {
+		$touches_deposit_fields = $request->has_param( 'requires_deposit' )
+			|| $request->has_param( 'deposit_percentage' )
+			|| $request->has_param( 'requires_payment' );
+
+		if ( ! $touches_deposit_fields && null !== $existing_row ) {
+			return true;
+		}
+
+		$requires_payment = $request->has_param( 'requires_payment' )
+			? (bool) $request->get_param( 'requires_payment' )
+			: ( $existing_row ? (bool) $existing_row->requires_payment : false );
+
+		$requires_deposit = $request->has_param( 'requires_deposit' )
+			? (bool) $request->get_param( 'requires_deposit' )
+			: ( $existing_row ? (bool) $existing_row->requires_deposit : false );
+
+		if ( $requires_deposit && ! $requires_payment ) {
+			return new WP_Error( 'booking_rest_deposit_requires_payment', __( 'requires_deposit can only be true when requires_payment is true.', 'booking-plugin' ), array( 'status' => 400 ) );
+		}
+
+		if ( $requires_deposit ) {
+			$deposit_percentage = $request->has_param( 'deposit_percentage' )
+				? $request->get_param( 'deposit_percentage' )
+				: ( $existing_row ? $existing_row->deposit_percentage : null );
+
+			if ( null === $deposit_percentage || '' === $deposit_percentage || ! is_numeric( $deposit_percentage ) || (float) $deposit_percentage < 1 || (float) $deposit_percentage > 99 ) {
+				return new WP_Error( 'booking_rest_invalid_deposit_percentage', __( 'deposit_percentage is required and must be between 1 and 99 when requires_deposit is true.', 'booking-plugin' ), array( 'status' => 400 ) );
+			}
+		}
+
+		return true;
+	}
+
 	protected function category_exists( $category_id ) {
 		global $wpdb;
 
@@ -381,6 +443,8 @@ class Booking_Rest_Services_Controller {
 			'buffer_minutes'    => (int) $row->buffer_minutes,
 			'status'            => $row->status,
 			'requires_payment'  => (bool) $row->requires_payment,
+			'requires_deposit'   => (bool) $row->requires_deposit,
+			'deposit_percentage' => null !== $row->deposit_percentage ? (float) $row->deposit_percentage : null,
 			'wc_product_id'     => null !== $row->wc_product_id ? (int) $row->wc_product_id : null,
 			'image_id'          => null !== $row->image_id ? (int) $row->image_id : null,
 			'image_url'         => $image_url,

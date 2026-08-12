@@ -33,6 +33,12 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 	const [ requiresPayment, setRequiresPayment ] = useState(
 		service ? Boolean( service.requires_payment ) : false
 	);
+	const [ requiresDeposit, setRequiresDeposit ] = useState(
+		service ? Boolean( service.requires_deposit ) : false
+	);
+	const [ depositPercentage, setDepositPercentage ] = useState(
+		service && service.deposit_percentage ? String( service.deposit_percentage ) : ''
+	);
 	const [ imageId, setImageId ] = useState( service && service.image_id ? service.image_id : null );
 	const [ imageUrl, setImageUrl ] = useState( service && service.image_url ? service.image_url : null );
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -62,6 +68,17 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 			return;
 		}
 
+		if ( requiresDeposit ) {
+			const percentage = parseFloat( depositPercentage );
+
+			if ( ! depositPercentage || isNaN( percentage ) || percentage < 1 || percentage > 99 ) {
+				setValidationError(
+					__( 'El porcentaje de depósito debe ser un número entre 1 y 99.', 'booking-plugin' )
+				);
+				return;
+			}
+		}
+
 		setIsSaving( true );
 		setError( null );
 
@@ -73,6 +90,8 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 			buffer_minutes: parseInt( bufferMinutes, 10 ) || 0,
 			description: description || null,
 			requires_payment: requiresPayment,
+			requires_deposit: requiresDeposit,
+			deposit_percentage: requiresDeposit ? parseFloat( depositPercentage ) : null,
 			image_id: imageId,
 		};
 
@@ -109,6 +128,14 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 	const handleRemoveImage = () => {
 		setImageId( null );
 		setImageUrl( null );
+	};
+
+	const handleRequiresPaymentChange = ( value ) => {
+		setRequiresPayment( value );
+
+		if ( ! value ) {
+			setRequiresDeposit( false );
+		}
 	};
 
 	return (
@@ -195,8 +222,28 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 					'booking-plugin'
 				) }
 				checked={ requiresPayment }
-				onChange={ setRequiresPayment }
+				onChange={ handleRequiresPaymentChange }
 			/>
+			<ToggleControl
+				label={ __( 'Requiere depósito', 'booking-plugin' ) }
+				help={ __(
+					'Al reservar, solo se cobra el porcentaje indicado del total; el resto queda como saldo pendiente que se gestiona manualmente desde la cita.',
+					'booking-plugin'
+				) }
+				checked={ requiresDeposit }
+				disabled={ ! requiresPayment }
+				onChange={ setRequiresDeposit }
+			/>
+			{ requiresDeposit && (
+				<TextControl
+					label={ __( 'Porcentaje de depósito', 'booking-plugin' ) }
+					type="number"
+					min="1"
+					max="99"
+					value={ depositPercentage }
+					onChange={ setDepositPercentage }
+				/>
+			) }
 
 			<Button variant="primary" disabled={ isSaving } onClick={ handleSubmit }>
 				{ __( 'Guardar', 'booking-plugin' ) }
