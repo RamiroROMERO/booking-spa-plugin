@@ -148,7 +148,21 @@ class Booking_Plugin_WooCommerce {
 		// Una unica linea con precio = servicio + suma de add-ons (ver SPEC 11);
 		// no se crea una linea por add-on porque eso requeriria un producto WC
 		// propio por cada uno, sin beneficio confirmado.
-		$total_price = (float) $service->price + $addons_total;
+		$total = (float) $service->price + $addons_total;
+
+		$deposit_amount = null;
+		$balance_due    = null;
+		$order_amount   = $total;
+
+		// Si el servicio requiere deposito, el pedido de WooCommerce se genera
+		// solo por ese monto -- el saldo restante lo cobra el admin manualmente
+		// (ver SPEC 15). deposit_amount/balance_due son snapshot: se calculan
+		// una unica vez aca y el controlador de citas los persiste tal cual.
+		if ( ! empty( $service->requires_deposit ) ) {
+			$deposit_amount = round( $total * ( (float) $service->deposit_percentage / 100 ), 2 );
+			$balance_due    = round( $total - $deposit_amount, 2 );
+			$order_amount   = $deposit_amount;
+		}
 
 		// "pending" (no "on-hold"): es el unico estado inicial que WooCommerce
 		// considera pagable (needs_payment() solo es true para pending/failed/
@@ -164,8 +178,8 @@ class Booking_Plugin_WooCommerce {
 			$product,
 			1,
 			array(
-				'subtotal' => $total_price,
-				'total'    => $total_price,
+				'subtotal' => $order_amount,
+				'total'    => $order_amount,
 			)
 		);
 
@@ -196,7 +210,11 @@ class Booking_Plugin_WooCommerce {
 			array( '%d' )
 		);
 
-		return $order->get_checkout_payment_url();
+		return array(
+			'checkout_url'   => $order->get_checkout_payment_url(),
+			'deposit_amount' => $deposit_amount,
+			'balance_due'    => $balance_due,
+		);
 	}
 
 	protected static function get_appointment_addons( $appointment_id ) {

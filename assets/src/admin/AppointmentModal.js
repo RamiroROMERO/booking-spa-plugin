@@ -152,6 +152,30 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 				</p>
 			) }
 
+			{ null !== appointment.deposit_amount && (
+				<p>
+					<strong>{ __( 'Depósito pagado:', 'booking-plugin' ) }</strong> { appointment.deposit_amount }
+					<br />
+					<strong>{ __( 'Saldo pendiente:', 'booking-plugin' ) }</strong> { appointment.balance_due }
+					<br />
+					{ appointment.balance_collected_at ? (
+						sprintf(
+							/* translators: %s: fecha en que se marco el saldo como cobrado */
+							__( 'Saldo cobrado el %s', 'booking-plugin' ),
+							formatDateUS( appointment.balance_collected_at )
+						)
+					) : (
+						<Button
+							variant="secondary"
+							disabled={ isSaving }
+							onClick={ () => patchAppointment( { balance_collected: true } ) }
+						>
+							{ __( 'Marcar saldo como cobrado', 'booking-plugin' ) }
+						</Button>
+					) }
+				</p>
+			) }
+
 			{ appointment.paid_with_credit_id && (
 				<p>
 					<strong>{ __( 'Pago:', 'booking-plugin' ) }</strong>{ ' ' }
