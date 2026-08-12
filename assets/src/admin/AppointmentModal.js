@@ -1,7 +1,8 @@
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { Modal, Button, Notice, CheckboxControl } from '@wordpress/components';
+import { Modal, Button, Notice, CheckboxControl, Icon } from '@wordpress/components';
+import { info, people, time } from '@wordpress/icons';
 
 import { getLocalDate, formatDateUS, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
@@ -13,6 +14,15 @@ const STATUS_LABELS = {
 	no_show: __( 'No asistió', 'booking-plugin' ),
 	cancelled: __( 'Cancelada', 'booking-plugin' ),
 	blocked: __( 'Bloqueado', 'booking-plugin' ),
+};
+
+const STATUS_DOT_CLASSES = {
+	pending: 'is-pending',
+	confirmed: 'is-confirmed',
+	completed: 'is-completed',
+	no_show: 'is-no-show',
+	cancelled: 'is-cancelled',
+	blocked: 'is-blocked',
 };
 
 export default function AppointmentModal( { appointment, staff, onClose, onUpdated } ) {
@@ -106,21 +116,41 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 				</Notice>
 			) }
 
-			<p>
-				<strong>{ __( 'Estado:', 'booking-plugin' ) }</strong>{ ' ' }
-				{ STATUS_LABELS[ appointment.status ] || appointment.status }
-			</p>
+			<div className="booking-plugin-modal__details">
+				<div className="booking-plugin-modal__detail-row">
+					<span className="booking-plugin-modal__detail-label">
+						<Icon icon={ info } size={ 18 } />
+						{ __( 'Estado', 'booking-plugin' ) }
+					</span>
+					<span className="booking-plugin-modal__detail-value">
+						<span
+							className={ `booking-plugin-modal__status-dot ${ STATUS_DOT_CLASSES[ appointment.status ] || '' }` }
+						/>
+						{ STATUS_LABELS[ appointment.status ] || appointment.status }
+					</span>
+				</div>
 
-			<p>
-				<strong>{ __( 'Staff:', 'booking-plugin' ) }</strong>{ ' ' }
-				{ staffMember ? staffMember.name : appointment.staff_id }
-			</p>
+				<div className="booking-plugin-modal__detail-row">
+					<span className="booking-plugin-modal__detail-label">
+						<Icon icon={ people } size={ 18 } />
+						{ __( 'Staff', 'booking-plugin' ) }
+					</span>
+					<span className="booking-plugin-modal__detail-value">
+						{ staffMember ? staffMember.name : appointment.staff_id }
+					</span>
+				</div>
 
-			<p>
-				<strong>{ __( 'Horario:', 'booking-plugin' ) }</strong>{ ' ' }
-				{ formatDateUS( appointment.start_datetime ) }{ ' ' }
-				{ formatTimeRange( appointment.start_datetime, appointment.end_datetime ) }
-			</p>
+				<div className="booking-plugin-modal__detail-row">
+					<span className="booking-plugin-modal__detail-label">
+						<Icon icon={ time } size={ 18 } />
+						{ __( 'Horario', 'booking-plugin' ) }
+					</span>
+					<span className="booking-plugin-modal__detail-value">
+						{ formatDateUS( appointment.start_datetime ) }{ ' ' }
+						{ formatTimeRange( appointment.start_datetime, appointment.end_datetime ) }
+					</span>
+				</div>
+			</div>
 
 			{ ( appointment.guest_name || appointment.guest_email || appointment.guest_phone ) && (
 				<p>

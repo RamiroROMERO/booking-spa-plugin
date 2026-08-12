@@ -129,7 +129,12 @@ export default function SettingsPage() {
 
 			<WeeklyScheduleEditor value={ scheduleRows } onChange={ setScheduleRows } showBreak={ false } />
 
-			<Button variant="primary" disabled={ isSavingHours } onClick={ handleSaveHours }>
+			<Button
+				variant="primary"
+				disabled={ isSavingHours }
+				onClick={ handleSaveHours }
+				className="booking-plugin-settings-form__submit"
+			>
 				{ __( 'Guardar horario', 'booking-plugin' ) }
 			</Button>
 
@@ -148,51 +153,57 @@ export default function SettingsPage() {
 				</Notice>
 			) }
 
-			<TextControl
-				label={ __( 'Antelación mínima (horas)', 'booking-plugin' ) }
-				type="number"
-				min="0"
-				value={ minLeadTimeHours }
-				onChange={ setMinLeadTimeHours }
-			/>
-			<TextControl
-				label={ __( 'Máximo de días a futuro', 'booking-plugin' ) }
-				type="number"
-				min="0"
-				value={ maxAdvanceDays }
-				onChange={ setMaxAdvanceDays }
-			/>
-			<TextControl
-				label={ __( 'Ventana mínima de cancelación (horas)', 'booking-plugin' ) }
-				type="number"
-				min="0"
-				value={ minCancellationHours }
-				onChange={ setMinCancellationHours }
-			/>
-			<TextControl
-				label={ __( 'Intervalo de slots (minutos)', 'booking-plugin' ) }
-				type="number"
-				min="1"
-				value={ slotIntervalMinutes }
-				onChange={ setSlotIntervalMinutes }
-			/>
-			<TextControl
-				label={ __( 'Email de notificaciones del negocio', 'booking-plugin' ) }
-				type="email"
-				value={ notificationEmail }
-				onChange={ setNotificationEmail }
-			/>
-			<TextControl
-				label={ __( 'Ventana de pago (horas)', 'booking-plugin' ) }
-				help={ __(
-					'Tiempo máximo para pagar una reserva con pago online antes de cancelarla automáticamente.',
-					'booking-plugin'
-				) }
-				type="number"
-				min="1"
-				value={ paymentWindowHours }
-				onChange={ setPaymentWindowHours }
-			/>
+			<div className="booking-plugin-settings-form">
+				<div className="booking-plugin-settings-form__row">
+					<TextControl
+						label={ __( 'Antelación mínima (horas)', 'booking-plugin' ) }
+						type="number"
+						min="0"
+						value={ minLeadTimeHours }
+						onChange={ setMinLeadTimeHours }
+					/>
+					<TextControl
+						label={ __( 'Máximo de días a futuro', 'booking-plugin' ) }
+						type="number"
+						min="0"
+						value={ maxAdvanceDays }
+						onChange={ setMaxAdvanceDays }
+					/>
+					<TextControl
+						label={ __( 'Ventana mínima de cancelación (horas)', 'booking-plugin' ) }
+						type="number"
+						min="0"
+						value={ minCancellationHours }
+						onChange={ setMinCancellationHours }
+					/>
+				</div>
+				<div className="booking-plugin-settings-form__row">
+					<TextControl
+						label={ __( 'Intervalo de slots (minutos)', 'booking-plugin' ) }
+						type="number"
+						min="1"
+						value={ slotIntervalMinutes }
+						onChange={ setSlotIntervalMinutes }
+					/>
+					<TextControl
+						label={ __( 'Ventana de pago (horas)', 'booking-plugin' ) }
+						help={ __(
+							'Tiempo máximo para pagar una reserva con pago online antes de cancelarla automáticamente.',
+							'booking-plugin'
+						) }
+						type="number"
+						min="1"
+						value={ paymentWindowHours }
+						onChange={ setPaymentWindowHours }
+					/>
+					<TextControl
+						label={ __( 'Email de notificaciones del negocio', 'booking-plugin' ) }
+						type="email"
+						value={ notificationEmail }
+						onChange={ setNotificationEmail }
+					/>
+				</div>
+			</div>
 
 			<Button variant="primary" disabled={ isSavingSettings } onClick={ handleSaveSettings }>
 				{ __( 'Guardar configuración', 'booking-plugin' ) }

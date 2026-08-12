@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Button, CheckboxControl } from '@wordpress/components';
+import { chevronLeft, chevronRight, calendar as calendarIcon } from '@wordpress/icons';
 
 import Calendar from '../Calendar';
 import MonthView from '../MonthView';
@@ -110,13 +111,13 @@ export default function CalendarPage() {
 				<h1>{ __( 'Reservas', 'booking-plugin' ) }</h1>
 
 				<div className="booking-plugin-admin__nav">
-					<Button variant="secondary" onClick={ goPrevious }>
+					<Button variant="secondary" icon={ chevronLeft } onClick={ goPrevious }>
 						{ __( 'Anterior', 'booking-plugin' ) }
 					</Button>
-					<Button variant="secondary" onClick={ goToday }>
+					<Button variant="secondary" icon={ calendarIcon } onClick={ goToday }>
 						{ __( 'Hoy', 'booking-plugin' ) }
 					</Button>
-					<Button variant="secondary" onClick={ goNext }>
+					<Button variant="secondary" icon={ chevronRight } iconPosition="right" onClick={ goNext }>
 						{ __( 'Siguiente', 'booking-plugin' ) }
 					</Button>
 				</div>
@@ -140,43 +141,46 @@ export default function CalendarPage() {
 
 			{ error && <p className="booking-plugin-admin__error">{ error }</p> }
 
-			{ 'month' !== view && staff.length > 0 && (
-				<div className="booking-plugin-admin__staff-filter">
-					{ staff.map( ( member ) => (
-						<CheckboxControl
-							key={ member.id }
-							label={ member.name }
-							checked={ visibleStaffIds.includes( member.id ) }
-							onChange={ () => toggleStaffVisible( member.id ) }
-						/>
-					) ) }
-				</div>
-			) }
-
 			<div className="booking-plugin-admin__body">
-				{ isLoading && <p>{ __( 'Actualizando…', 'booking-plugin' ) }</p> }
-				{ /*
-				 * Calendar/MonthView permanecen montados aun mientras isLoading
-				 * es true: desmontarlos en cada recarga (por ejemplo tras
-				 * confirmar una cita) perdia el estado local de "dia activo"
-				 * dentro de la semana y devolvia la vista a referenceDate.
-				 */ }
-				{ 'month' === view && (
-					<MonthView
-						referenceDate={ referenceDate }
-						appointments={ appointments }
-						onSelectDay={ handleSelectDay }
-					/>
-				) }
-				{ 'month' !== view && (
-					<Calendar
-						view={ view }
-						referenceDate={ referenceDate }
-						staff={ visibleStaff }
-						appointments={ appointments }
-						businessHours={ businessHours }
-						onSelectAppointment={ handleSelectAppointment }
-					/>
+				<div className="booking-plugin-admin__calendar-area">
+					{ isLoading && <p>{ __( 'Actualizando…', 'booking-plugin' ) }</p> }
+					{ /*
+					 * Calendar/MonthView permanecen montados aun mientras isLoading
+					 * es true: desmontarlos en cada recarga (por ejemplo tras
+					 * confirmar una cita) perdia el estado local de "dia activo"
+					 * dentro de la semana y devolvia la vista a referenceDate.
+					 */ }
+					{ 'month' === view && (
+						<MonthView
+							referenceDate={ referenceDate }
+							appointments={ appointments }
+							onSelectDay={ handleSelectDay }
+						/>
+					) }
+					{ 'month' !== view && (
+						<Calendar
+							view={ view }
+							referenceDate={ referenceDate }
+							staff={ visibleStaff }
+							appointments={ appointments }
+							businessHours={ businessHours }
+							onSelectAppointment={ handleSelectAppointment }
+						/>
+					) }
+				</div>
+
+				{ 'month' !== view && staff.length > 0 && (
+					<div className="booking-plugin-admin__staff-filter">
+						<h3>{ __( 'Staff', 'booking-plugin' ) }</h3>
+						{ staff.map( ( member ) => (
+							<CheckboxControl
+								key={ member.id }
+								label={ member.name }
+								checked={ visibleStaffIds.includes( member.id ) }
+								onChange={ () => toggleStaffVisible( member.id ) }
+							/>
+						) ) }
+					</div>
 				) }
 			</div>
 

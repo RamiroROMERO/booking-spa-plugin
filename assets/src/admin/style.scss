@@ -10,8 +10,7 @@
 	}
 
 	&__nav,
-	&__views,
-	&__staff-filter {
+	&__views {
 		display: flex;
 		gap: 4px;
 		flex-wrap: wrap;
@@ -21,8 +20,30 @@
 		color: #b32d2e;
 	}
 
+	&__body {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+	}
+
+	&__calendar-area {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
 	&__staff-filter {
-		margin-bottom: 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		flex: 0 0 200px;
+		padding: 12px;
+		background: #fff;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+
+		h3 {
+			margin: 0 0 4px;
+		}
 	}
 }
 
@@ -172,6 +193,71 @@
 		gap: 8px;
 		flex-wrap: wrap;
 	}
+
+	&__details {
+		margin-bottom: 12px;
+	}
+
+	&__detail-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 6px 0;
+		border-bottom: 1px solid #f0f0f1;
+
+		&:last-child {
+			border-bottom: none;
+		}
+	}
+
+	&__detail-label {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-weight: 600;
+		color: #1e1e1e;
+		flex-shrink: 0;
+	}
+
+	&__detail-value {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		text-align: right;
+	}
+
+	&__status-dot {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: #a7aaad;
+
+		&.is-pending {
+			background: #dba617;
+		}
+
+		&.is-confirmed {
+			background: #2271b1;
+		}
+
+		&.is-completed {
+			background: #00a32a;
+		}
+
+		&.is-no-show {
+			background: #8c8f94;
+		}
+
+		&.is-cancelled {
+			background: #d63638;
+		}
+
+		&.is-blocked {
+			background: #1d2327;
+		}
+	}
 }
 
 .booking-plugin-month {
@@ -220,28 +306,11 @@
 	max-width: 600px;
 	margin-bottom: 16px;
 
-	&__list {
-		margin: 0 0 12px;
-		padding: 0;
-		list-style: none;
-	}
-
-	&__item {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 6px 0;
-		border-bottom: 1px solid #f0f0f1;
-
-		span {
-			flex: 1;
-		}
-	}
-
 	&__new {
 		display: flex;
 		align-items: flex-end;
 		gap: 8px;
+		margin-bottom: 12px;
 	}
 }
 
@@ -478,6 +547,63 @@
 	thead th {
 		background: #f6f7f7;
 		font-weight: 600;
+	}
+}
+
+.booking-plugin-service-form {
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+
+	&__row {
+		display: flex;
+		gap: 12px;
+
+		.components-base-control {
+			flex: 1 1 0;
+		}
+	}
+
+	&__submit {
+		margin-top: 12px;
+	}
+}
+
+.booking-plugin-staff-modal {
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+}
+
+.booking-plugin-payroll {
+	&__filters {
+		display: grid;
+		grid-template-columns: 1fr 1fr 2fr;
+		gap: 12px;
+		margin-bottom: 16px;
+
+		select {
+			width: 100%;
+		}
+	}
+}
+
+.booking-plugin-settings-form {
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+
+	&__row {
+		display: flex;
+		gap: 12px;
+
+		.components-base-control {
+			flex: 1 1 0;
+		}
+	}
+
+	&__submit {
+		margin-top: 12px;
 	}
 }
 

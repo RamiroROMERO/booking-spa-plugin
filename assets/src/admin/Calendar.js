@@ -51,6 +51,9 @@ export default function Calendar( { view, referenceDate, staff, appointments, bu
 
 			<div className="booking-plugin-calendar__grid">
 				<div className="booking-plugin-calendar__gutter">
+					<div className="booking-plugin-calendar__column-header" aria-hidden="true">
+						{ ' ' }
+					</div>
 					{ hours.map( ( hour ) => (
 						<div
 							key={ hour }

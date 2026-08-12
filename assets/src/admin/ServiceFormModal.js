@@ -11,6 +11,8 @@ import {
 	Notice,
 } from '@wordpress/components';
 
+import { check } from '@wordpress/icons';
+
 import { API_NAMESPACE } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 import AddonsEditor from './components/AddonsEditor';
@@ -156,40 +158,44 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 				</Notice>
 			) }
 
-			<TextControl label={ __( 'Nombre', 'booking-plugin' ) } value={ name } onChange={ setName } />
-			<SelectControl
-				label={ __( 'Categoría', 'booking-plugin' ) }
-				value={ categoryId }
-				options={ categoryOptions }
-				onChange={ setCategoryId }
-			/>
-			<TextControl
-				label={ __( 'Precio', 'booking-plugin' ) }
-				type="number"
-				min="0"
-				step="0.01"
-				value={ price }
-				onChange={ setPrice }
-			/>
-			<TextControl
-				label={ __( 'Duración (minutos)', 'booking-plugin' ) }
-				type="number"
-				min="1"
-				value={ durationMinutes }
-				onChange={ setDurationMinutes }
-			/>
-			<TextControl
-				label={ __( 'Buffer (minutos)', 'booking-plugin' ) }
-				type="number"
-				min="0"
-				value={ bufferMinutes }
-				onChange={ setBufferMinutes }
-			/>
-			<TextareaControl
-				label={ __( 'Descripción', 'booking-plugin' ) }
-				value={ description }
-				onChange={ setDescription }
-			/>
+			<div className="booking-plugin-service-form">
+				<TextControl label={ __( 'Nombre', 'booking-plugin' ) } value={ name } onChange={ setName } />
+				<SelectControl
+					label={ __( 'Categoría', 'booking-plugin' ) }
+					value={ categoryId }
+					options={ categoryOptions }
+					onChange={ setCategoryId }
+				/>
+				<div className="booking-plugin-service-form__row">
+					<TextControl
+						label={ __( 'Precio', 'booking-plugin' ) }
+						type="number"
+						min="0"
+						step="0.01"
+						value={ price }
+						onChange={ setPrice }
+					/>
+					<TextControl
+						label={ __( 'Duración (minutos)', 'booking-plugin' ) }
+						type="number"
+						min="1"
+						value={ durationMinutes }
+						onChange={ setDurationMinutes }
+					/>
+					<TextControl
+						label={ __( 'Buffer (minutos)', 'booking-plugin' ) }
+						type="number"
+						min="0"
+						value={ bufferMinutes }
+						onChange={ setBufferMinutes }
+					/>
+				</div>
+				<TextareaControl
+					label={ __( 'Descripción', 'booking-plugin' ) }
+					value={ description }
+					onChange={ setDescription }
+				/>
+			</div>
 			<div className="booking-plugin-service-image-picker">
 				<div className="booking-plugin-service-image-picker__preview">
 					{ imageUrl ? (
@@ -245,7 +251,13 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 				/>
 			) }
 
-			<Button variant="primary" disabled={ isSaving } onClick={ handleSubmit }>
+			<Button
+				variant="primary"
+				icon={ check }
+				disabled={ isSaving }
+				onClick={ handleSubmit }
+				className="booking-plugin-service-form__submit"
+			>
 				{ __( 'Guardar', 'booking-plugin' ) }
 			</Button>
 

@@ -268,10 +268,14 @@
 	}
 
 	&__slot {
+		flex: 0 0 auto;
+		min-width: 76px;
 		padding: 8px 14px;
 		border: 1px solid #dcdcde;
 		border-radius: 4px;
 		background: #fff;
+		color: #000;
+		text-align: center;
 		cursor: pointer;
 
 		&:hover {

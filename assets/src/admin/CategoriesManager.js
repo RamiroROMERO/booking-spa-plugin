@@ -81,42 +81,6 @@ export default function CategoriesManager( { categories, onChange } ) {
 				</Notice>
 			) }
 
-			<ul className="booking-plugin-categories__list">
-				{ categories.map( ( category ) => (
-					<li key={ category.id } className="booking-plugin-categories__item">
-						{ editingId === category.id ? (
-							<>
-								<TextControl
-									value={ editingName }
-									onChange={ setEditingName }
-									hideLabelFromVision
-									label={ __( 'Nombre', 'booking-plugin' ) }
-								/>
-								<Button variant="primary" disabled={ isSaving } onClick={ handleUpdate }>
-									{ __( 'Guardar', 'booking-plugin' ) }
-								</Button>
-								<Button variant="tertiary" onClick={ () => setEditingId( null ) }>
-									{ __( 'Cancelar', 'booking-plugin' ) }
-								</Button>
-							</>
-						) : (
-							<>
-								<span>{ category.name }</span>
-								<Button variant="link" onClick={ () => startEditing( category ) }>
-									{ __( 'Editar', 'booking-plugin' ) }
-								</Button>
-								<Button variant="link" isDestructive onClick={ () => handleDelete( category ) }>
-									{ __( 'Borrar', 'booking-plugin' ) }
-								</Button>
-							</>
-						) }
-					</li>
-				) ) }
-				{ 0 === categories.length && (
-					<li>{ __( 'No hay categorías todavía.', 'booking-plugin' ) }</li>
-				) }
-			</ul>
-
 			<div className="booking-plugin-categories__new">
 				<TextControl
 					value={ newName }
@@ -133,6 +97,58 @@ export default function CategoriesManager( { categories, onChange } ) {
 					{ __( 'Agregar', 'booking-plugin' ) }
 				</Button>
 			</div>
+
+			<table className="booking-plugin-table">
+				<thead>
+					<tr>
+						<th>{ __( 'Nombre', 'booking-plugin' ) }</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{ categories.map( ( category ) => (
+						<tr key={ category.id }>
+							{ editingId === category.id ? (
+								<>
+									<td>
+										<TextControl
+											value={ editingName }
+											onChange={ setEditingName }
+											hideLabelFromVision
+											label={ __( 'Nombre', 'booking-plugin' ) }
+										/>
+									</td>
+									<td>
+										<Button variant="primary" disabled={ isSaving } onClick={ handleUpdate }>
+											{ __( 'Guardar', 'booking-plugin' ) }
+										</Button>{ ' ' }
+										<Button variant="tertiary" onClick={ () => setEditingId( null ) }>
+											{ __( 'Cancelar', 'booking-plugin' ) }
+										</Button>
+									</td>
+								</>
+							) : (
+								<>
+									<td>{ category.name }</td>
+									<td>
+										<Button variant="link" onClick={ () => startEditing( category ) }>
+											{ __( 'Editar', 'booking-plugin' ) }
+										</Button>{ ' ' }
+										<Button variant="link" isDestructive onClick={ () => handleDelete( category ) }>
+											{ __( 'Borrar', 'booking-plugin' ) }
+										</Button>
+									</td>
+								</>
+							) }
+						</tr>
+					) ) }
+					{ 0 === categories.length && (
+						<tr>
+							<td colSpan={ 2 }>{ __( 'No hay categorías todavía.', 'booking-plugin' ) }</td>
+						</tr>
+					) }
+				</tbody>
+			</table>
 		</div>
 	);
 }
