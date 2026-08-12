@@ -154,6 +154,15 @@ export default function ServiceStep( { categoryId, currentUser, onSelectCategory
 						className="booking-plugin-widget__service-card"
 						onClick={ () => handlePick( service ) }
 					>
+						{ service.image_url ? (
+							<img
+								className="booking-plugin-widget__service-image"
+								src={ service.image_url }
+								alt=""
+							/>
+						) : (
+							<span className="booking-plugin-widget__service-image-placeholder" aria-hidden="true" />
+						) }
 						<span className="booking-plugin-widget__service-name">{ service.name }</span>
 						<span className="booking-plugin-widget__service-meta">
 							{ service.duration_minutes } { __( 'min', 'booking-plugin' ) } — $

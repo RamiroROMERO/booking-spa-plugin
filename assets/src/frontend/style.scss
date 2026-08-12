@@ -90,6 +90,22 @@
 		}
 	}
 
+	&__service-image {
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		object-fit: cover;
+		border-radius: 3px;
+		display: block;
+	}
+
+	&__service-image-placeholder {
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		border-radius: 3px;
+		background: #f0f0f1;
+		display: block;
+	}
+
 	&__service-name {
 		font-weight: 600;
 	}

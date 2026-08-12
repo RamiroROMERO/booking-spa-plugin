@@ -33,6 +33,8 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 	const [ requiresPayment, setRequiresPayment ] = useState(
 		service ? Boolean( service.requires_payment ) : false
 	);
+	const [ imageId, setImageId ] = useState( service && service.image_id ? service.image_id : null );
+	const [ imageUrl, setImageUrl ] = useState( service && service.image_url ? service.image_url : null );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ validationError, setValidationError ] = useState( null );
@@ -71,6 +73,7 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 			buffer_minutes: parseInt( bufferMinutes, 10 ) || 0,
 			description: description || null,
 			requires_payment: requiresPayment,
+			image_id: imageId,
 		};
 
 		const path = isEditing
@@ -84,6 +87,28 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 			} )
 			.catch( ( err ) => setError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsSaving( false ) );
+	};
+
+	const openMediaLibrary = () => {
+		const frame = window.wp.media( {
+			title: __( 'Seleccionar imagen', 'booking-plugin' ),
+			button: { text: __( 'Usar esta imagen', 'booking-plugin' ) },
+			library: { type: 'image' },
+			multiple: false,
+		} );
+
+		frame.on( 'select', () => {
+			const attachment = frame.state().get( 'selection' ).first().toJSON();
+			setImageId( attachment.id );
+			setImageUrl( attachment.url );
+		} );
+
+		frame.open();
+	};
+
+	const handleRemoveImage = () => {
+		setImageId( null );
+		setImageUrl( null );
 	};
 
 	return (
@@ -138,6 +163,31 @@ export default function ServiceFormModal( { service, categories, onClose, onSave
 				value={ description }
 				onChange={ setDescription }
 			/>
+			<div className="booking-plugin-service-image-picker">
+				<div className="booking-plugin-service-image-picker__preview">
+					{ imageUrl ? (
+						<img
+							className="booking-plugin-service-image-picker__image"
+							src={ imageUrl }
+							alt=""
+						/>
+					) : (
+						<div className="booking-plugin-service-image-picker__placeholder">
+							<span className="dashicons dashicons-format-image" />
+						</div>
+					) }
+				</div>
+				<div className="booking-plugin-service-image-picker__actions">
+					<Button variant="secondary" onClick={ openMediaLibrary }>
+						{ __( 'Seleccionar imagen', 'booking-plugin' ) }
+					</Button>
+					{ imageId && (
+						<Button variant="tertiary" isDestructive onClick={ handleRemoveImage }>
+							{ __( 'Quitar imagen', 'booking-plugin' ) }
+						</Button>
+					) }
+				</div>
+			</div>
 			<ToggleControl
 				label={ __( 'Requiere pago online', 'booking-plugin' ) }
 				help={ __(
