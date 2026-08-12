@@ -1,6 +1,6 @@
 # SPEC 15 — Pagos Parciales (Depósito) y Saldo Pendiente
 
-> **Status:** Aprovado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04, SPEC 05, SPEC 06, SPEC 10, SPEC 11
 > **Date:** 2026-08-12
 > **Objective:** Permitir que un servicio con pago online configure un porcentaje de depósito, de modo que la reserva solo cobre esa parte al momento de reservar y el saldo restante quede pendiente hasta que el admin lo marque como cobrado.
