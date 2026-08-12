@@ -1,6 +1,6 @@
 # SPEC 16 — Pantalla de Saldos Pendientes
 
-> **Status:** Aprovado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02, SPEC 03, SPEC 04, SPEC 15
 > **Date:** 2026-08-12
 > **Objective:** Agregar una pantalla nueva en el admin que liste, en un solo lugar, todas las citas con depósito pagado y saldo pendiente de cobro, permitiendo marcarlas como cobradas sin abrir cada cita individualmente.
