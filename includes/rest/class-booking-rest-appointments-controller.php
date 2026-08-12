@@ -125,6 +125,18 @@ class Booking_Rest_Appointments_Controller {
 			$args[]  = $date_to . ' 23:59:59';
 		}
 
+		$has_pending_balance = $request->get_param( 'has_pending_balance' );
+
+		if ( ! empty( $has_pending_balance ) && 'false' !== $has_pending_balance ) {
+			$where[] = 'balance_due IS NOT NULL AND balance_collected_at IS NULL';
+		}
+
+		$has_deposit = $request->get_param( 'has_deposit' );
+
+		if ( ! empty( $has_deposit ) && 'false' !== $has_deposit ) {
+			$where[] = 'balance_due IS NOT NULL';
+		}
+
 		$where_sql = implode( ' AND ', $where );
 
 		$total = (int) $wpdb->get_var(

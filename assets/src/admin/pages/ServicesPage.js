@@ -5,7 +5,7 @@ import { Button, ToggleControl, Notice } from '@wordpress/components';
 
 import CategoriesManager from '../CategoriesManager';
 import ServiceFormModal from '../ServiceFormModal';
-import { API_NAMESPACE } from '../utils';
+import { API_NAMESPACE, formatCurrency } from '../utils';
 import { getApiErrorMessage } from '../utils/apiError';
 
 export default function ServicesPage() {
@@ -131,7 +131,7 @@ export default function ServicesPage() {
 								</td>
 								<td>{ service.name }</td>
 								<td>{ categoryName( service.category_id ) }</td>
-								<td>{ service.price }</td>
+								<td>{ formatCurrency( service.price ) }</td>
 								<td>{ service.duration_minutes } min</td>
 								<td>
 									{ service.requires_payment

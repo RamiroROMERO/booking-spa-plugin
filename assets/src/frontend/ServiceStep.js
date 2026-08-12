@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 
-import { API_NAMESPACE } from './utils';
+import { API_NAMESPACE, formatCurrency } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 import useMyCredits from './hooks/useMyCredits';
 
@@ -165,8 +165,8 @@ export default function ServiceStep( { categoryId, currentUser, onSelectCategory
 						) }
 						<span className="booking-plugin-widget__service-name">{ service.name }</span>
 						<span className="booking-plugin-widget__service-meta">
-							{ service.duration_minutes } { __( 'min', 'booking-plugin' ) } — $
-							{ service.price }
+							{ service.duration_minutes } { __( 'min', 'booking-plugin' ) } —{ ' ' }
+							{ formatCurrency( service.price ) }
 						</span>
 						{ service.description && (
 							<span className="booking-plugin-widget__service-description">

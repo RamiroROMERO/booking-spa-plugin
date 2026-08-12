@@ -575,16 +575,14 @@
 	}
 }
 
-.booking-plugin-payroll {
-	&__filters {
-		display: grid;
-		grid-template-columns: 1fr 1fr 2fr;
-		gap: 12px;
-		margin-bottom: 16px;
+.booking-plugin-filters-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 2fr;
+	gap: 12px;
+	margin-bottom: 16px;
 
-		select {
-			width: 100%;
-		}
+	select {
+		width: 100%;
 	}
 }
 

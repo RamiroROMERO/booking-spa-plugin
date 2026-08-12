@@ -4,7 +4,15 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Modal, Button, Notice, CheckboxControl, Icon } from '@wordpress/components';
 import { info, people, time } from '@wordpress/icons';
 
-import { getLocalDate, formatDateUS, formatTime, formatTimeRange, localToUtcIso, API_NAMESPACE } from './utils';
+import {
+	getLocalDate,
+	formatDateUS,
+	formatTime,
+	formatTimeRange,
+	localToUtcIso,
+	formatCurrency,
+	API_NAMESPACE,
+} from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
 const STATUS_LABELS = {
@@ -184,9 +192,9 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 
 			{ null !== appointment.deposit_amount && (
 				<p>
-					<strong>{ __( 'Depósito pagado:', 'booking-plugin' ) }</strong> { appointment.deposit_amount }
+					<strong>{ __( 'Depósito pagado:', 'booking-plugin' ) }</strong> { formatCurrency( appointment.deposit_amount ) }
 					<br />
-					<strong>{ __( 'Saldo pendiente:', 'booking-plugin' ) }</strong> { appointment.balance_due }
+					<strong>{ __( 'Saldo pendiente:', 'booking-plugin' ) }</strong> { formatCurrency( appointment.balance_due ) }
 					<br />
 					{ appointment.balance_collected_at ? (
 						sprintf(
@@ -259,7 +267,7 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 				<ul>
 					{ appointment.addons.map( ( addon ) => (
 						<li key={ addon.addon_id }>
-							{ addon.name } — { addon.price } — { addon.extra_time_minutes }{ ' ' }
+							{ addon.name } — { formatCurrency( addon.price ) } — { addon.extra_time_minutes }{ ' ' }
 							{ __( 'min extra', 'booking-plugin' ) }
 						</li>
 					) ) }
@@ -282,7 +290,7 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 						availableAddons.map( ( addon ) => (
 							<CheckboxControl
 								key={ addon.id }
-								label={ `${ addon.name } — ${ addon.price } — ${ addon.extra_time_minutes } min` }
+								label={ `${ addon.name } — ${ formatCurrency( addon.price ) } — ${ addon.extra_time_minutes } min` }
 								checked={ selectedAddonIds.includes( addon.id ) }
 								onChange={ () => toggleAddon( addon.id ) }
 							/>

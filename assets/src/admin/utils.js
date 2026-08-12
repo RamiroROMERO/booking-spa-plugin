@@ -4,6 +4,10 @@ export const API_NAMESPACE = '/booking-plugin/v1';
 export const ROW_HEIGHT = 48;
 const MINUTES_PER_DAY = 1440;
 
+export function formatCurrency( value ) {
+	return `$${ Number( value ).toFixed( 2 ) }`;
+}
+
 export function toDateString( date ) {
 	const year = date.getFullYear();
 	const month = String( date.getMonth() + 1 ).padStart( 2, '0' );

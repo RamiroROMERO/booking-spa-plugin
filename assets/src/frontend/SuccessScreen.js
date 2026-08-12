@@ -1,7 +1,7 @@
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
-import { formatDateInZone, formatTimeInZone } from './utils';
+import { formatDateInZone, formatTimeInZone, formatCurrency } from './utils';
 
 export default function SuccessScreen( { bookingResult, timezone, selection } ) {
 	const [ copied, setCopied ] = useState( false );
@@ -43,7 +43,7 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 					<ul className="booking-plugin-widget__summary-addons">
 						{ addons.map( ( addon ) => (
 							<li key={ addon.id }>
-								{ addon.name } — ${ addon.price } — +{ addon.extra_time_minutes }{ ' ' }
+								{ addon.name } — { formatCurrency( addon.price ) } — +{ addon.extra_time_minutes }{ ' ' }
 								{ __( 'min', 'booking-plugin' ) }
 							</li>
 						) ) }
@@ -66,8 +66,8 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 				null !== totalPrice && (
 					<p>
 						{ __( 'Duración total:', 'booking-plugin' ) } { totalDuration }{ ' ' }
-						{ __( 'min', 'booking-plugin' ) } — { __( 'Precio total:', 'booking-plugin' ) } $
-						{ totalPrice }
+						{ __( 'min', 'booking-plugin' ) } — { __( 'Precio total:', 'booking-plugin' ) }{ ' ' }
+						{ formatCurrency( totalPrice ) }
 					</p>
 				)
 			) }
@@ -93,12 +93,12 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 						{ sprintf(
 							/* translators: 1: porcentaje del depósito, 2: monto del depósito, 3: saldo pendiente */
 							__(
-								'Este servicio requiere un depósito del %1$s%% ($%2$s) para confirmar la cita. El saldo restante de $%3$s queda pendiente y se cobra por separado.',
+								'Este servicio requiere un depósito del %1$s%% (%2$s) para confirmar la cita. El saldo restante de %3$s queda pendiente y se cobra por separado.',
 								'booking-plugin'
 							),
 							service ? service.deposit_percentage : '',
-							bookingResult.deposit_amount,
-							bookingResult.balance_due
+							formatCurrency( bookingResult.deposit_amount ),
+							formatCurrency( bookingResult.balance_due )
 						) }
 					</p>
 					<a
@@ -107,8 +107,8 @@ export default function SuccessScreen( { bookingResult, timezone, selection } ) 
 					>
 						{ sprintf(
 							/* translators: 1: monto del depósito, 2: porcentaje del depósito */
-							__( 'Pagar depósito ($%1$s — %2$s%%)', 'booking-plugin' ),
-							bookingResult.deposit_amount,
+							__( 'Pagar depósito (%1$s — %2$s%%)', 'booking-plugin' ),
+							formatCurrency( bookingResult.deposit_amount ),
 							service ? service.deposit_percentage : ''
 						) }
 					</a>

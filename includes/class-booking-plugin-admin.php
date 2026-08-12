@@ -12,6 +12,7 @@ class Booking_Plugin_Admin {
 	const SLUG_NOTIFICATIONS = 'booking-plugin-notifications';
 	const SLUG_PACKAGES      = 'booking-plugin-packages';
 	const SLUG_PAYROLL       = 'booking-plugin-payroll';
+	const SLUG_BALANCES      = 'booking-plugin-balances';
 
 	protected $hook_suffixes = array();
 
@@ -87,6 +88,15 @@ class Booking_Plugin_Admin {
 			self::SLUG_PAYROLL,
 			array( $this, 'render_page' )
 		);
+
+		$this->hook_suffixes[ self::SLUG_BALANCES ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Saldos pendientes', 'booking-plugin' ),
+			__( 'Saldos pendientes', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_BALANCES,
+			array( $this, 'render_page' )
+		);
 	}
 
 	public function render_page() {
@@ -140,6 +150,7 @@ class Booking_Plugin_Admin {
 			self::SLUG_NOTIFICATIONS => 'notifications',
 			self::SLUG_PACKAGES      => 'packages',
 			self::SLUG_PAYROLL       => 'payroll',
+			self::SLUG_BALANCES      => 'balances',
 		);
 
 		wp_localize_script(

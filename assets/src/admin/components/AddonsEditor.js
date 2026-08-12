@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl, Notice } from '@wordpress/components';
 
-import { API_NAMESPACE } from '../utils';
+import { API_NAMESPACE, formatCurrency } from '../utils';
 import { getApiErrorMessage } from '../utils/apiError';
 
 export default function AddonsEditor( { serviceId } ) {
@@ -172,7 +172,7 @@ export default function AddonsEditor( { serviceId } ) {
 						) : (
 							<div key={ addon.id } className="booking-plugin-addons__card">
 								<span>
-									<strong>{ addon.name }</strong> — { addon.price } —{ ' ' }
+									<strong>{ addon.name }</strong> — { formatCurrency( addon.price ) } —{ ' ' }
 									{ addon.extra_time_minutes } { __( 'min extra', 'booking-plugin' ) }
 									{ 'inactive' === addon.status && (
 										<em> ({ __( 'inactivo', 'booking-plugin' ) })</em>

@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { TextControl, SelectControl, Notice } from '@wordpress/components';
 
-import { API_NAMESPACE } from '../utils';
+import { API_NAMESPACE, formatCurrency } from '../utils';
 import { getApiErrorMessage } from '../utils/apiError';
 
 export default function PayrollPage() {
@@ -69,7 +69,7 @@ export default function PayrollPage() {
 				</Notice>
 			) }
 
-			<div className="booking-plugin-payroll__filters">
+			<div className="booking-plugin-filters-grid">
 				<TextControl
 					type="date"
 					label={ __( 'Desde', 'booking-plugin' ) }
@@ -112,7 +112,7 @@ export default function PayrollPage() {
 							<tr key={ row.staff_id }>
 								<td>{ row.staff_name }</td>
 								<td>{ row.appointments_count }</td>
-								<td>{ Number( row.total_commission ).toFixed( 2 ) }</td>
+								<td>{ formatCurrency( row.total_commission ) }</td>
 							</tr>
 						) ) }
 						{ 0 === rows.length && (

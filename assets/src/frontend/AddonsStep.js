@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
-import { API_NAMESPACE } from './utils';
+import { API_NAMESPACE, formatCurrency } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
 export default function AddonsStep( { serviceId, selectedAddonIds, onContinue, onNoAddons } ) {
@@ -69,8 +69,8 @@ export default function AddonsStep( { serviceId, selectedAddonIds, onContinue, o
 						/>
 						<span className="booking-plugin-widget__addon-name">{ addon.name }</span>
 						<span className="booking-plugin-widget__addon-meta">
-							+{ addon.extra_time_minutes } { __( 'min', 'booking-plugin' ) } — $
-							{ addon.price }
+							+{ addon.extra_time_minutes } { __( 'min', 'booking-plugin' ) } —{ ' ' }
+							{ formatCurrency( addon.price ) }
 						</span>
 					</label>
 				) ) }

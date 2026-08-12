@@ -5,7 +5,7 @@ import { Button, ToggleControl, Notice, TabPanel } from '@wordpress/components';
 
 import PackageFormModal from '../PackageFormModal';
 import UserCreditsTab from '../components/UserCreditsTab';
-import { API_NAMESPACE } from '../utils';
+import { API_NAMESPACE, formatCurrency } from '../utils';
 import { getApiErrorMessage } from '../utils/apiError';
 
 function PackagesTab() {
@@ -105,7 +105,7 @@ function PackagesTab() {
 							<tr key={ pkg.id }>
 								<td>{ pkg.name }</td>
 								<td>{ pkg.total_sessions }</td>
-								<td>{ pkg.price }</td>
+								<td>{ formatCurrency( pkg.price ) }</td>
 								<td>{ pkg.services.length }</td>
 								<td>
 									{ 'active' === pkg.status

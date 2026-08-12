@@ -1,5 +1,9 @@
 export const API_NAMESPACE = '/booking-plugin/v1';
 
+export function formatCurrency( value ) {
+	return `$${ Number( value ).toFixed( 2 ) }`;
+}
+
 /**
  * Detecta la zona horaria del navegador. Si Intl.DateTimeFormat no esta
  * disponible (navegadores muy antiguos), cae a la zona horaria del sitio

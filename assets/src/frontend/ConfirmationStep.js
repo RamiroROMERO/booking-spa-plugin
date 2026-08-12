@@ -2,7 +2,7 @@ import { useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 
-import { API_NAMESPACE, formatDateStringUS, formatTimeInZone } from './utils';
+import { API_NAMESPACE, formatDateStringUS, formatTimeInZone, formatCurrency } from './utils';
 import { getApiErrorMessage } from './utils/apiError';
 
 export default function ConfirmationStep( { selection, timezone, currentUser, onSuccess, onCollision } ) {
@@ -92,7 +92,7 @@ export default function ConfirmationStep( { selection, timezone, currentUser, on
 							<ul className="booking-plugin-widget__summary-addons">
 								{ addons.map( ( addon ) => (
 									<li key={ addon.id }>
-										{ addon.name } — ${ addon.price } — +
+										{ addon.name } — { formatCurrency( addon.price ) } — +
 										{ addon.extra_time_minutes } { __( 'min', 'booking-plugin' ) }
 									</li>
 								) ) }
@@ -129,7 +129,7 @@ export default function ConfirmationStep( { selection, timezone, currentUser, on
 				) : (
 					<>
 						<dt>{ __( 'Precio total', 'booking-plugin' ) }</dt>
-						<dd>${ totalPrice }</dd>
+						<dd>{ formatCurrency( totalPrice ) }</dd>
 					</>
 				) }
 
