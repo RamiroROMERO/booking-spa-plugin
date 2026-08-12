@@ -34,6 +34,7 @@ class Booking_Plugin_DB_Schema {
 			status VARCHAR(20) NOT NULL DEFAULT 'active',
 			requires_payment TINYINT(1) NOT NULL DEFAULT 0,
 			wc_product_id BIGINT UNSIGNED NULL,
+			image_id BIGINT UNSIGNED NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			UNIQUE KEY slug (slug),

@@ -100,6 +100,10 @@ class Booking_Plugin_Admin {
 			return;
 		}
 
+		if ( self::SLUG_SERVICES === $slug ) {
+			wp_enqueue_media();
+		}
+
 		$asset_file = BOOKING_PLUGIN_DIR . 'assets/build/admin.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {

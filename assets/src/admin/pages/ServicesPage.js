@@ -101,6 +101,7 @@ export default function ServicesPage() {
 				<table className="booking-plugin-table">
 					<thead>
 						<tr>
+							<th></th>
 							<th>{ __( 'Nombre', 'booking-plugin' ) }</th>
 							<th>{ __( 'Categoría', 'booking-plugin' ) }</th>
 							<th>{ __( 'Precio', 'booking-plugin' ) }</th>
@@ -113,6 +114,21 @@ export default function ServicesPage() {
 					<tbody>
 						{ services.map( ( service ) => (
 							<tr key={ service.id }>
+								<td>
+									<div className="booking-plugin-service-thumbnail">
+										{ service.image_url ? (
+											<img
+												className="booking-plugin-service-thumbnail__image"
+												src={ service.image_url }
+												alt=""
+											/>
+										) : (
+											<div className="booking-plugin-service-thumbnail__placeholder">
+												<span className="dashicons dashicons-format-image" />
+											</div>
+										) }
+									</div>
+								</td>
 								<td>{ service.name }</td>
 								<td>{ categoryName( service.category_id ) }</td>
 								<td>{ service.price }</td>
@@ -145,7 +161,7 @@ export default function ServicesPage() {
 						) ) }
 						{ 0 === services.length && (
 							<tr>
-								<td colSpan={ 7 }>{ __( 'No hay servicios para mostrar.', 'booking-plugin' ) }</td>
+								<td colSpan={ 8 }>{ __( 'No hay servicios para mostrar.', 'booking-plugin' ) }</td>
 							</tr>
 						) }
 					</tbody>

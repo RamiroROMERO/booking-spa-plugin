@@ -164,10 +164,11 @@ class Booking_Rest_Services_Controller {
 				'buffer_minutes'   => null !== $request->get_param( 'buffer_minutes' ) ? (int) $request->get_param( 'buffer_minutes' ) : 0,
 				'status'           => 'active',
 				'requires_payment' => $request->get_param( 'requires_payment' ) ? 1 : 0,
+				'image_id'         => empty( $request->get_param( 'image_id' ) ) ? null : (int) $request->get_param( 'image_id' ),
 				'created_at'       => $now,
 				'updated_at'       => $now,
 			),
-			array( '%d', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%d', '%s', '%s' )
+			array( '%d', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%d', '%d', '%s', '%s' )
 		);
 
 		$service_id = (int) $wpdb->insert_id;
@@ -267,6 +268,13 @@ class Booking_Rest_Services_Controller {
 			$formats[]                 = '%d';
 		}
 
+		if ( $request->has_param( 'image_id' ) ) {
+			$image_id = $request->get_param( 'image_id' );
+
+			$data['image_id'] = empty( $image_id ) ? null : (int) $image_id;
+			$formats[]         = '%d';
+		}
+
 		if ( ! empty( $data ) ) {
 			$data['updated_at'] = current_time( 'mysql', true );
 			$formats[]           = '%s';
@@ -356,6 +364,12 @@ class Booking_Rest_Services_Controller {
 	}
 
 	protected function prepare_item( $row ) {
+		$image_url = null;
+		if ( null !== $row->image_id ) {
+			$resolved_url = wp_get_attachment_image_url( (int) $row->image_id, 'medium' );
+			$image_url    = $resolved_url ? $resolved_url : null;
+		}
+
 		return array(
 			'id'                => (int) $row->id,
 			'category_id'       => null !== $row->category_id ? (int) $row->category_id : null,
@@ -368,6 +382,8 @@ class Booking_Rest_Services_Controller {
 			'status'            => $row->status,
 			'requires_payment'  => (bool) $row->requires_payment,
 			'wc_product_id'     => null !== $row->wc_product_id ? (int) $row->wc_product_id : null,
+			'image_id'          => null !== $row->image_id ? (int) $row->image_id : null,
+			'image_url'         => $image_url,
 			'created_at'        => $row->created_at,
 			'updated_at'        => $row->updated_at,
 		);
