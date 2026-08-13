@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'BOOKING_PLUGIN_VERSION', '0.1.0' );
 define( 'BOOKING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BOOKING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'BOOKING_PLUGIN_DB_VERSION', '1.9.0' );
+define( 'BOOKING_PLUGIN_DB_VERSION', '1.10.0' );
 
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-db-schema.php';

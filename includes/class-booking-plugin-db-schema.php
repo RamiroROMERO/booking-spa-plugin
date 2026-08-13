@@ -193,6 +193,7 @@ class Booking_Plugin_DB_Schema {
 			commission_value      DECIMAL(10,2) NOT NULL,
 			commission_earned     DECIMAL(10,2) NOT NULL,
 			created_at            DATETIME NOT NULL,
+			paid_at               DATETIME NULL,
 			UNIQUE KEY appointment_id (appointment_id),
 			KEY staff_id (staff_id),
 			KEY created_at (created_at)
@@ -210,7 +211,8 @@ class Booking_Plugin_DB_Schema {
 				DATE(created_at)            AS day,
 				COUNT(*)                    AS appointments_count,
 				SUM(total_service_amount)   AS total_service_amount,
-				SUM(commission_earned)      AS total_commission
+				SUM(commission_earned)      AS total_commission,
+				SUM(CASE WHEN paid_at IS NOT NULL THEN 1 ELSE 0 END) AS paid_count
 			FROM {$wpdb->prefix}booking_payroll_logs
 			GROUP BY staff_id, DATE(created_at);" );
 	}
