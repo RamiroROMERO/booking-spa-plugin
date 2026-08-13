@@ -1,7 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { Button, TextControl, Notice } from '@wordpress/components';
+import { Button, TextControl, ToggleControl, Notice } from '@wordpress/components';
 
 import WeeklyScheduleEditor, {
 	scheduleRowsFromBusinessHours,
@@ -21,6 +21,7 @@ export default function SettingsPage() {
 	const [ notificationEmail, setNotificationEmail ] = useState( '' );
 	const [ paymentWindowHours, setPaymentWindowHours ] = useState( '2' );
 	const [ isWooCommerceActive, setIsWooCommerceActive ] = useState( false );
+	const [ autoRefundEnabled, setAutoRefundEnabled ] = useState( false );
 	const [ isSavingHours, setIsSavingHours ] = useState( false );
 	const [ isSavingSettings, setIsSavingSettings ] = useState( false );
 	const [ hoursError, setHoursError ] = useState( null );
@@ -42,6 +43,7 @@ export default function SettingsPage() {
 				setNotificationEmail( settings.notification_email || '' );
 				setPaymentWindowHours( String( settings.payment_window_hours ) );
 				setIsWooCommerceActive( Boolean( settings.woocommerce_active ) );
+				setAutoRefundEnabled( Boolean( settings.auto_refund_enabled ) );
 			} )
 			.catch( ( err ) => setLoadError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
@@ -80,6 +82,7 @@ export default function SettingsPage() {
 				slot_interval_minutes: parseInt( slotIntervalMinutes, 10 ) || 15,
 				notification_email: notificationEmail,
 				payment_window_hours: parseInt( paymentWindowHours, 10 ) || 2,
+				auto_refund_enabled: autoRefundEnabled,
 			},
 		} )
 			.then( ( result ) => {
@@ -89,6 +92,7 @@ export default function SettingsPage() {
 				setSlotIntervalMinutes( String( result.slot_interval_minutes ) );
 				setNotificationEmail( result.notification_email || '' );
 				setPaymentWindowHours( String( result.payment_window_hours ) );
+				setAutoRefundEnabled( Boolean( result.auto_refund_enabled ) );
 				setSettingsSaved( true );
 			} )
 			.catch( ( err ) => setSettingsError( getApiErrorMessage( err ) ) )
@@ -201,6 +205,22 @@ export default function SettingsPage() {
 						type="email"
 						value={ notificationEmail }
 						onChange={ setNotificationEmail }
+					/>
+				</div>
+				<div className="booking-plugin-settings-form__row">
+					<ToggleControl
+						label={ __( 'Reembolso automático al cancelar', 'booking-plugin' ) }
+						help={
+							isWooCommerceActive
+								? __(
+										'Al cancelar una cita con pago o depósito ya cobrado, se intenta reembolsar automáticamente el dinero real en la pasarela de pago original.',
+										'booking-plugin'
+								  )
+								: __( 'Requiere que WooCommerce esté instalado y activo.', 'booking-plugin' )
+						}
+						checked={ autoRefundEnabled }
+						disabled={ ! isWooCommerceActive }
+						onChange={ setAutoRefundEnabled }
 					/>
 				</div>
 			</div>

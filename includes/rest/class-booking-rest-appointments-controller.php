@@ -1025,6 +1025,7 @@ class Booking_Rest_Appointments_Controller {
 			if ( $order ) {
 				$data['payment_status']    = wc_get_order_status_name( $order->get_status() );
 				$data['wc_order_edit_url'] = $order->get_edit_order_url();
+				$data['refunded_amount']   = (float) $order->get_total_refunded();
 			}
 		}
 

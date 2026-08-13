@@ -187,6 +187,12 @@ export default function AppointmentModal( { appointment, staff, onClose, onUpdat
 							</a>
 						</>
 					) }
+					{ appointment.refunded_amount > 0 && (
+						<>
+							<br />
+							<strong>{ __( 'Reembolsado:', 'booking-plugin' ) }</strong> { formatCurrency( appointment.refunded_amount ) }
+						</>
+					) }
 				</p>
 			) }
 

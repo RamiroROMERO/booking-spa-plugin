@@ -264,6 +264,7 @@ class Booking_Plugin_WooCommerce {
 
 		add_action( 'woocommerce_order_status_changed', array( $this, 'handle_order_status_changed' ), 10, 4 );
 		add_action( 'woocommerce_order_status_completed', array( $this, 'handle_order_completed_for_packages' ), 10, 2 );
+		add_action( 'booking_plugin_appointment_cancelled', array( $this, 'handle_appointment_cancelled_for_refund' ) );
 	}
 
 	// Otorga créditos al completar un pedido que incluye un producto de
@@ -339,6 +340,40 @@ class Booking_Plugin_WooCommerce {
 
 		if ( in_array( $new_status, array( 'cancelled', 'refunded' ), true ) ) {
 			$this->transition_appointment( $appointment, 'cancelled' );
+		}
+	}
+
+	public function handle_appointment_cancelled_for_refund( $appointment ) {
+		$settings = Booking_Plugin_Settings::get_settings();
+		if ( empty( $settings['auto_refund_enabled'] ) || ! self::is_active() ) {
+			return;
+		}
+
+		if ( empty( $appointment->wc_order_id ) ) {
+			return;
+		}
+
+		$order = wc_get_order( (int) $appointment->wc_order_id );
+		if ( ! $order || ! $order->is_paid() ) {
+			return;
+		}
+
+		$remaining = $order->get_remaining_refund_amount();
+		if ( $remaining <= 0 ) {
+			return;
+		}
+
+		$result = wc_create_refund(
+			array(
+				'order_id'       => $order->get_id(),
+				'amount'         => $remaining,
+				'reason'         => sprintf( 'Cita cancelada #%d', (int) $appointment->id ),
+				'refund_payment' => true,
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			error_log( $result->get_error_message() );
 		}
 	}
 
