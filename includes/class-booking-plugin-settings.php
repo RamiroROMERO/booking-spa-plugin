@@ -15,6 +15,7 @@ class Booking_Plugin_Settings {
 			'slot_interval_minutes'  => 15,
 			'notification_email'     => get_option( 'admin_email' ),
 			'payment_window_hours'   => 2,
+			'auto_refund_enabled'    => false,
 		);
 	}
 
@@ -45,6 +46,7 @@ class Booking_Plugin_Settings {
 			'slot_interval_minutes'  => max( 1, (int) $merged['slot_interval_minutes'] ),
 			'notification_email'     => $notification_email,
 			'payment_window_hours'   => max( 1, (int) $merged['payment_window_hours'] ),
+			'auto_refund_enabled'    => (bool) $merged['auto_refund_enabled'],
 		);
 
 		update_option( self::OPTION_NAME, $sanitized );
