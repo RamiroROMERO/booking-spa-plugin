@@ -3,3 +3,4 @@ assets/build/
 .DS_Store
 Thumbs.db
 *.log
+tools/

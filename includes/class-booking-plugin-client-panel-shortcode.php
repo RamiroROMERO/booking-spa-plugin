@@ -42,6 +42,8 @@ class Booking_Plugin_Client_Panel_Shortcode {
 			true
 		);
 
+		wp_set_script_translations( 'booking-plugin-frontend', 'booking-plugin', BOOKING_PLUGIN_DIR . 'languages' );
+
 		$style_path = BOOKING_PLUGIN_DIR . 'assets/build/style-frontend.css';
 
 		if ( file_exists( $style_path ) ) {

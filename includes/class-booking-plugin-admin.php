@@ -130,6 +130,8 @@ class Booking_Plugin_Admin {
 			true
 		);
 
+		wp_set_script_translations( 'booking-plugin-admin', 'booking-plugin', BOOKING_PLUGIN_DIR . 'languages' );
+
 		$style_path = BOOKING_PLUGIN_DIR . 'assets/build/style-admin.css';
 
 		if ( file_exists( $style_path ) ) {

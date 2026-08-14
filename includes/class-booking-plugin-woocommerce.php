@@ -32,7 +32,7 @@ class Booking_Plugin_WooCommerce {
 
 		// Prefijo "[Reserva]" para que un admin no se confunda si lo ve
 		// listado entre sus productos reales de WooCommerce (ver Risks de SPEC 10).
-		$product->set_name( sprintf( '[Reserva] %s', $service->name ) );
+		$product->set_name( sprintf( __( '[Reserva] %s', 'booking-plugin' ), $service->name ) );
 		$product->set_regular_price( (string) $service->price );
 		$product->set_price( (string) $service->price );
 		$product->set_catalog_visibility( 'hidden' );
@@ -68,7 +68,7 @@ class Booking_Plugin_WooCommerce {
 		}
 
 		// Mismo prefijo "[Reserva]" que los productos de servicios (ver SPEC 10).
-		$product->set_name( sprintf( '[Reserva] %s', $package->name ) );
+		$product->set_name( sprintf( __( '[Reserva] %s', 'booking-plugin' ), $package->name ) );
 		$product->set_regular_price( (string) $package->price );
 		$product->set_price( (string) $package->price );
 		$product->set_catalog_visibility( 'hidden' );
@@ -367,7 +367,7 @@ class Booking_Plugin_WooCommerce {
 			array(
 				'order_id'       => $order->get_id(),
 				'amount'         => $remaining,
-				'reason'         => sprintf( 'Cita cancelada #%d', (int) $appointment->id ),
+				'reason'         => sprintf( __( 'Cita cancelada #%d', 'booking-plugin' ), (int) $appointment->id ),
 				'refund_payment' => true,
 			)
 		);

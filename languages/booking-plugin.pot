@@ -1,0 +1,1988 @@
+# Copyright (C) 2026 MachMedia
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Booking Plugin 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/booking-plugin\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-14T16:42:49+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: booking-plugin\n"
+
+#. Plugin Name of the plugin
+#: booking-plugin.php
+msgid "Booking Plugin"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: booking-plugin.php
+msgid "https://machmedia.com/"
+msgstr ""
+
+#. Description of the plugin
+#: booking-plugin.php
+msgid "Booking functionality for WordPress."
+msgstr ""
+
+#. Author of the plugin
+#: booking-plugin.php
+msgid "MachMedia"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:21
+#: includes/class-booking-plugin-admin.php:22
+#: assets/build/admin.js:3
+msgid "Reservas"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:31
+#: includes/class-booking-plugin-admin.php:32
+msgid "Calendario"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:40
+#: includes/class-booking-plugin-admin.php:41
+#: assets/build/admin.js:3
+msgid "Servicios"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:49
+#: includes/class-booking-plugin-admin.php:50
+#: assets/build/admin.js:1
+#: assets/build/admin.js:3
+msgid "Staff"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:58
+#: includes/class-booking-plugin-admin.php:59
+#: assets/build/admin.js:3
+msgid "Configuración"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:67
+#: includes/class-booking-plugin-admin.php:68
+#: assets/build/admin.js:3
+msgid "Notificaciones"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:76
+#: includes/class-booking-plugin-admin.php:77
+#: assets/build/admin.js:3
+msgid "Paquetes"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:85
+#: includes/class-booking-plugin-admin.php:86
+#: assets/build/admin.js:3
+msgid "Nómina"
+msgstr ""
+
+#: includes/class-booking-plugin-admin.php:94
+#: includes/class-booking-plugin-admin.php:95
+#: assets/build/admin.js:3
+msgid "Saldos pendientes"
+msgstr ""
+
+#: includes/class-booking-plugin-availability.php:30
+#: includes/class-booking-plugin-availability.php:106
+msgid "date must be in Y-m-d format."
+msgstr ""
+
+#: includes/class-booking-plugin-availability.php:176
+#: includes/rest/class-booking-rest-appointments-controller.php:205
+#: includes/rest/class-booking-rest-appointments-controller.php:812
+msgid "start_datetime must be a valid ISO 8601 datetime."
+msgstr ""
+
+#: includes/class-booking-plugin-availability.php:298
+msgid "Invalid timezone."
+msgstr ""
+
+#: includes/class-booking-plugin-availability.php:329
+#: includes/rest/class-booking-rest-appointments-controller.php:928
+msgid "One or more addon_ids are invalid for this service."
+msgstr ""
+
+#: includes/class-booking-plugin-availability.php:348
+#: includes/rest/class-booking-rest-appointments-controller.php:798
+msgid "Service not found or inactive."
+msgstr ""
+
+#: includes/class-booking-plugin-availability.php:364
+#: includes/rest/class-booking-rest-appointments-controller.php:460
+#: includes/rest/class-booking-rest-staff-controller.php:125
+#: includes/rest/class-booking-rest-staff-controller.php:218
+#: includes/rest/class-booking-rest-staff-controller.php:336
+msgid "Staff not found."
+msgstr ""
+
+#: includes/class-booking-plugin-notifications.php:193
+#: assets/build/admin.js:3
+msgid "Juana Pérez"
+msgstr ""
+
+#: includes/class-booking-plugin-notifications.php:196
+#: assets/build/admin.js:3
+msgid "Corte de cabello"
+msgstr ""
+
+#: includes/class-booking-plugin-notifications.php:197
+#: assets/build/admin.js:3
+msgid "Carlos Gómez"
+msgstr ""
+
+#: includes/class-booking-plugin-notifications.php:207
+msgid "Invalid recipient email."
+msgstr ""
+
+#: includes/class-booking-plugin-notifications.php:222
+msgid "wp_mail() failed to send the test email."
+msgstr ""
+
+#: includes/class-booking-plugin-payment-sweep-cron.php:22
+msgid "Every 15 minutes (Booking Plugin)"
+msgstr ""
+
+#: includes/class-booking-plugin-reminder-cron.php:25
+msgid "Every 30 minutes (Booking Plugin)"
+msgstr ""
+
+#: includes/class-booking-plugin-woocommerce.php:35
+#: includes/class-booking-plugin-woocommerce.php:71
+#, php-format
+msgid "[Reserva] %s"
+msgstr ""
+
+#: includes/class-booking-plugin-woocommerce.php:370
+#, php-format
+msgid "Cita cancelada #%d"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:23
+msgid "Tu reserva en {{business_name}} fue recibida"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:24
+msgid ""
+"Hola {{client_name}},\n"
+"\n"
+"Tu reserva quedó registrada con estos datos:\n"
+"\n"
+"Servicio: {{service_name}}\n"
+"Con: {{staff_name}}\n"
+"Fecha: {{date}}\n"
+"Hora: {{time}}\n"
+"\n"
+"Podés gestionar tu reserva desde este enlace: {{manage_url}}\n"
+"\n"
+"Gracias por elegir {{business_name}}."
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:30
+msgid "Recordatorio: tu cita en {{business_name}} es mañana"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:31
+msgid ""
+"Hola {{client_name}},\n"
+"\n"
+"Te recordamos tu cita:\n"
+"\n"
+"Servicio: {{service_name}}\n"
+"Con: {{staff_name}}\n"
+"Fecha: {{date}}\n"
+"Hora: {{time}}\n"
+"\n"
+"Podés gestionar tu reserva desde este enlace: {{manage_url}}\n"
+"\n"
+"Te esperamos en {{business_name}}."
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:37
+msgid "Tu reserva en {{business_name}} fue cancelada"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:38
+msgid ""
+"Hola {{client_name}},\n"
+"\n"
+"Tu reserva fue cancelada:\n"
+"\n"
+"Servicio: {{service_name}}\n"
+"Con: {{staff_name}}\n"
+"Fecha: {{date}}\n"
+"Hora: {{time}}\n"
+"\n"
+"Si querés reservar nuevamente, podés hacerlo desde: {{manage_url}}\n"
+"\n"
+"Gracias por tu comprensión."
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:44
+msgid "Nueva reserva: {{client_name}}"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:45
+msgid ""
+"Se registró una nueva reserva:\n"
+"\n"
+"Cliente: {{client_name}}\n"
+"Email: {{client_email}}\n"
+"Teléfono: {{client_phone}}\n"
+"Servicio: {{service_name}}\n"
+"Con: {{staff_name}}\n"
+"Fecha: {{date}}\n"
+"Hora: {{time}}"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:51
+msgid "Reserva cancelada: {{client_name}}"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:52
+msgid ""
+"Se canceló una reserva:\n"
+"\n"
+"Cliente: {{client_name}}\n"
+"Email: {{client_email}}\n"
+"Teléfono: {{client_phone}}\n"
+"Servicio: {{service_name}}\n"
+"Con: {{staff_name}}\n"
+"Fecha: {{date}}\n"
+"Hora: {{time}}"
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:110
+#: includes/rest/class-booking-rest-email-templates-controller.php:92
+#: includes/rest/class-booking-rest-email-templates-controller.php:118
+msgid "Unknown template key."
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:117
+#: includes/rest/class-booking-rest-email-templates-controller.php:99
+msgid "subject and body must not be empty."
+msgstr ""
+
+#: includes/emails/class-booking-plugin-email-templates.php:128
+msgid "All 5 templates must be provided."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:48
+#: includes/rest/class-booking-rest-appointments-controller.php:73
+#: includes/rest/class-booking-rest-appointments-controller.php:568
+#: includes/rest/class-booking-rest-business-hours-controller.php:32
+#: includes/rest/class-booking-rest-categories-controller.php:58
+#: includes/rest/class-booking-rest-email-templates-controller.php:56
+#: includes/rest/class-booking-rest-packages-controller.php:49
+#: includes/rest/class-booking-rest-payroll-controller.php:50
+#: includes/rest/class-booking-rest-services-controller.php:58
+#: includes/rest/class-booking-rest-settings-controller.php:32
+#: includes/rest/class-booking-rest-staff-controller.php:54
+#: includes/rest/class-booking-rest-user-credits-controller.php:43
+msgid "You are not allowed to perform this action."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:60
+#: includes/rest/class-booking-rest-addons-controller.php:87
+#: includes/rest/class-booking-rest-services-controller.php:124
+#: includes/rest/class-booking-rest-services-controller.php:206
+#: includes/rest/class-booking-rest-services-controller.php:329
+msgid "Service not found."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:93
+#: includes/rest/class-booking-rest-addons-controller.php:151
+#: includes/rest/class-booking-rest-categories-controller.php:109
+#: includes/rest/class-booking-rest-categories-controller.php:157
+#: includes/rest/class-booking-rest-packages-controller.php:76
+#: includes/rest/class-booking-rest-packages-controller.php:153
+#: includes/rest/class-booking-rest-services-controller.php:136
+#: includes/rest/class-booking-rest-services-controller.php:229
+#: includes/rest/class-booking-rest-staff-controller.php:137
+#: includes/rest/class-booking-rest-staff-controller.php:229
+msgid "Name is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:134
+#: includes/rest/class-booking-rest-addons-controller.php:196
+msgid "Add-on not found."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:172
+#: includes/rest/class-booking-rest-packages-controller.php:186
+#: includes/rest/class-booking-rest-services-controller.php:273
+#: includes/rest/class-booking-rest-staff-controller.php:256
+msgid "status must be either active or inactive."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:217
+#: includes/rest/class-booking-rest-packages-controller.php:88
+#: includes/rest/class-booking-rest-packages-controller.php:175
+#: includes/rest/class-booking-rest-services-controller.php:356
+msgid "price must be greater than or equal to 0."
+msgstr ""
+
+#: includes/rest/class-booking-rest-addons-controller.php:223
+msgid "extra_time_minutes must be greater than or equal to 0."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:81
+#: includes/rest/class-booking-rest-user-credits-controller.php:51
+msgid "You must be logged in to perform this action."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:179
+#: includes/rest/class-booking-rest-appointments-controller.php:554
+msgid "Appointment not found."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:183
+msgid "You are not allowed to view this appointment."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:193
+#: includes/rest/class-booking-rest-availability-controller.php:41
+#: includes/rest/class-booking-rest-availability-controller.php:97
+#: includes/rest/class-booking-rest-user-credits-controller.php:140
+msgid "service_id is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:199
+msgid "start_datetime is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:221
+msgid "guest_name is required for guest bookings."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:225
+msgid "A valid guest_email is required for guest bookings."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:245
+msgid "You must be logged in to use a credit."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:249
+msgid "A credit cannot be combined with add-ons."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:275
+msgid "No staff available for this service."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:346
+#: includes/rest/class-booking-rest-appointments-controller.php:664
+msgid "The requested slot is not available."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:399
+msgid "use_credit_id does not belong to the current user."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:407
+msgid "This service is not included in the package for this credit."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:411
+#: includes/rest/class-booking-rest-appointments-controller.php:749
+msgid "Insufficient credit balance."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:453
+#: includes/rest/class-booking-rest-payroll-controller.php:117
+msgid "staff_id is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:467
+msgid "start_datetime and end_datetime are required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:474
+msgid "start_datetime and end_datetime must be valid ISO 8601 datetimes."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:478
+msgid "end_datetime must be after start_datetime."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:515
+msgid "The requested range overlaps with an existing appointment."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:560
+msgid "You are not allowed to modify this appointment."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:572
+msgid "This appointment has no pending balance to collect, or it was already collected."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:601
+msgid "Only an administrator can edit add-ons."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:605
+msgid "Add-ons can only be edited on pending or confirmed appointments that do not have a WooCommerce order yet."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:623
+msgid "Invalid status value."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:627
+msgid "Only an administrator can set this status."
+msgstr ""
+
+#: includes/rest/class-booking-rest-appointments-controller.php:858
+msgid "This appointment can no longer be cancelled or rescheduled without administrator permission."
+msgstr ""
+
+#: includes/rest/class-booking-rest-availability-controller.php:47
+msgid "date is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-availability-controller.php:103
+#: includes/rest/class-booking-rest-availability-controller.php:109
+msgid "month must be in Y-m format."
+msgstr ""
+
+#: includes/rest/class-booking-rest-business-hours-controller.php:59
+msgid "days must be an array with exactly 7 entries (day_of_week 0-6)."
+msgstr ""
+
+#: includes/rest/class-booking-rest-business-hours-controller.php:66
+msgid "Each entry requires day_of_week."
+msgstr ""
+
+#: includes/rest/class-booking-rest-business-hours-controller.php:72
+#: includes/rest/class-booking-rest-staff-controller.php:465
+msgid "day_of_week must be between 0 and 6."
+msgstr ""
+
+#: includes/rest/class-booking-rest-business-hours-controller.php:76
+msgid "day_of_week values must not repeat."
+msgstr ""
+
+#: includes/rest/class-booking-rest-business-hours-controller.php:85
+msgid "open_time and close_time must both be set, or both be empty (closed day)."
+msgstr ""
+
+#: includes/rest/class-booking-rest-business-hours-controller.php:90
+msgid "days must cover every day_of_week from 0 to 6 exactly once."
+msgstr ""
+
+#: includes/rest/class-booking-rest-categories-controller.php:97
+#: includes/rest/class-booking-rest-categories-controller.php:146
+#: includes/rest/class-booking-rest-categories-controller.php:191
+msgid "Category not found."
+msgstr ""
+
+#: includes/rest/class-booking-rest-categories-controller.php:115
+#: includes/rest/class-booking-rest-categories-controller.php:161
+msgid "A category with this name already exists."
+msgstr ""
+
+#: includes/rest/class-booking-rest-categories-controller.php:198
+msgid "Cannot delete a category with associated services."
+msgstr ""
+
+#: includes/rest/class-booking-rest-packages-controller.php:82
+#: includes/rest/class-booking-rest-packages-controller.php:164
+msgid "total_sessions must be greater than or equal to 1."
+msgstr ""
+
+#: includes/rest/class-booking-rest-packages-controller.php:142
+#: includes/rest/class-booking-rest-packages-controller.php:229
+msgid "Package not found."
+msgstr ""
+
+#: includes/rest/class-booking-rest-packages-controller.php:254
+msgid "services must be an array."
+msgstr ""
+
+#: includes/rest/class-booking-rest-packages-controller.php:261
+msgid "Each service requires service_id."
+msgstr ""
+
+#: includes/rest/class-booking-rest-packages-controller.php:270
+#: includes/rest/class-booking-rest-staff-controller.php:370
+#, php-format
+msgid "service_id %d does not exist."
+msgstr ""
+
+#: includes/rest/class-booking-rest-packages-controller.php:278
+msgid "credit_cost must be greater than or equal to 1."
+msgstr ""
+
+#: includes/rest/class-booking-rest-payroll-controller.php:63
+#: includes/rest/class-booking-rest-payroll-controller.php:121
+msgid "date_from and date_to are required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-services-controller.php:154
+#: includes/rest/class-booking-rest-services-controller.php:242
+msgid "The given category_id does not exist."
+msgstr ""
+
+#: includes/rest/class-booking-rest-services-controller.php:362
+msgid "duration_minutes is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-services-controller.php:366
+msgid "duration_minutes must be greater than 0."
+msgstr ""
+
+#: includes/rest/class-booking-rest-services-controller.php:372
+msgid "buffer_minutes must be greater than or equal to 0."
+msgstr ""
+
+#: includes/rest/class-booking-rest-services-controller.php:396
+msgid "requires_deposit can only be true when requires_payment is true."
+msgstr ""
+
+#: includes/rest/class-booking-rest-services-controller.php:405
+msgid "deposit_percentage is required and must be between 1 and 99 when requires_deposit is true."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:143
+#: includes/rest/class-booking-rest-staff-controller.php:240
+msgid "A valid email is required."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:359
+msgid "service_ids must be an array."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:383
+msgid "commissions must be an array."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:394
+msgid "Cada entrada de comisión debe ser un arreglo."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:402
+msgid "Cada entrada de comisión debe incluir un service_id válido mayor a 0."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:412
+#, php-format
+msgid "No se puede configurar comisión para el service_id %d porque no está asignado al staff."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:421
+msgid "El tipo de comisión debe ser \"fixed\" o \"percentage\"."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:431
+msgid "El valor de comisión debe ser un número mayor o igual a 0."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:443
+msgid "El tipo de comisión y el valor de comisión deben configurarse juntos o no configurarse."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:454
+msgid "schedules must be an array."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:459
+msgid "Each schedule requires day_of_week, start_time and end_time."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:474
+msgid "exceptions must be an array."
+msgstr ""
+
+#: includes/rest/class-booking-rest-staff-controller.php:479
+msgid "Each exception requires exception_date."
+msgstr ""
+
+#: includes/rest/class-booking-rest-user-credits-controller.php:85
+msgid "User not found."
+msgstr ""
+
+#: includes/rest/class-booking-rest-user-credits-controller.php:94
+msgid "package_id does not exist."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Bloqueado"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/admin.js:3
+msgid "Reserva"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "No hay staff activo para mostrar."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Lun"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Mar"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Mié"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Jue"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Vie"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Sáb"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:2
+msgid "Dom"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "citas"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "No se puede borrar: hay servicios en esta categoría."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Ya existe un registro con ese nombre."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/admin.js:3
+msgid "La duración debe ser mayor a 0."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El precio no puede ser negativo."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El buffer no puede ser negativo."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Los minutos extra no pueden ser negativos."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Uno de los add-ons seleccionados no es válido para este servicio."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Los add-ons de esta cita ya no se pueden editar."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:1
+#: assets/build/frontend.js:2
+msgid "El nombre es obligatorio."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:1
+msgid "El email no es válido."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El nombre del cliente es obligatorio."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El email del cliente no es válido."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "La categoría seleccionada no existe."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Uno de los servicios seleccionados no existe."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El horario contiene datos inválidos."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Una de las excepciones contiene datos inválidos."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El estado no es válido."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El staff seleccionado no existe."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El servicio seleccionado no existe o está inactivo."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:1
+msgid "La fecha u hora no es válida."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El horario debe cubrir los 7 días de la semana."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Ese horario ya no está disponible."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "No hay staff disponible para ese servicio."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Ya no se puede cancelar ni reprogramar esta cita sin permisos de administrador."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:1
+msgid "No tienes permiso para realizar esta acción."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "El registro no fue encontrado."
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:1
+msgid "Ocurrió un error inesperado."
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Pendiente"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:9
+msgid "Confirmada"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:9
+msgid "Completada"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/admin.js:3
+msgid "No asistió"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/frontend.js:9
+msgid "Cancelada"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Detalle de la cita"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/admin.js:3
+msgid "Estado"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Horario"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Cliente:"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Notas:"
+msgstr ""
+
+#: assets/build/admin.js:1
+#: assets/build/admin.js:2
+msgid "Pago:"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Desconocido"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Ver pedido"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Reembolsado:"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Depósito pagado:"
+msgstr ""
+
+#: assets/build/admin.js:1
+msgid "Saldo pendiente:"
+msgstr ""
+
+#. translators: %s: fecha en que se marco el saldo como cobrado
+#: assets/build/admin.js:2
+#, js-format
+msgid "Saldo cobrado el %s"
+msgstr ""
+
+#: assets/build/admin.js:2
+msgid "Marcar saldo como cobrado"
+msgstr ""
+
+#. translators: %s: nombre del paquete
+#: assets/build/admin.js:3
+#, js-format
+msgid "Pagada con crédito (%s)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Pagada con crédito"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Confirmar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Completar"
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:9
+msgid "Cancelar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Add-ons"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "min extra"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Esta cita no tiene add-ons."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Editar add-ons"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cargando…"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Este servicio no tiene add-ons activos."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Guardar add-ons"
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:9
+msgid "Reprogramar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Bloqueo de horario"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Bloquear horario"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Staff:"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Horario:"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Motivo:"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Desbloquear"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Fecha"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Hora inicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Hora fin"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Motivo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Bloquear"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Día"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Semana"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Mes"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Anterior"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Hoy"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Siguiente"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Actualizando…"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Categorías"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nueva categoría"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Agregar"
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:2
+msgid "Nombre"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Guardar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Editar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Borrar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay categorías todavía."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Guardá el servicio primero para poder agregarle add-ons."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Precio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Minutos extra"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "inactivo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Desactivar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Activar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay add-ons para este servicio."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Agregar add-on"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Sin categoría"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Editar servicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nuevo servicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Categoría"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Duración (minutos)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Buffer (minutos)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Descripción"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Seleccionar imagen"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Usar esta imagen"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Quitar imagen"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Requiere pago online"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Al reservar este servicio se generará un pedido de WooCommerce y se pedirá pagar antes de confirmar la cita."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Requiere depósito"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Al reservar, solo se cobra el porcentaje indicado del total; el resto queda como saldo pendiente que se gestiona manualmente desde la cita."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Porcentaje de depósito"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "El porcentaje de depósito debe ser un número entre 1 y 99."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Domingo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Lunes"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Martes"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Miércoles"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Jueves"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Viernes"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Sábado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Trabaja"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Inicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Fin"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Pausa inicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Pausa fin"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Día libre"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Quitar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay excepciones."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Tipo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Horario especial"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Agregar excepción"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Editar staff"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nuevo staff"
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:2
+msgid "Email"
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:2
+msgid "Teléfono"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Activo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Servicios que puede realizar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Tipo de comisión"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Sin comisión configurada"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Fijo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Porcentaje"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Valor de comisión"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay servicios activos todavía."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Horario semanal"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Excepciones"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "El email es obligatorio."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Si configurás un tipo de comisión, también tenés que indicar el valor (y viceversa)."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Negrita"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cursiva"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Enlace"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "URL del enlace"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Aplicar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Quitar enlace"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Para:"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Asunto:"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "← Volver a la lista"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Asunto"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cuerpo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Placeholders disponibles:"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Plantilla guardada."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Ocultar vista previa"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Vista previa"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Correo de prueba enviado."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Enviar correo de prueba"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "¿Restaurar esta plantilla al texto predeterminado? Se descartará la personalización guardada."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Plantilla restaurada al valor predeterminado."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Restaurar predeterminado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Confirmación al cliente"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Recordatorio al cliente"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cancelación al cliente"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nueva reserva (negocio)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cancelación (negocio)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Elegir servicio…"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Editar paquete"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nuevo paquete"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Sesiones totales"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Precio (informativo)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Servicios incluidos"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Costo en créditos"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Todavía no agregaste servicios a este paquete."
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:2
+#: assets/build/frontend.js:6
+msgid "Servicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Agregar servicio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Las sesiones totales deben ser mayores a 0."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Agregá al menos un servicio incluido."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Elegir paquete…"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Buscar usuario (nombre o email)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Buscar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Créditos de"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Paquete"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Saldo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Origen"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nota"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Otorgado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Manual"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Este usuario no tiene créditos."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Otorgar crédito manual"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Nota (opcional)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Otorgar crédito"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Mostrar inactivos"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Sesiones"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Inactivo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay paquetes para mostrar."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "(sin categoría)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Duración"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Pago online"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Sí"
+msgstr ""
+
+#: assets/build/admin.js:3
+#: assets/build/frontend.js:9
+msgid "No"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay servicios para mostrar."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay staff para mostrar."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Horario del negocio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Horario del negocio guardado."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Guardar horario"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Ventanas de tiempo"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Configuración guardada."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Antelación mínima (horas)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Máximo de días a futuro"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Ventana mínima de cancelación (horas)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Intervalo de slots (minutos)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Ventana de pago (horas)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Tiempo máximo para pagar una reserva con pago online antes de cancelarla automáticamente."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Email de notificaciones del negocio"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Reembolso automático al cancelar"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Al cancelar una cita con pago o depósito ya cobrado, se intenta reembolsar automáticamente el dinero real en la pasarela de pago original."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Requiere que WooCommerce esté instalado y activo."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Guardar configuración"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Pagos"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "WooCommerce está activo: los servicios pueden requerir pago online."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "WooCommerce no está instalado o activo: ningún servicio puede cobrar pago online por ahora."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Plantilla"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Personalizada"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Predeterminada"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Créditos de clientes"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Todos"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Desde"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Hasta"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Seleccioná un rango de fechas (desde y hasta) para ver la nómina."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cantidad de citas"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Comisión total"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Pagado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Exportar CSV"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "pagadas"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Marcar pagada"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Desmarcar pagada"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay comisiones para mostrar en este rango."
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "(servicio no disponible)"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Mostrar cobradas"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cliente"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Depósito pagado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Saldo pendiente"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Marcar cobrado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "Cobrado"
+msgstr ""
+
+#: assets/build/admin.js:3
+msgid "No hay saldos pendientes para mostrar."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Este servicio ya no está disponible."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Ese profesional ya no está disponible."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Uno de los extras elegidos ya no está disponible para este servicio. Vuelve a elegirlos."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Ese horario ya no está disponible. Elige otro horario."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "No hay profesionales disponibles para ese servicio en este momento."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Ya no se puede modificar esta reserva sin contactar directamente al negocio."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "No se encontró el registro solicitado."
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Cargando servicios…"
+msgstr ""
+
+#: assets/build/frontend.js:1
+msgid "Comprobando tu saldo…"
+msgstr ""
+
+#. translators: 1: sesiones disponibles, 2: nombre del paquete
+#: assets/build/frontend.js:2
+#, js-format
+msgid "Tienes %1$d sesiones disponibles de %2$s. ¿Usar una ahora?"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Usar una sesión de mi paquete"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Reservar y pagar normalmente"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Todas"
+msgstr ""
+
+#: assets/build/frontend.js:2
+#: assets/build/frontend.js:3
+#: assets/build/frontend.js:4
+msgid "min"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "No hay servicios disponibles en esta categoría."
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Cargando extras…"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Continuar"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Cargando profesionales…"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Cualquier profesional disponible"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "No hay profesionales específicos para este servicio; puedes continuar con \"Cualquier profesional disponible\"."
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Cargando disponibilidad…"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Cargando horarios…"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "No hay horarios disponibles ese día."
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Elige un día en el calendario."
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Vas a reservar con la cuenta:"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Notas (opcional)"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "El teléfono es obligatorio."
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Ingresa un email válido."
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Revisa tu reserva"
+msgstr ""
+
+#: assets/build/frontend.js:2
+#: assets/build/frontend.js:6
+msgid "Extras"
+msgstr ""
+
+#: assets/build/frontend.js:2
+#: assets/build/frontend.js:6
+msgid "Fecha y hora"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Duración total"
+msgstr ""
+
+#: assets/build/frontend.js:2
+msgid "Pago"
+msgstr ""
+
+#. translators: 1: nombre del paquete, 2: sesiones que quedarán
+#: assets/build/frontend.js:3
+#, js-format
+msgid "Se pagará con 1 sesión de tu paquete %1$s (te quedarán %2$d después)."
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "Precio total"
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "A nombre de"
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "Confirmando…"
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "Confirmar reserva"
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "¡Reserva confirmada!"
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "Tu cita quedó registrada para el"
+msgstr ""
+
+#: assets/build/frontend.js:3
+msgid "Extras incluidos:"
+msgstr ""
+
+#. translators: 1: nombre del paquete, 2: sesiones restantes
+#: assets/build/frontend.js:4
+#, js-format
+msgid "Se usó 1 sesión de tu paquete %1$s — te quedan %2$d."
+msgstr ""
+
+#: assets/build/frontend.js:4
+msgid "Duración total:"
+msgstr ""
+
+#: assets/build/frontend.js:4
+msgid "Precio total:"
+msgstr ""
+
+#: assets/build/frontend.js:4
+msgid "Código de tu reserva (guárdalo para gestionarla más adelante):"
+msgstr ""
+
+#: assets/build/frontend.js:4
+msgid "¡Copiado!"
+msgstr ""
+
+#: assets/build/frontend.js:4
+msgid "Copiar"
+msgstr ""
+
+#. translators: 1: porcentaje del depósito, 2: monto del depósito, 3: saldo pendiente
+#: assets/build/frontend.js:5
+#, js-format
+msgid "Este servicio requiere un depósito del %1$s%% (%2$s) para confirmar la cita. El saldo restante de %3$s queda pendiente y se cobra por separado."
+msgstr ""
+
+#. translators: 1: monto del depósito, 2: porcentaje del depósito
+#: assets/build/frontend.js:6
+#, js-format
+msgid "Pagar depósito (%1$s — %2$s%%)"
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "Este servicio requiere pago online para confirmar la cita."
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "Pagar ahora"
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "Profesional"
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "Tus datos"
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "Confirmación"
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "← Atrás"
+msgstr ""
+
+#: assets/build/frontend.js:6
+msgid "Ese horario ya no está disponible: alguien más lo reservó primero. Elige otro horario."
+msgstr ""
+
+#. translators: %d: horas minimas de anticipacion requeridas para cancelar/reprogramar.
+#: assets/build/frontend.js:9
+#, js-format
+msgid "No se puede modificar, faltan menos de %d horas para la cita."
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Este enlace ya no es válido."
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Pendiente de confirmación"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "No se presentó"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "¿Cancelar esta cita?"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Sí, cancelar"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Cerrar"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Reprogramando…"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Este enlace no es válido."
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Cargando tu cita…"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Tu cita"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Próximas"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Historial"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Cargando tus citas…"
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "No tienes citas próximas."
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Todavía no hay citas en tu historial."
+msgstr ""
+
+#: assets/build/frontend.js:9
+msgid "Tus citas"
+msgstr ""

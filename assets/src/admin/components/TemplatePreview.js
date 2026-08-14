@@ -6,11 +6,11 @@ import { __ } from '@wordpress/i18n';
 // prueba en el backend (Booking_Plugin_Notifications::get_example_context());
 // esta vista previa es solo para ver el formato, no para probar el envío real.
 const EXAMPLE_CONTEXT = {
-	client_name: 'Juana Pérez',
+	client_name: __( 'Juana Pérez', 'booking-plugin' ),
 	client_email: 'juana.perez@example.com',
 	client_phone: '+54 9 11 1234-5678',
-	service_name: 'Corte de cabello',
-	staff_name: 'Carlos Gómez',
+	service_name: __( 'Corte de cabello', 'booking-plugin' ),
+	staff_name: __( 'Carlos Gómez', 'booking-plugin' ),
 	date: '15 de agosto de 2026',
 	time: '10:00',
 	business_name: 'Mi Negocio',
