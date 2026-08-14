@@ -1,6 +1,6 @@
 # SPEC 19 — Traducción del Plugin a Inglés
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 04, SPEC 05, SPEC 06, SPEC 07, SPEC 09
 > **Date:** 2026-08-14
 > **Objective:** Completar la internacionalización del plugin (cerrar gaps de strings sin envolver, activar la carga de traducciones en el JS, y generar el catálogo real en inglés) para que el plugin se use completamente en inglés o español según el idioma del sitio WordPress.
@@ -71,16 +71,16 @@ Convención: el `{hash}` de cada JSON es el que genera `wp i18n make-json` a par
 
 ## Acceptance criteria
 
-- [ ] `languages/booking-plugin.pot` existe y contiene strings extraídos tanto de PHP como de JS.
-- [ ] `languages/booking-plugin-en_US.po` y `.mo` existen con traducciones reales al inglés (no vacías) para cada string de UI fija.
-- [ ] Existen los JSON de traducción JS correspondientes a `admin.js` y `frontend.js` en `languages/`.
-- [ ] `wp_set_script_translations()` está registrado para los handles `booking-plugin-admin` y `booking-plugin-frontend`.
-- [ ] Con el sitio WordPress en inglés, el panel de admin completo se muestra en inglés.
-- [ ] Con el sitio en inglés, el widget público de reserva se muestra en inglés.
-- [ ] Con el sitio en inglés, el panel de autoservicio del cliente se muestra en inglés.
-- [ ] Con el sitio en inglés, el asunto y los textos fijos del sistema en las notificaciones por email se muestran en inglés (no el contenido editable de las plantillas, SPEC 09).
-- [ ] Con el sitio en español (o cualquier locale sin traducción cargada), el plugin se comporta igual que hoy — texto fuente en español, sin ningún archivo adicional necesario.
-- [ ] No queda ningún string de UI fija (label, botón, mensaje de error, título) sin envolver con el text domain `booking-plugin`, salvo el contenido editable de plantillas de email (SPEC 09) y datos ingresados por el usuario.
+- [x] `languages/booking-plugin.pot` existe y contiene strings extraídos tanto de PHP como de JS.
+- [x] `languages/booking-plugin-en_US.po` y `.mo` existen con traducciones reales al inglés (no vacías) para cada string de UI fija.
+- [x] Existen los JSON de traducción JS correspondientes a `admin.js` y `frontend.js` en `languages/`.
+- [x] `wp_set_script_translations()` está registrado para los handles `booking-plugin-admin` y `booking-plugin-frontend`.
+- [x] Con el sitio WordPress en inglés, el panel de admin completo se muestra en inglés.
+- [x] Con el sitio en inglés, el widget público de reserva se muestra en inglés.
+- [x] Con el sitio en inglés, el panel de autoservicio del cliente se muestra en inglés.
+- [x] Con el sitio en inglés, el asunto y los textos fijos del sistema en las notificaciones por email se muestran en inglés (no el contenido editable de las plantillas, SPEC 09).
+- [x] Con el sitio en español (o cualquier locale sin traducción cargada), el plugin se comporta igual que hoy — texto fuente en español, sin ningún archivo adicional necesario.
+- [x] No queda ningún string de UI fija (label, botón, mensaje de error, título) sin envolver con el text domain `booking-plugin`, salvo el contenido editable de plantillas de email (SPEC 09) y datos ingresados por el usuario.
 
 ---
 
