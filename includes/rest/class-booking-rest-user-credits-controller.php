@@ -59,6 +59,46 @@ class Booking_Rest_User_Credits_Controller {
 
 		$wp_user_id = (int) $request['wp_user_id'];
 
+		// SPEC 22: con service_id, devuelve solo los creditos aplicables a ese
+		// servicio (mismo JOIN/forma que get_mine(), pero para el wp_user_id
+		// de la ruta en vez de get_current_user_id() — uso admin, no propio).
+		$service_id = (int) $request->get_param( 'service_id' );
+
+		if ( $service_id > 0 ) {
+			$credits_table  = $wpdb->prefix . 'booking_user_credits';
+			$packages_table = $wpdb->prefix . 'booking_packages';
+			$services_pivot = $wpdb->prefix . 'booking_package_services';
+
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT uc.*, p.name AS package_name, ps.credit_cost AS credit_cost
+					 FROM {$credits_table} uc
+					 INNER JOIN {$services_pivot} ps ON ps.package_id = uc.package_id AND ps.service_id = %d
+					 LEFT JOIN {$packages_table} p ON p.id = uc.package_id
+					 WHERE uc.wp_user_id = %d AND uc.remaining_sessions > 0
+					 ORDER BY uc.id ASC",
+					$service_id,
+					$wp_user_id
+				)
+			);
+
+			$items = array_map(
+				function ( $row ) {
+					return array(
+						'id'                 => (int) $row->id,
+						'package_id'         => (int) $row->package_id,
+						'package_name'       => $row->package_name,
+						'total_sessions'     => (int) $row->total_sessions,
+						'remaining_sessions' => (int) $row->remaining_sessions,
+						'credit_cost'        => (int) $row->credit_cost,
+					);
+				},
+				$rows
+			);
+
+			return rest_ensure_response( $items );
+		}
+
 		$credits_table  = $wpdb->prefix . 'booking_user_credits';
 		$packages_table = $wpdb->prefix . 'booking_packages';
 

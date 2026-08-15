@@ -210,7 +210,47 @@ class Booking_Rest_Appointments_Controller {
 		$guest_email = null;
 		$guest_phone = null;
 
-		if ( is_user_logged_in() ) {
+		// Reserva manual desde el admin (SPEC 22): el creador no es el cliente
+		// de la cita, asi que ignora is_user_logged_in() (que apuntaria a la
+		// sesion del propio admin) y exige un cliente explicito.
+		$is_manual_booking = (bool) $request->get_param( 'is_manual_booking' );
+
+		if ( $is_manual_booking ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return new WP_Error( 'booking_rest_forbidden', __( 'You are not allowed to perform this action.', 'booking-plugin' ), array( 'status' => 403 ) );
+			}
+
+			$client_user_id     = $request->get_param( 'client_user_id' );
+			$has_client_user_id = ! empty( $client_user_id );
+
+			$guest_name  = trim( (string) $request->get_param( 'guest_name' ) );
+			$guest_email = trim( (string) $request->get_param( 'guest_email' ) );
+			$has_guest   = ( '' !== $guest_name || '' !== $guest_email );
+
+			if ( $has_client_user_id === $has_guest ) {
+				return new WP_Error( 'booking_rest_invalid_manual_client', __( 'Provide exactly one of client_user_id or guest_name/guest_email.', 'booking-plugin' ), array( 'status' => 400 ) );
+			}
+
+			if ( $has_client_user_id ) {
+				if ( ! get_userdata( (int) $client_user_id ) ) {
+					return new WP_Error( 'booking_rest_invalid_manual_client', __( 'client_user_id does not exist.', 'booking-plugin' ), array( 'status' => 400 ) );
+				}
+
+				$user_id     = (int) $client_user_id;
+				$guest_name  = null;
+				$guest_email = null;
+			} else {
+				$guest_phone = $request->get_param( 'guest_phone' );
+
+				if ( '' === $guest_name ) {
+					return new WP_Error( 'booking_rest_invalid_guest_name', __( 'guest_name is required for guest bookings.', 'booking-plugin' ), array( 'status' => 400 ) );
+				}
+
+				if ( '' === $guest_email || ! is_email( $guest_email ) ) {
+					return new WP_Error( 'booking_rest_invalid_guest_email', __( 'A valid guest_email is required for guest bookings.', 'booking-plugin' ), array( 'status' => 400 ) );
+				}
+			}
+		} elseif ( is_user_logged_in() ) {
 			$user_id = get_current_user_id();
 		} else {
 			$guest_name  = trim( (string) $request->get_param( 'guest_name' ) );
@@ -241,7 +281,10 @@ class Booking_Rest_Appointments_Controller {
 		$credit        = null;
 
 		if ( ! empty( $use_credit_id ) ) {
-			if ( ! is_user_logged_in() ) {
+			// $user_id ya resuelve tanto la sesion propia del cliente como,
+			// en una reserva manual (SPEC 22), el client_user_id elegido por
+			// el admin — is_user_logged_in() apuntaria siempre al admin.
+			if ( empty( $user_id ) ) {
 				return new WP_Error( 'booking_rest_forbidden', __( 'You must be logged in to use a credit.', 'booking-plugin' ), array( 'status' => 403 ) );
 			}
 
@@ -249,7 +292,7 @@ class Booking_Rest_Appointments_Controller {
 				return new WP_Error( 'booking_rest_credit_addons_not_allowed', __( 'A credit cannot be combined with add-ons.', 'booking-plugin' ), array( 'status' => 400 ) );
 			}
 
-			$credit = $this->validate_credit( (int) $use_credit_id, (int) $service_id, get_current_user_id() );
+			$credit = $this->validate_credit( (int) $use_credit_id, (int) $service_id, $user_id );
 
 			if ( is_wp_error( $credit ) ) {
 				return $credit;
@@ -285,7 +328,7 @@ class Booking_Rest_Appointments_Controller {
 		);
 
 		foreach ( $candidate_staff_ids as $staff_id ) {
-			$result = $this->attempt_booking( (int) $service_id, (int) $staff_id, $start_datetime, $insert_data, $addon_ids, $addons, $credit );
+			$result = $this->attempt_booking( (int) $service_id, (int) $staff_id, $start_datetime, $insert_data, $addon_ids, $addons, $credit, $is_manual_booking );
 
 			if ( is_wp_error( $result ) ) {
 				return $result;
@@ -725,7 +768,7 @@ class Booking_Rest_Appointments_Controller {
 		);
 	}
 
-	protected function attempt_booking( $service_id, $staff_id, $start_datetime, array $insert_data, array $addon_ids = array(), array $addons = array(), $credit = null ) {
+	protected function attempt_booking( $service_id, $staff_id, $start_datetime, array $insert_data, array $addon_ids = array(), array $addons = array(), $credit = null, $force_confirmed = false ) {
 		global $wpdb;
 
 		$lock = $this->lock_and_revalidate( $service_id, $staff_id, $start_datetime, 0, $addon_ids );
@@ -758,7 +801,10 @@ class Booking_Rest_Appointments_Controller {
 			'staff_id'       => $staff_id,
 			'start_datetime' => $lock['candidate_start']->format( 'Y-m-d H:i:s' ),
 			'end_datetime'   => $lock['candidate_end']->format( 'Y-m-d H:i:s' ),
-			'status'         => $credit ? 'confirmed' : 'pending',
+			// SPEC 22: una reserva manual queda confirmada de entrada, tenga o
+			// no pago/deposito pendiente — el admin ya la coordino con el
+			// cliente, a diferencia del flujo publico que espera el pago.
+			'status'         => ( $credit || $force_confirmed ) ? 'confirmed' : 'pending',
 			'access_token'   => $access_token,
 			'created_at'     => $now,
 			'updated_at'     => $now,

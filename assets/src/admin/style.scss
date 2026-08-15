@@ -194,6 +194,50 @@
 		flex-wrap: wrap;
 	}
 
+	// SPEC 22: mismo criterio de espaciado que .booking-plugin-service-form /
+	// .booking-plugin-staff-modal (margin-bottom en cada base-control en vez
+	// de depender del spacing por defecto de @wordpress/components).
+	&__new-appointment {
+		.components-base-control {
+			margin-bottom: 16px;
+		}
+
+		// El input de busqueda de cliente va en fila junto al boton "Buscar"
+		// (booking-plugin-credits__search, align-items: flex-end): el
+		// margin-bottom general de arriba rompia esa alineacion porque el
+		// TextControl quedaba mas alto que el boton.
+		.booking-plugin-credits__search .components-base-control {
+			margin-bottom: 0;
+		}
+	}
+
+	&__new-appointment-step {
+		margin-top: 12px;
+	}
+
+	// Lista hacia abajo (no en fila) porque puede haber mas de 5 profesionales
+	// para un mismo servicio -- un flex-wrap horizontal quedaria irregular.
+	// align-items: stretch (default) hace que todos los botones compartan el
+	// mismo ancho, en vez de ajustarse cada uno al largo de su propio nombre.
+	&__staff-list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		.components-button {
+			justify-content: flex-start;
+		}
+	}
+
+	// Los horarios disponibles pueden ser muchos (cada 15 min en todo el
+	// horario comercial): sin un ancho fijo de columnas, el Modal se
+	// ensancha para acomodarlos todos en una sola fila.
+	&__slot-list {
+		display: grid;
+		grid-template-columns: repeat( 5, 1fr );
+		gap: 8px;
+	}
+
 	&__details {
 		margin-bottom: 12px;
 	}
