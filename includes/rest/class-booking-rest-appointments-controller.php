@@ -87,7 +87,9 @@ class Booking_Rest_Appointments_Controller {
 	public function get_items( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'booking_appointments';
+		$table       = $wpdb->prefix . 'booking_appointments';
+		$users_table = $wpdb->users;
+		$join_sql    = "LEFT JOIN {$users_table} u ON u.ID = a.user_id";
 
 		$page     = max( 1, (int) $request->get_param( 'page' ) ?: 1 );
 		$per_page = (int) $request->get_param( 'per_page' ) ?: 10;
@@ -100,47 +102,71 @@ class Booking_Rest_Appointments_Controller {
 		$status = $request->get_param( 'status' );
 
 		if ( ! empty( $status ) ) {
-			$where[] = 'status = %s';
+			$where[] = 'a.status = %s';
 			$args[]  = $status;
 		}
 
 		$staff_id = $request->get_param( 'staff_id' );
 
 		if ( ! empty( $staff_id ) ) {
-			$where[] = 'staff_id = %d';
+			$where[] = 'a.staff_id = %d';
 			$args[]  = (int) $staff_id;
+		}
+
+		$service_id = $request->get_param( 'service_id' );
+
+		if ( ! empty( $service_id ) ) {
+			$where[] = 'a.service_id = %d';
+			$args[]  = (int) $service_id;
 		}
 
 		$date_from = $request->get_param( 'date_from' );
 
 		if ( ! empty( $date_from ) ) {
-			$where[] = 'start_datetime >= %s';
+			$where[] = 'a.start_datetime >= %s';
 			$args[]  = $date_from . ' 00:00:00';
 		}
 
 		$date_to = $request->get_param( 'date_to' );
 
 		if ( ! empty( $date_to ) ) {
-			$where[] = 'start_datetime <= %s';
+			$where[] = 'a.start_datetime <= %s';
 			$args[]  = $date_to . ' 23:59:59';
 		}
 
 		$has_pending_balance = $request->get_param( 'has_pending_balance' );
 
 		if ( ! empty( $has_pending_balance ) && 'false' !== $has_pending_balance ) {
-			$where[] = 'balance_due IS NOT NULL AND balance_collected_at IS NULL';
+			$where[] = 'a.balance_due IS NOT NULL AND a.balance_collected_at IS NULL';
 		}
 
 		$has_deposit = $request->get_param( 'has_deposit' );
 
 		if ( ! empty( $has_deposit ) && 'false' !== $has_deposit ) {
-			$where[] = 'balance_due IS NOT NULL';
+			$where[] = 'a.balance_due IS NOT NULL';
+		}
+
+		$exclude_blocked = $request->get_param( 'exclude_blocked' );
+
+		if ( ! empty( $exclude_blocked ) && 'false' !== $exclude_blocked ) {
+			$where[] = "a.status != 'blocked'";
+		}
+
+		$search = $request->get_param( 'search' );
+
+		if ( ! empty( $search ) ) {
+			$like    = '%' . $wpdb->esc_like( $search ) . '%';
+			$where[] = '(a.guest_name LIKE %s OR a.guest_email LIKE %s OR u.display_name LIKE %s OR u.user_email LIKE %s)';
+			$args[]  = $like;
+			$args[]  = $like;
+			$args[]  = $like;
+			$args[]  = $like;
 		}
 
 		$where_sql = implode( ' AND ', $where );
 
 		$total = (int) $wpdb->get_var(
-			$args ? $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}", $args ) : "SELECT COUNT(*) FROM {$table} WHERE {$where_sql}"
+			$args ? $wpdb->prepare( "SELECT COUNT(*) FROM {$table} a {$join_sql} WHERE {$where_sql}", $args ) : "SELECT COUNT(*) FROM {$table} a {$join_sql} WHERE {$where_sql}"
 		);
 
 		$query_args   = $args;
@@ -148,7 +174,10 @@ class Booking_Rest_Appointments_Controller {
 		$query_args[] = $offset;
 
 		$rows = $wpdb->get_results(
-			$wpdb->prepare( "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY start_datetime ASC LIMIT %d OFFSET %d", $query_args )
+			$wpdb->prepare(
+				"SELECT a.*, u.display_name AS wp_display_name, u.user_email AS wp_user_email FROM {$table} a {$join_sql} WHERE {$where_sql} ORDER BY a.start_datetime ASC LIMIT %d OFFSET %d",
+				$query_args
+			)
 		);
 
 		$items = array_map( array( $this, 'prepare_item' ), $rows );
@@ -1064,6 +1093,14 @@ class Booking_Rest_Appointments_Controller {
 			'created_at'     => $this->to_iso( $row->created_at ),
 			'updated_at'     => $this->to_iso( $row->updated_at ),
 		);
+
+		// wp_display_name/wp_user_email solo existen cuando la fila viene del
+		// LEFT JOIN de get_items() (SPEC 23) — get_item()/get_mine()/update_item()
+		// no lo hacen, asi que client_name/client_email quedan sin definir ahi.
+		if ( property_exists( $row, 'wp_display_name' ) ) {
+			$data['client_name']  = ! empty( $row->guest_name ) ? $row->guest_name : ( ! empty( $row->wp_display_name ) ? $row->wp_display_name : null );
+			$data['client_email'] = ! empty( $row->guest_email ) ? $row->guest_email : ( ! empty( $row->wp_user_email ) ? $row->wp_user_email : null );
+		}
 
 		if ( $row->wc_order_id && Booking_Plugin_WooCommerce::is_active() ) {
 			$order = wc_get_order( (int) $row->wc_order_id );

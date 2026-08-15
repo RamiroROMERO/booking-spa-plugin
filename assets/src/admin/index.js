@@ -9,6 +9,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import PackagesPage from './pages/PackagesPage';
 import PayrollPage from './pages/PayrollPage';
 import PendingBalancesPage from './pages/PendingBalancesPage';
+import AppointmentsReportPage from './pages/AppointmentsReportPage';
 import './style.scss';
 
 const settings = window.BookingPluginAdmin || {};
@@ -31,6 +32,7 @@ const PAGES_BY_SECTION = {
 	packages: PackagesPage,
 	payroll: PayrollPage,
 	balances: PendingBalancesPage,
+	report: AppointmentsReportPage,
 };
 
 const root = document.getElementById( 'booking-plugin-admin-root' );

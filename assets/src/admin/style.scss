@@ -636,6 +636,20 @@
 	}
 }
 
+.booking-plugin-report {
+	&__export {
+		margin-bottom: 12px;
+	}
+
+	&__pagination {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-top: 12px;
+		color: #646970;
+	}
+}
+
 .booking-plugin-settings-form {
 	.components-base-control {
 		margin-bottom: 16px;
