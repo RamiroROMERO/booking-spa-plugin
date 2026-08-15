@@ -13,6 +13,7 @@ class Booking_Plugin_Admin {
 	const SLUG_PACKAGES      = 'booking-plugin-packages';
 	const SLUG_PAYROLL       = 'booking-plugin-payroll';
 	const SLUG_BALANCES      = 'booking-plugin-balances';
+	const SLUG_REPORT        = 'booking-plugin-report';
 
 	protected $hook_suffixes = array();
 
@@ -97,6 +98,15 @@ class Booking_Plugin_Admin {
 			self::SLUG_BALANCES,
 			array( $this, 'render_page' )
 		);
+
+		$this->hook_suffixes[ self::SLUG_REPORT ] = add_submenu_page(
+			self::SLUG_CALENDAR,
+			__( 'Reporte de citas', 'booking-plugin' ),
+			__( 'Reporte de citas', 'booking-plugin' ),
+			'manage_options',
+			self::SLUG_REPORT,
+			array( $this, 'render_page' )
+		);
 	}
 
 	public function render_page() {
@@ -153,6 +163,7 @@ class Booking_Plugin_Admin {
 			self::SLUG_PACKAGES      => 'packages',
 			self::SLUG_PAYROLL       => 'payroll',
 			self::SLUG_BALANCES      => 'balances',
+			self::SLUG_REPORT        => 'report',
 		);
 
 		wp_localize_script(
