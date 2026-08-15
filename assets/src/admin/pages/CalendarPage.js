@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Button, CheckboxControl } from '@wordpress/components';
-import { chevronLeft, chevronRight, calendar as calendarIcon } from '@wordpress/icons';
+import { chevronLeft, chevronRight, calendar as calendarIcon, plus, lock } from '@wordpress/icons';
 
 import Calendar from '../Calendar';
 import MonthView from '../MonthView';
 import AppointmentModal from '../AppointmentModal';
 import BlockModal from '../BlockModal';
+import NewAppointmentModal from '../NewAppointmentModal';
 import { getVisibleRange, today, addDays, addMonths, API_NAMESPACE } from '../utils';
 import { getApiErrorMessage } from '../utils/apiError';
 
@@ -29,6 +30,7 @@ export default function CalendarPage() {
 	const [ selectedAppointment, setSelectedAppointment ] = useState( null );
 	const [ selectedBlock, setSelectedBlock ] = useState( null );
 	const [ isBlockFormOpen, setIsBlockFormOpen ] = useState( false );
+	const [ isNewAppointmentOpen, setIsNewAppointmentOpen ] = useState( false );
 
 	useEffect( () => {
 		apiFetch( { path: `${ API_NAMESPACE }/staff` } )
@@ -134,7 +136,11 @@ export default function CalendarPage() {
 					) ) }
 				</div>
 
-				<Button variant="tertiary" onClick={ () => setIsBlockFormOpen( true ) }>
+				<Button variant="primary" icon={ plus } onClick={ () => setIsNewAppointmentOpen( true ) }>
+					{ __( 'Nueva cita', 'booking-plugin' ) }
+				</Button>
+
+				<Button variant="primary" isDestructive icon={ lock } onClick={ () => setIsBlockFormOpen( true ) }>
 					{ __( 'Bloquear horario', 'booking-plugin' ) }
 				</Button>
 			</div>
@@ -207,6 +213,13 @@ export default function CalendarPage() {
 					staff={ staff }
 					defaultDate={ referenceDate }
 					onClose={ () => setIsBlockFormOpen( false ) }
+					onSaved={ loadAppointments }
+				/>
+			) }
+
+			{ isNewAppointmentOpen && (
+				<NewAppointmentModal
+					onClose={ () => setIsNewAppointmentOpen( false ) }
 					onSaved={ loadAppointments }
 				/>
 			) }
