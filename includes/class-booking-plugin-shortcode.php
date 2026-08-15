@@ -63,6 +63,8 @@ class Booking_Plugin_Shortcode {
 			);
 		}
 
+		$settings = Booking_Plugin_Settings::get_settings();
+
 		wp_localize_script(
 			'booking-plugin-frontend',
 			'BookingPluginFrontend',
@@ -71,8 +73,22 @@ class Booking_Plugin_Shortcode {
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'timezone'    => wp_timezone_string(),
 				'currentUser' => $current_user,
+				'branding'    => $this->build_branding( $settings ),
 			)
 		);
+	}
+
+	protected function build_branding( array $settings ) {
+		$map = array(
+			'accent'      => $settings['widget_accent_color'],
+			'accentHover' => $settings['widget_accent_hover_color'],
+			'borderColor' => $settings['widget_border_color'],
+			'textMuted'   => $settings['widget_text_muted_color'],
+		);
+
+		return array_filter( $map, function ( $value ) {
+			return '' !== $value;
+		} );
 	}
 
 	public function render( $atts ) {

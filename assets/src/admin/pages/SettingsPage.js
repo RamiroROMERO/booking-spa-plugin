@@ -1,7 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { Button, TextControl, ToggleControl, Notice } from '@wordpress/components';
+import { Button, ColorPicker, TextControl, ToggleControl, Notice } from '@wordpress/components';
 
 import WeeklyScheduleEditor, {
 	scheduleRowsFromBusinessHours,
@@ -22,6 +22,18 @@ export default function SettingsPage() {
 	const [ paymentWindowHours, setPaymentWindowHours ] = useState( '2' );
 	const [ isWooCommerceActive, setIsWooCommerceActive ] = useState( false );
 	const [ autoRefundEnabled, setAutoRefundEnabled ] = useState( false );
+	const [ widgetAccentColor, setWidgetAccentColor ] = useState( '' );
+	const [ widgetAccentHoverColor, setWidgetAccentHoverColor ] = useState( '' );
+	const [ widgetBorderColor, setWidgetBorderColor ] = useState( '' );
+	const [ widgetTextMutedColor, setWidgetTextMutedColor ] = useState( '' );
+	// ColorPicker de @wordpress/components no reinicia su swatch interno
+	// cuando su prop `color` pasa a undefined (queda "sin controlar" con el
+	// ultimo valor que tuvo, ver useControlledValue): forzar un remount con
+	// `key` es la unica forma de que el picker refleje visualmente el reset.
+	const [ accentColorResetKey, setAccentColorResetKey ] = useState( 0 );
+	const [ accentHoverColorResetKey, setAccentHoverColorResetKey ] = useState( 0 );
+	const [ borderColorResetKey, setBorderColorResetKey ] = useState( 0 );
+	const [ textMutedColorResetKey, setTextMutedColorResetKey ] = useState( 0 );
 	const [ isSavingHours, setIsSavingHours ] = useState( false );
 	const [ isSavingSettings, setIsSavingSettings ] = useState( false );
 	const [ hoursError, setHoursError ] = useState( null );
@@ -44,6 +56,10 @@ export default function SettingsPage() {
 				setPaymentWindowHours( String( settings.payment_window_hours ) );
 				setIsWooCommerceActive( Boolean( settings.woocommerce_active ) );
 				setAutoRefundEnabled( Boolean( settings.auto_refund_enabled ) );
+				setWidgetAccentColor( settings.widget_accent_color || '' );
+				setWidgetAccentHoverColor( settings.widget_accent_hover_color || '' );
+				setWidgetBorderColor( settings.widget_border_color || '' );
+				setWidgetTextMutedColor( settings.widget_text_muted_color || '' );
 			} )
 			.catch( ( err ) => setLoadError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
@@ -83,6 +99,10 @@ export default function SettingsPage() {
 				notification_email: notificationEmail,
 				payment_window_hours: parseInt( paymentWindowHours, 10 ) || 2,
 				auto_refund_enabled: autoRefundEnabled,
+				widget_accent_color: widgetAccentColor,
+				widget_accent_hover_color: widgetAccentHoverColor,
+				widget_border_color: widgetBorderColor,
+				widget_text_muted_color: widgetTextMutedColor,
 			},
 		} )
 			.then( ( result ) => {
@@ -93,6 +113,10 @@ export default function SettingsPage() {
 				setNotificationEmail( result.notification_email || '' );
 				setPaymentWindowHours( String( result.payment_window_hours ) );
 				setAutoRefundEnabled( Boolean( result.auto_refund_enabled ) );
+				setWidgetAccentColor( result.widget_accent_color || '' );
+				setWidgetAccentHoverColor( result.widget_accent_hover_color || '' );
+				setWidgetBorderColor( result.widget_border_color || '' );
+				setWidgetTextMutedColor( result.widget_text_muted_color || '' );
 				setSettingsSaved( true );
 			} )
 			.catch( ( err ) => setSettingsError( getApiErrorMessage( err ) ) )
@@ -222,6 +246,79 @@ export default function SettingsPage() {
 						disabled={ ! isWooCommerceActive }
 						onChange={ setAutoRefundEnabled }
 					/>
+				</div>
+			</div>
+
+			<h2>{ __( 'Colores del widget', 'booking-plugin' ) }</h2>
+
+			<div className="booking-plugin-settings-form__colors">
+				<div className="booking-plugin-settings-form__color-field">
+					<p>{ __( 'Color principal', 'booking-plugin' ) }</p>
+					<ColorPicker
+						key={ `accent-${ accentColorResetKey }` }
+						color={ widgetAccentColor || undefined }
+						onChange={ setWidgetAccentColor }
+					/>
+					<Button
+						variant="secondary"
+						onClick={ () => {
+							setWidgetAccentColor( '' );
+							setAccentColorResetKey( ( key ) => key + 1 );
+						} }
+					>
+						{ __( 'Restablecer', 'booking-plugin' ) }
+					</Button>
+				</div>
+				<div className="booking-plugin-settings-form__color-field">
+					<p>{ __( 'Color hover', 'booking-plugin' ) }</p>
+					<ColorPicker
+						key={ `accent-hover-${ accentHoverColorResetKey }` }
+						color={ widgetAccentHoverColor || undefined }
+						onChange={ setWidgetAccentHoverColor }
+					/>
+					<Button
+						variant="secondary"
+						onClick={ () => {
+							setWidgetAccentHoverColor( '' );
+							setAccentHoverColorResetKey( ( key ) => key + 1 );
+						} }
+					>
+						{ __( 'Restablecer', 'booking-plugin' ) }
+					</Button>
+				</div>
+				<div className="booking-plugin-settings-form__color-field">
+					<p>{ __( 'Color de borde', 'booking-plugin' ) }</p>
+					<ColorPicker
+						key={ `border-${ borderColorResetKey }` }
+						color={ widgetBorderColor || undefined }
+						onChange={ setWidgetBorderColor }
+					/>
+					<Button
+						variant="secondary"
+						onClick={ () => {
+							setWidgetBorderColor( '' );
+							setBorderColorResetKey( ( key ) => key + 1 );
+						} }
+					>
+						{ __( 'Restablecer', 'booking-plugin' ) }
+					</Button>
+				</div>
+				<div className="booking-plugin-settings-form__color-field">
+					<p>{ __( 'Color de texto secundario', 'booking-plugin' ) }</p>
+					<ColorPicker
+						key={ `text-muted-${ textMutedColorResetKey }` }
+						color={ widgetTextMutedColor || undefined }
+						onChange={ setWidgetTextMutedColor }
+					/>
+					<Button
+						variant="secondary"
+						onClick={ () => {
+							setWidgetTextMutedColor( '' );
+							setTextMutedColorResetKey( ( key ) => key + 1 );
+						} }
+					>
+						{ __( 'Restablecer', 'booking-plugin' ) }
+					</Button>
 				</div>
 			</div>
 
