@@ -21,9 +21,31 @@ const STEP_LABELS = {
 	confirmation: __( 'Confirmación', 'booking-plugin' ),
 };
 
+const BRANDING_CSS_VARS = {
+	accent: '--booking-accent',
+	accentHover: '--booking-accent-hover',
+	borderColor: '--booking-border-color',
+	textMuted: '--booking-text-muted',
+};
+
+function brandingToStyle( branding ) {
+	const style = {};
+
+	Object.keys( branding || {} ).forEach( ( key ) => {
+		const cssVar = BRANDING_CSS_VARS[ key ];
+
+		if ( cssVar ) {
+			style[ cssVar ] = branding[ key ];
+		}
+	} );
+
+	return style;
+}
+
 export default function App() {
 	const settings = window.BookingPluginFrontend || {};
 	const currentUser = settings.currentUser || null;
+	const brandingStyle = brandingToStyle( settings.branding );
 
 	const [ step, setStep ] = useState( 'service' );
 	const [ timezone ] = useState( () => detectTimezone( settings.timezone ) );
@@ -168,7 +190,7 @@ export default function App() {
 	const canGoBack = 'service' !== step && 'success' !== step;
 
 	return (
-		<div className="booking-plugin-widget">
+		<div className="booking-plugin-widget" style={ brandingStyle }>
 			{ 'success' !== step && (
 				<div className="booking-plugin-widget__steps">
 					{ STEP_ORDER.map( ( item, index ) => (

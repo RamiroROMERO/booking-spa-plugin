@@ -609,6 +609,20 @@
 	&__submit {
 		margin-top: 12px;
 	}
+
+	&__colors {
+		display: grid;
+		grid-template-columns: repeat( auto-fit, minmax( 220px, 1fr ) );
+		gap: 16px;
+		margin-bottom: 16px;
+	}
+
+	&__color-field {
+		p {
+			font-weight: 600;
+			margin: 0 0 8px;
+		}
+	}
 }
 
 .booking-plugin-service-image-picker {

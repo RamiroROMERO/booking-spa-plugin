@@ -12,6 +12,27 @@ const TABS = [
 	{ id: 'history', label: __( 'Historial', 'booking-plugin' ) },
 ];
 
+const BRANDING_CSS_VARS = {
+	accent: '--booking-accent',
+	accentHover: '--booking-accent-hover',
+	borderColor: '--booking-border-color',
+	textMuted: '--booking-text-muted',
+};
+
+function brandingToStyle( branding ) {
+	const style = {};
+
+	Object.keys( branding || {} ).forEach( ( key ) => {
+		const cssVar = BRANDING_CSS_VARS[ key ];
+
+		if ( cssVar ) {
+			style[ cssVar ] = branding[ key ];
+		}
+	} );
+
+	return style;
+}
+
 // Una cita es "proxima" solo si ademas de tener un status activo todavia no
 // paso su hora de inicio; el resto (pasadas, o con status
 // completed/no_show/cancelled aunque fueran futuras) cae en "Historial" --
@@ -110,12 +131,13 @@ function MyAppointmentsList( { timezone, minCancellationHours } ) {
 export default function ClientPanelApp() {
 	const settings = window.BookingPluginFrontend || {};
 	const [ timezone ] = useState( () => detectTimezone( settings.timezone ) );
+	const brandingStyle = brandingToStyle( settings.branding );
 
 	if ( 'guest' === settings.mode ) {
 		const guestContext = settings.guestContext || {};
 
 		return (
-			<div className="booking-plugin-client-panel">
+			<div className="booking-plugin-client-panel" style={ brandingStyle }>
 				<GuestAppointmentView
 					appointmentId={ guestContext.appointmentId }
 					token={ guestContext.token }
@@ -127,7 +149,7 @@ export default function ClientPanelApp() {
 	}
 
 	return (
-		<div className="booking-plugin-client-panel">
+		<div className="booking-plugin-client-panel" style={ brandingStyle }>
 			<h3>{ __( 'Tus citas', 'booking-plugin' ) }</h3>
 			<MyAppointmentsList timezone={ timezone } minCancellationHours={ settings.minCancellationHours } />
 		</div>

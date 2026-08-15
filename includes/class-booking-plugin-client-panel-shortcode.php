@@ -89,8 +89,22 @@ class Booking_Plugin_Client_Panel_Shortcode {
 				'mode'                 => $mode,
 				'guestContext'         => $guest_context,
 				'minCancellationHours' => (int) $settings['min_cancellation_hours'],
+				'branding'             => $this->build_branding( $settings ),
 			)
 		);
+	}
+
+	protected function build_branding( array $settings ) {
+		$map = array(
+			'accent'      => $settings['widget_accent_color'],
+			'accentHover' => $settings['widget_accent_hover_color'],
+			'borderColor' => $settings['widget_border_color'],
+			'textMuted'   => $settings['widget_text_muted_color'],
+		);
+
+		return array_filter( $map, function ( $value ) {
+			return '' !== $value;
+		} );
 	}
 
 	public function render( $atts ) {
