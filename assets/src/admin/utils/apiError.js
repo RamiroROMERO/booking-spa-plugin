@@ -51,6 +51,15 @@ const MESSAGES_BY_CODE = {
 	),
 	booking_rest_forbidden: __( 'No tienes permiso para realizar esta acción.', 'booking-plugin' ),
 	booking_rest_not_found: __( 'El registro no fue encontrado.', 'booking-plugin' ),
+	booking_rest_invalid_google_credentials: __(
+		'El Client ID y el Client Secret son obligatorios.',
+		'booking-plugin'
+	),
+	booking_rest_google_missing_credentials: __(
+		'Guardá el Client ID y el Client Secret antes de conectar la cuenta.',
+		'booking-plugin'
+	),
+	booking_rest_invalid_calendar: __( 'Elegí un calendario para continuar.', 'booking-plugin' ),
 };
 
 export function getApiErrorMessage( error ) {

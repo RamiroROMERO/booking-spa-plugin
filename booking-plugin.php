@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'BOOKING_PLUGIN_VERSION', '0.1.0' );
 define( 'BOOKING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BOOKING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'BOOKING_PLUGIN_DB_VERSION', '1.10.0' );
+define( 'BOOKING_PLUGIN_DB_VERSION', '1.11.0' );
 
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-db-schema.php';
@@ -36,6 +36,8 @@ require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-settings.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-woocommerce.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-payroll.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-availability.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-google-calendar.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-google-calendar-sync.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-settings-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-business-hours-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-availability-controller.php';
@@ -44,13 +46,16 @@ require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-email-templa
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-packages-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-user-credits-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-payroll-controller.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/rest/class-booking-rest-google-calendar-controller.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-rest.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-notifications.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-reminder-cron.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-payment-sweep-cron.php';
+require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-google-calendar-sync-cron.php';
 
 add_filter( 'cron_schedules', array( 'Booking_Plugin_Reminder_Cron', 'register_schedule' ) );
 add_filter( 'cron_schedules', array( 'Booking_Plugin_Payment_Sweep_Cron', 'register_schedule' ) );
+add_filter( 'cron_schedules', array( 'Booking_Plugin_Google_Calendar_Sync_Cron', 'register_schedule' ) );
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-admin.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-shortcode.php';
 require_once BOOKING_PLUGIN_DIR . 'includes/class-booking-plugin-client-panel-shortcode.php';
