@@ -681,6 +681,12 @@
 			margin: 0 0 8px;
 		}
 	}
+
+	&__actions {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 16px;
+	}
 }
 
 .booking-plugin-service-image-picker {

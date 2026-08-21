@@ -368,6 +368,8 @@ class Booking_Rest_Appointments_Controller {
 
 				do_action( 'booking_plugin_appointment_created', $row );
 
+				Booking_Plugin_Google_Calendar_Sync::sync_appointment( $row );
+
 				$response_data = array(
 					'id'             => (int) $row->id,
 					'status'         => $row->status,
@@ -613,6 +615,8 @@ class Booking_Rest_Appointments_Controller {
 
 		$row = $this->get_row( $new_id );
 
+		Booking_Plugin_Google_Calendar_Sync::sync_appointment( $row );
+
 		$response = rest_ensure_response( $this->prepare_item( $row ) );
 		$response->set_status( 201 );
 
@@ -765,6 +769,8 @@ class Booking_Rest_Appointments_Controller {
 		}
 
 		$row = $this->get_row( (int) $row->id );
+
+		Booking_Plugin_Google_Calendar_Sync::sync_appointment( $row );
 
 		if ( 'cancelled' === $row->status && ! in_array( $previous_status, array( 'cancelled', 'blocked' ), true ) ) {
 			$this->maybe_refund_credit( $row );

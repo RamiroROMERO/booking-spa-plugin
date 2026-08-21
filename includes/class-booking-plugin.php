@@ -23,6 +23,9 @@ class Booking_Plugin {
 		$payment_sweep_cron = new Booking_Plugin_Payment_Sweep_Cron();
 		$payment_sweep_cron->register();
 
+		$google_calendar_sync_cron = new Booking_Plugin_Google_Calendar_Sync_Cron();
+		$google_calendar_sync_cron->register();
+
 		$woocommerce = new Booking_Plugin_WooCommerce();
 		$woocommerce->register_hooks();
 

@@ -18,5 +18,6 @@ class Booking_Plugin_Activator {
 
 		Booking_Plugin_Reminder_Cron::schedule();
 		Booking_Plugin_Payment_Sweep_Cron::schedule();
+		Booking_Plugin_Google_Calendar_Sync_Cron::schedule();
 	}
 }

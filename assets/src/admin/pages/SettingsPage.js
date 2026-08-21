@@ -1,7 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
-import { Button, ColorPicker, TextControl, ToggleControl, Notice } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, ColorPicker, TextControl, ToggleControl, SelectControl, Notice } from '@wordpress/components';
 
 import WeeklyScheduleEditor, {
 	scheduleRowsFromBusinessHours,
@@ -41,12 +41,41 @@ export default function SettingsPage() {
 	const [ settingsError, setSettingsError ] = useState( null );
 	const [ settingsSaved, setSettingsSaved ] = useState( false );
 
+	const [ gcalStatus, setGcalStatus ] = useState( 'disconnected' );
+	const [ gcalAccountEmail, setGcalAccountEmail ] = useState( '' );
+	const [ gcalCalendarId, setGcalCalendarId ] = useState( '' );
+	const [ gcalCalendarSummary, setGcalCalendarSummary ] = useState( '' );
+	const [ gcalLastError, setGcalLastError ] = useState( '' );
+	const [ gcalClientId, setGcalClientId ] = useState( '' );
+	const [ gcalClientSecret, setGcalClientSecret ] = useState( '' );
+	const [ gcalHasClientSecret, setGcalHasClientSecret ] = useState( false );
+	const [ gcalCalendars, setGcalCalendars ] = useState( null );
+	const [ gcalSelectedCalendarId, setGcalSelectedCalendarId ] = useState( '' );
+	const [ isSavingGcalCredentials, setIsSavingGcalCredentials ] = useState( false );
+	const [ isConnectingGcal, setIsConnectingGcal ] = useState( false );
+	const [ isLoadingGcalCalendars, setIsLoadingGcalCalendars ] = useState( false );
+	const [ isSavingGcalCalendar, setIsSavingGcalCalendar ] = useState( false );
+	const [ isDisconnectingGcal, setIsDisconnectingGcal ] = useState( false );
+	const [ gcalError, setGcalError ] = useState( null );
+	const [ gcalCredentialsSaved, setGcalCredentialsSaved ] = useState( false );
+
+	const applyGcalSettings = ( settings ) => {
+		setGcalStatus( settings.status );
+		setGcalAccountEmail( settings.account_email || '' );
+		setGcalCalendarId( settings.calendar_id || '' );
+		setGcalCalendarSummary( settings.calendar_summary || '' );
+		setGcalLastError( settings.last_error || '' );
+		setGcalClientId( settings.client_id || '' );
+		setGcalHasClientSecret( Boolean( settings.has_client_secret ) );
+	};
+
 	useEffect( () => {
 		Promise.all( [
 			apiFetch( { path: `${ API_NAMESPACE }/business-hours` } ),
 			apiFetch( { path: `${ API_NAMESPACE }/settings` } ),
+			apiFetch( { path: `${ API_NAMESPACE }/google-calendar` } ),
 		] )
-			.then( ( [ businessHours, settings ] ) => {
+			.then( ( [ businessHours, settings, googleCalendar ] ) => {
 				setScheduleRows( scheduleRowsFromBusinessHours( businessHours.days ) );
 				setMinLeadTimeHours( String( settings.min_lead_time_hours ) );
 				setMaxAdvanceDays( String( settings.max_advance_days ) );
@@ -60,10 +89,104 @@ export default function SettingsPage() {
 				setWidgetAccentHoverColor( settings.widget_accent_hover_color || '' );
 				setWidgetBorderColor( settings.widget_border_color || '' );
 				setWidgetTextMutedColor( settings.widget_text_muted_color || '' );
+				applyGcalSettings( googleCalendar );
 			} )
 			.catch( ( err ) => setLoadError( getApiErrorMessage( err ) ) )
 			.finally( () => setIsLoading( false ) );
 	}, [] );
+
+	// Tras volver del oauth-callback (Paso 6), la cuenta ya esta "connected"
+	// pero todavia sin calendar_id: cargar la lista automaticamente para que
+	// el admin no tenga que pedirla a mano.
+	useEffect( () => {
+		if ( 'connected' === gcalStatus && ! gcalCalendarId && null === gcalCalendars ) {
+			handleLoadGcalCalendars();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ gcalStatus, gcalCalendarId ] );
+
+	const handleSaveGcalCredentials = () => {
+		setIsSavingGcalCredentials( true );
+		setGcalError( null );
+		setGcalCredentialsSaved( false );
+
+		apiFetch( {
+			path: `${ API_NAMESPACE }/google-calendar/credentials`,
+			method: 'POST',
+			data: { client_id: gcalClientId, client_secret: gcalClientSecret },
+		} )
+			.then( ( result ) => {
+				applyGcalSettings( result );
+				setGcalClientSecret( '' );
+				setGcalCredentialsSaved( true );
+			} )
+			.catch( ( err ) => setGcalError( getApiErrorMessage( err ) ) )
+			.finally( () => setIsSavingGcalCredentials( false ) );
+	};
+
+	const handleConnectGcal = () => {
+		setIsConnectingGcal( true );
+		setGcalError( null );
+
+		apiFetch( { path: `${ API_NAMESPACE }/google-calendar/auth-url` } )
+			.then( ( result ) => {
+				window.location.href = result.auth_url;
+			} )
+			.catch( ( err ) => {
+				setGcalError( getApiErrorMessage( err ) );
+				setIsConnectingGcal( false );
+			} );
+	};
+
+	const handleLoadGcalCalendars = () => {
+		setIsLoadingGcalCalendars( true );
+		setGcalError( null );
+
+		apiFetch( { path: `${ API_NAMESPACE }/google-calendar/calendars` } )
+			.then( ( calendars ) => {
+				setGcalCalendars( calendars );
+
+				const primary = calendars.find( ( calendar ) => calendar.primary );
+				setGcalSelectedCalendarId( ( calendars[ 0 ] && ( primary || calendars[ 0 ] ).id ) || '' );
+			} )
+			.catch( ( err ) => setGcalError( getApiErrorMessage( err ) ) )
+			.finally( () => setIsLoadingGcalCalendars( false ) );
+	};
+
+	const handleSaveGcalCalendar = () => {
+		const selected = ( gcalCalendars || [] ).find( ( calendar ) => calendar.id === gcalSelectedCalendarId );
+
+		setIsSavingGcalCalendar( true );
+		setGcalError( null );
+
+		apiFetch( {
+			path: `${ API_NAMESPACE }/google-calendar/calendar`,
+			method: 'POST',
+			data: {
+				calendar_id: gcalSelectedCalendarId,
+				calendar_summary: selected ? selected.summary : '',
+			},
+		} )
+			.then( ( result ) => {
+				applyGcalSettings( result );
+				setGcalCalendars( null );
+			} )
+			.catch( ( err ) => setGcalError( getApiErrorMessage( err ) ) )
+			.finally( () => setIsSavingGcalCalendar( false ) );
+	};
+
+	const handleDisconnectGcal = () => {
+		setIsDisconnectingGcal( true );
+		setGcalError( null );
+
+		apiFetch( { path: `${ API_NAMESPACE }/google-calendar/disconnect`, method: 'POST' } )
+			.then( ( result ) => {
+				applyGcalSettings( result );
+				setGcalCalendars( null );
+			} )
+			.catch( ( err ) => setGcalError( getApiErrorMessage( err ) ) )
+			.finally( () => setIsDisconnectingGcal( false ) );
+	};
 
 	const handleSaveHours = () => {
 		setIsSavingHours( true );
@@ -338,6 +461,125 @@ export default function SettingsPage() {
 							'booking-plugin'
 					  ) }
 			</Notice>
+
+			<hr />
+
+			<h2>{ __( 'Google Calendar', 'booking-plugin' ) }</h2>
+
+			{ gcalError && (
+				<Notice status="error" isDismissible={ false } onRemove={ () => setGcalError( null ) }>
+					{ gcalError }
+				</Notice>
+			) }
+			{ gcalCredentialsSaved && (
+				<Notice status="success" isDismissible onRemove={ () => setGcalCredentialsSaved( false ) }>
+					{ __( 'Client ID y Client Secret guardados.', 'booking-plugin' ) }
+				</Notice>
+			) }
+			{ 'error' === gcalStatus && (
+				<Notice status="error" isDismissible={ false }>
+					{ __( 'Reconectar cuenta de Google', 'booking-plugin' ) }
+					{ gcalLastError ? ` — ${ gcalLastError }` : '' }
+				</Notice>
+			) }
+
+			<div className="booking-plugin-settings-form">
+				<div className="booking-plugin-settings-form__row">
+					<TextControl
+						label={ __( 'Client ID', 'booking-plugin' ) }
+						value={ gcalClientId }
+						onChange={ setGcalClientId }
+					/>
+					<TextControl
+						label={ __( 'Client Secret', 'booking-plugin' ) }
+						type="password"
+						value={ gcalClientSecret }
+						onChange={ setGcalClientSecret }
+						placeholder={
+							gcalHasClientSecret ? __( '•••••••• (ya guardado)', 'booking-plugin' ) : ''
+						}
+					/>
+				</div>
+			</div>
+
+			<div className="booking-plugin-settings-form__actions">
+				<Button
+					variant="secondary"
+					disabled={ isSavingGcalCredentials || ! gcalClientId || ! gcalClientSecret }
+					onClick={ handleSaveGcalCredentials }
+				>
+					{ __( 'Guardar credenciales', 'booking-plugin' ) }
+				</Button>
+
+				{ 'connected' !== gcalStatus && (
+					<Button
+						variant="primary"
+						disabled={ isConnectingGcal || ! gcalClientId || ! gcalHasClientSecret }
+						onClick={ handleConnectGcal }
+					>
+						{ 'error' === gcalStatus
+							? __( 'Reconectar cuenta de Google', 'booking-plugin' )
+							: __( 'Conectar cuenta de Google', 'booking-plugin' ) }
+					</Button>
+				) }
+			</div>
+
+			{ 'connected' === gcalStatus && ! gcalCalendarId && (
+				<div className="booking-plugin-settings-form">
+					<p>
+						{ __(
+							'Cuenta conectada. Elegí a cuál de sus calendarios se sincronizan las citas.',
+							'booking-plugin'
+						) }
+					</p>
+
+					{ isLoadingGcalCalendars && <p>{ __( 'Cargando calendarios…', 'booking-plugin' ) }</p> }
+
+					{ ! isLoadingGcalCalendars && gcalCalendars && gcalCalendars.length > 0 && (
+						<>
+							<SelectControl
+								label={ __( 'Calendario', 'booking-plugin' ) }
+								value={ gcalSelectedCalendarId }
+								options={ gcalCalendars.map( ( calendar ) => ( {
+									label: calendar.primary
+										? `${ calendar.summary } (${ __( 'principal', 'booking-plugin' ) })`
+										: calendar.summary,
+									value: calendar.id,
+								} ) ) }
+								onChange={ setGcalSelectedCalendarId }
+							/>
+							<Button
+								variant="primary"
+								disabled={ isSavingGcalCalendar || ! gcalSelectedCalendarId }
+								onClick={ handleSaveGcalCalendar }
+							>
+								{ __( 'Guardar calendario', 'booking-plugin' ) }
+							</Button>
+						</>
+					) }
+				</div>
+			) }
+
+			{ 'connected' === gcalStatus && gcalCalendarId && (
+				<div className="booking-plugin-settings-form">
+					<p>
+						{ sprintf(
+							/* translators: 1: Google account email, 2: connected calendar name */
+							__( 'Cuenta activa: %1$s — Calendario: %2$s', 'booking-plugin' ),
+							gcalAccountEmail,
+							gcalCalendarSummary
+						) }
+					</p>
+					<Button
+						variant="secondary"
+						isDestructive
+						disabled={ isDisconnectingGcal }
+						onClick={ handleDisconnectGcal }
+					>
+						{ __( 'Desconectar', 'booking-plugin' ) }
+					</Button>
+				</div>
+			) }
 		</div>
 	);
 }
